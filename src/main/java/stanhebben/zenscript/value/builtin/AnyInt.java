@@ -15,70 +15,70 @@ import stanhebben.zenscript.value.IntRange;
  *
  * @author Stanneke
  */
-public class AnyByte implements IAny {
-	public static AnyByte valueOf(byte value) {
-		return new AnyByte(value);
+public class AnyInt implements IAny {
+	public static AnyInt valueOf(byte value) {
+		return new AnyInt(value);
 	}
 	
-	private final byte value;
+	private final int value;
 	
-	public AnyByte(byte value) {
+	public AnyInt(int value) {
 		this.value = value;
 	}
 
 	@Override
 	public IAny not() {
-		return new AnyByte((byte) ~value);
+		return new AnyInt(~value);
 	}
 
 	@Override
 	public IAny neg() {
-		return new AnyByte((byte) -value);
+		return new AnyInt(-value);
 	}
 
 	@Override
 	public IAny add(IAny value) {
-		return new AnyByte((byte) (this.value + value.asByte()));
+		return new AnyInt(this.value + value.asInt());
 	}
 
 	@Override
 	public IAny sub(IAny value) {
-		return new AnyByte((byte) (this.value - value.asByte()));
+		return new AnyInt(this.value - value.asInt());
 	}
 
 	@Override
 	public IAny cat(IAny value) {
-		return new AnyString(Byte.toString(this.value) + value.asString());
+		return new AnyString(Integer.toString(this.value) + value.asString());
 	}
 
 	@Override
 	public IAny mul(IAny value) {
-		return new AnyByte((byte) (this.value * value.asByte()));
+		return new AnyInt(this.value * value.asByte());
 	}
 
 	@Override
 	public IAny div(IAny value) {
-		return new AnyByte((byte) (this.value / value.asByte()));
+		return new AnyInt(this.value / value.asByte());
 	}
 
 	@Override
 	public IAny mod(IAny value) {
-		return new AnyByte((byte) (this.value % value.asByte()));
+		return new AnyInt(this.value % value.asByte());
 	}
 
 	@Override
 	public IAny and(IAny value) {
-		return new AnyByte((byte) (this.value & value.asByte()));
+		return new AnyInt(this.value & value.asByte());
 	}
 
 	@Override
 	public IAny or(IAny value) {
-		return new AnyByte((byte) (this.value | value.asByte()));
+		return new AnyInt(this.value | value.asByte());
 	}
 
 	@Override
 	public IAny xor(IAny value) {
-		return new AnyByte((byte) (this.value ^ value.asByte()));
+		return new AnyInt(this.value ^ value.asByte());
 	}
 
 	@Override
@@ -93,46 +93,46 @@ public class AnyByte implements IAny {
 
 	@Override
 	public boolean contains(IAny value) {
-		throw new ZenRuntimeException("byte has no in operator");
+		throw new ZenRuntimeException("int has no in operator");
 	}
 
 	@Override
 	public IAny member(String value) {
 		if (value.equals("abs")) {
-			return new AnyByte((byte) (Math.abs(this.value)));
+			return new AnyInt(Math.abs(this.value));
 		} else {
-			throw new ZenRuntimeException("no such member in byte: " + value);
+			throw new ZenRuntimeException("no such member in int: " + value);
 		}
 	}
 
 	@Override
 	public IAny indexGet(IAny key) {
-		throw new ZenRuntimeException("cannot index a byte value");
+		throw new ZenRuntimeException("cannot index an int value");
 	}
 
 	@Override
 	public void indexSet(IAny key, IAny value) {
-		throw new ZenRuntimeException("cannot index a byte value");
+		throw new ZenRuntimeException("cannot index an int value");
 	}
 
 	@Override
 	public IAny call(IAny... values) {
-		throw new ZenRuntimeException("cannot call a byte value");
+		throw new ZenRuntimeException("cannot call an int value");
 	}
 
 	@Override
 	public boolean asBool() {
-		throw new ZenRuntimeException("cannot convert a byte to a bool");
+		throw new ZenRuntimeException("cannot convert an int to a bool");
 	}
 
 	@Override
 	public byte asByte() {
-		return value;
+		return (byte) value;
 	}
 
 	@Override
 	public short asShort() {
-		return value;
+		return (short) value;
 	}
 
 	@Override
@@ -157,7 +157,7 @@ public class AnyByte implements IAny {
 
 	@Override
 	public String asString() {
-		return Byte.toString(value);
+		return Integer.toString(value);
 	}
 
 	@Override

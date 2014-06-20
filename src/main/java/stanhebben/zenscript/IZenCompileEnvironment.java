@@ -4,13 +4,14 @@
  * and open the template in the editor.
  */
 
-package stanhebben.zenscript.symbols;
+package stanhebben.zenscript;
 
 import java.util.List;
 import stanhebben.zenscript.IZenErrorLogger;
 import stanhebben.zenscript.TypeExpansion;
 import stanhebben.zenscript.compiler.TypeRegistry;
 import stanhebben.zenscript.parser.Token;
+import stanhebben.zenscript.symbols.IZenSymbol;
 
 /**
  *

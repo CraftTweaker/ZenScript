@@ -9,10 +9,9 @@ package stanhebben.zenscript.compiler;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import org.objectweb.asm.ClassVisitor;
+import stanhebben.zenscript.IZenCompileEnvironment;
 import stanhebben.zenscript.TypeExpansion;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
-import stanhebben.zenscript.IZenCompileEnvironment;
 import stanhebben.zenscript.symbols.IZenSymbol;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.ZenPosition;
@@ -21,73 +20,66 @@ import stanhebben.zenscript.util.ZenPosition;
  *
  * @author Stan
  */
-public class EnvironmentClass implements IEnvironmentClass {
-	private final ClassVisitor output;
-	private final IEnvironmentGlobal global;
-	private final Map<String, IZenSymbol> local;
+public class EnvironmentScript implements IEnvironmentGlobal {
+	private final IEnvironmentGlobal parent;
+	private final Map<String, IZenSymbol> imports;
 	
-	public EnvironmentClass(ClassVisitor output, IEnvironmentGlobal global) {
-		this.output = output;
-		this.global = global;
-		this.local = new HashMap<String, IZenSymbol>();
-	}
-
-	@Override
-	public ClassVisitor getClassOutput() {
-		return output;
-	}
-
-	@Override
-	public ZenType getType(Type type) {
-		return global.getType(type);
+	public EnvironmentScript(IEnvironmentGlobal parent) {
+		this.parent = parent;
+		imports = new HashMap<String, IZenSymbol>();
 	}
 
 	@Override
 	public IZenCompileEnvironment getEnvironment() {
-		return global.getEnvironment();
+		return parent.getEnvironment();
 	}
 
 	@Override
 	public TypeExpansion getExpansion(String name) {
-		return global.getExpansion(name);
+		return parent.getExpansion(name);
 	}
 
 	@Override
 	public String makeClassName() {
-		return global.makeClassName();
+		return parent.makeClassName();
 	}
 
 	@Override
 	public boolean containsClass(String name) {
-		return global.containsClass(name);
+		return parent.containsClass(name);
 	}
 
 	@Override
 	public void putClass(String name, byte[] data) {
-		global.putClass(name, data);
+		parent.putClass(name, data);
 	}
 
 	@Override
 	public IPartialExpression getValue(String name, ZenPosition position) {
-		if (local.containsKey(name)) {
-			return local.get(name).instance(position);
+		if (imports.containsKey(name)) {
+			return imports.get(name).instance(position);
 		} else {
-			return global.getValue(name, position);
+			return parent.getValue(name, position);
 		}
 	}
 
 	@Override
 	public void putValue(String name, IZenSymbol value) {
-		local.put(name, value);
+		imports.put(name, value);
+	}
+
+	@Override
+	public ZenType getType(Type type) {
+		return parent.getType(type);
 	}
 
 	@Override
 	public void error(ZenPosition position, String message) {
-		global.error(position, message);
+		parent.error(position, message);
 	}
 
 	@Override
 	public void warning(ZenPosition position, String message) {
-		global.warning(position, message);
+		parent.warning(position, message);
 	}
 }
