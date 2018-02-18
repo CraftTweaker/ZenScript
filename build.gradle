@@ -1,9 +1,34 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+version = "1.0.0"
+
+if(project.hasProperty("craftTweakerVersion")){
 version = ext.craftTweakerVersion
+}
+
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
+
+
+//Shuts up javadoc failures
+if (JavaVersion.current().isJava8Compatible()) {
+
+    allprojects {
+
+        tasks.withType(Javadoc) {
+
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+repositories {
+    mavenCentral()
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+}
 
 dependencies {
     compile 'org.ow2.asm:asm-debug-all:6.0_BETA'
