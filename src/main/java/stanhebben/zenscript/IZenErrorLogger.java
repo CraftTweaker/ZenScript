@@ -8,7 +8,7 @@ import stanhebben.zenscript.util.ZenPosition;
  *
  * @author Stan Hebben
  */
-public interface IZenErrorLogger {
+public interface IZenErrorLogger extends IZenLogger {
     
     /**
      * Called when an error is detected during compilation.

@@ -1,5 +1,6 @@
 package stanhebben.zenscript.compiler;
 
+import jdk.internal.dynalink.support.BottomGuardingDynamicLinker;
 import org.objectweb.asm.ClassVisitor;
 import stanhebben.zenscript.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
@@ -101,5 +102,25 @@ public class EnvironmentClass implements IEnvironmentClass {
     @Override
     public byte[] getClass(String name) {
         return global.getClass(name);
+    }
+    
+    @Override
+    public void error(String message) {
+        global.error(message);
+    }
+    
+    @Override
+    public void error(String message, Throwable e) {
+        global.error(message, e);
+    }
+    
+    @Override
+    public void warning(String message) {
+        global.warning(message);
+    }
+    
+    @Override
+    public void info(String message) {
+        global.info(message);
     }
 }

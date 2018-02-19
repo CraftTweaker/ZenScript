@@ -117,4 +117,24 @@ public class EnvironmentMethod implements IEnvironmentMethod {
     public byte[] getClass(String name) {
         return environment.getClass(name);
     }
+    
+    @Override
+    public void error(String message) {
+        environment.error(message);
+    }
+    
+    @Override
+    public void error(String message, Throwable e) {
+        environment.error(message, e);
+    }
+    
+    @Override
+    public void warning(String message) {
+        environment.warning(message);
+    }
+    
+    @Override
+    public void info(String message) {
+        environment.info(message);
+    }
 }

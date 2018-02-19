@@ -100,4 +100,24 @@ public class EnvironmentScript implements IEnvironmentGlobal {
     public byte[] getClass(String name) {
         return parent.getClass(name);
     }
+    
+    @Override
+    public void error(String message) {
+        parent.error(message);
+    }
+    
+    @Override
+    public void error(String message, Throwable e) {
+        parent.error(message, e);
+    }
+    
+    @Override
+    public void warning(String message) {
+        parent.warning(message);
+    }
+    
+    @Override
+    public void info(String message) {
+        parent.info(message);
+    }
 }

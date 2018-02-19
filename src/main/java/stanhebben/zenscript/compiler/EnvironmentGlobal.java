@@ -107,4 +107,24 @@ public class EnvironmentGlobal implements IEnvironmentGlobal {
     public byte[] getClass(String name) {
         return classes.get(name);
     }
+    
+    @Override
+    public void error(String message) {
+        errors.error(message);
+    }
+    
+    @Override
+    public void error(String message, Throwable e) {
+        errors.error(message, e);
+    }
+    
+    @Override
+    public void warning(String message) {
+        errors.warning(message);
+    }
+    
+    @Override
+    public void info(String message) {
+        errors.info(message);
+    }
 }

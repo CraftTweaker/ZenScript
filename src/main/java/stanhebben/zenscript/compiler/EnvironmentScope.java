@@ -116,4 +116,24 @@ public class EnvironmentScope implements IEnvironmentMethod {
     public byte[] getClass(String name) {
         return outer.getClass(name);
     }
+    
+    @Override
+    public void error(String message) {
+        outer.error(message);
+    }
+    
+    @Override
+    public void error(String message, Throwable e) {
+        outer.error(message, e);
+    }
+    
+    @Override
+    public void warning(String message) {
+        outer.warning(message);
+    }
+    
+    @Override
+    public void info(String message) {
+        outer.info(message);
+    }
 }
