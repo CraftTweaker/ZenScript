@@ -20,4 +20,6 @@ public interface IZenCompileEnvironment {
     TypeRegistry getTypeRegistry();
     
     TypeExpansion getExpansion(String type);
+    
+    void setRegistry(IZenRegistry  registry);
 }
