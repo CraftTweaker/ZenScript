@@ -111,6 +111,7 @@ public class ZenTypeNative extends ZenType {
         
         //TODO check this
         for(Method method : cls.getMethods()) {
+            
             boolean isMethod = fully;
             String methodName = method.getName();
             
@@ -169,6 +170,7 @@ public class ZenTypeNative extends ZenType {
                         case RANGE:
                         case CONTAINS:
                         case COMPARE:
+                        case EQUALS:
                             if(method.getParameterTypes().length != 1) {
                                 // TODO: error
                             } else {
@@ -486,6 +488,10 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, unaryOperator.getMethod(), value);
             }
         }
+    
+        for(ZenTypeNative parent : implementing)
+            if (parent.hasTernary(this, operator))
+                return parent.unary(position, environment, value, operator);
         
         environment.error(position, "operator not supported");
         return new ExpressionInvalid(position);
@@ -499,6 +505,11 @@ public class ZenTypeNative extends ZenType {
             }
         }
         
+        for(ZenTypeNative parent : implementing)
+            if(parent.hasBinary(right.getType(), operator))
+                return parent.binary(position, environment, left, right, operator);
+        
+        
         environment.error(position, "operator not supported");
         return new ExpressionInvalid(position);
     }
@@ -510,6 +521,10 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, trinaryOperator.getMethod(), first, second, third);
             }
         }
+    
+        for(ZenTypeNative parent : implementing)
+            if (parent.hasTernary(third.getType(), operator))
+                return parent.trinary(position, environment, first, second, third, operator);
         
         environment.error(position, "operator not supported");
         return new ExpressionInvalid(position);
@@ -546,11 +561,39 @@ public class ZenTypeNative extends ZenType {
     }
     
     private boolean hasBinary(ZenType type, OperatorType operator) {
-        for(ZenNativeOperator binaryOperator : binaryOperators) {
-            if(binaryOperator.getOperator() == operator) {
+        for(ZenNativeOperator binaryOperator : binaryOperators)
+            if(binaryOperator.getOperator() == operator)
                 return true;
-            }
-        }
+        
+        
+        for(ZenTypeNative parent : implementing)
+            if(parent.hasBinary(type, operator))
+                return true;
+        
+        return false;
+    }
+    
+    private boolean hasTernary(ZenType type, OperatorType operator) {
+        for(ZenNativeOperator ternaryOperator : trinaryOperators)
+            if(ternaryOperator.getOperator() == operator)
+                return true;
+        
+        
+        for(ZenTypeNative parent : implementing)
+            if(parent.hasTernary(type, operator))
+                return true;
+        
+        return false;
+    }
+    
+    private boolean hasUnary(ZenType type, OperatorType operator) {
+        for(ZenNativeOperator unaryOperator : unaryOperators)
+            if(unaryOperator.getOperator() == operator)
+                return true;
+        
+        for(ZenTypeNative parent : implementing)
+            if(parent.hasUnary(type, operator))
+                return true;
         
         return false;
     }
