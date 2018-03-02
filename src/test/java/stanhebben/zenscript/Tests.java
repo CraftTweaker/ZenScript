@@ -25,6 +25,12 @@ public class Tests {
         registry.registerGlobal("print", registry.getStaticFunction(Tests.class, "print", String.class));
     }
     
+    @BeforeEach
+    public void clearPrints() {
+        System.out.println("Clearing");
+        prints.clear();
+    }
+    
     @Test
     public void testCompile() {
         try {
@@ -32,8 +38,6 @@ public class Tests {
             Runnable runnable = module.getMain();
             if(runnable != null)
                 runnable.run();
-            
-            
         } catch(Throwable ex) {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
@@ -51,9 +55,7 @@ public class Tests {
         } catch(Throwable ex) {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
-        
         assertEquals("5", prints.get(0));
-        prints.clear();
     }
     
     
@@ -72,7 +74,6 @@ public class Tests {
         for(int i = 0; i < 20; i++) {
             assertEquals(i, Integer.parseInt(prints.get(i)));
         }
-        prints.clear();
     }
     
     @Test
@@ -89,8 +90,6 @@ public class Tests {
         }
         assertEquals("Hello", prints.get(0));
         assertEquals("World", prints.get(1));
-        
-        prints.clear();
     }
     
     @Test
@@ -111,8 +110,6 @@ public class Tests {
         assertEquals("World", prints.get(3));
         assertEquals("I", prints.get(4));
         assertEquals("am", prints.get(5));
-        
-        prints.clear();
     }
     
     @Test
@@ -129,8 +126,6 @@ public class Tests {
         }
         assertEquals("hello", prints.get(0));
         assertEquals("world", prints.get(1));
-        
-        prints.clear();
     }
     
     @Test
@@ -147,8 +142,6 @@ public class Tests {
         }
         assertEquals("1", prints.get(0));
         assertEquals("2", prints.get(1));
-        
-        prints.clear();
     }
     
     @Test
@@ -165,8 +158,6 @@ public class Tests {
         }
         assertEquals("Hello World", prints.get(0));
         assertEquals("Used a calculation!", prints.get(1));
-        
-        prints.clear();
     }
     
     @Test
@@ -189,9 +180,6 @@ public class Tests {
         assertEquals("OR2!", prints.get(5));
         assertEquals("XOR1!", prints.get(6));
         assertEquals("AND2!", prints.get(7));
-        
-        
-        prints.clear();
     }
     
     @Test
@@ -226,7 +214,6 @@ public class Tests {
         assertEquals("Hello World!", prints.get(17));
         assertEquals("Hello World!", prints.get(18));
         assertEquals("Hello World!", prints.get(19));
-        prints.clear();
     }
     
     @Test
@@ -242,7 +229,6 @@ public class Tests {
         assertEquals("100", prints.get(0));
         assertEquals("66", prints.get(1));
         
-        prints.clear();
     }
     
     public static void print(String value) {
