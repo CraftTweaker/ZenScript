@@ -41,6 +41,12 @@ public class JavaMethod implements IJavaMethod {
                 }
             }
         }
+        boolean lastOptional = false;
+        for(boolean optional : optional) {
+            if(lastOptional && !optional)
+                throw new IllegalArgumentException("All optionals need to go at the end of the method declaration");
+            lastOptional = optional;
+        }
     }
     
     public static IJavaMethod get(ITypeRegistry types, Class cls, String name, Class... parameterTypes) {
@@ -211,7 +217,8 @@ public class JavaMethod implements IJavaMethod {
                 return new ExpressionCallStatic(position, environment, new JavaMethod(method, environment.getEnvironment().getTypeRegistry()), new ExpressionString(position, optional.value()));
             } catch(NoSuchMethodException ignored) {
                 //Method not found --> Null
-                return new ExpressionNull(position);
+                environment.error(position, "Optional Annotation Error, cannot find method " + optional.methodName());
+                return new ExpressionInvalid(position);
             }
             //No method class given --> Either primitive or String. If not --> ExpressionInvalid
             //If null is wanted, no value should be given to the annotation
@@ -219,11 +226,11 @@ public class JavaMethod implements IJavaMethod {
             if(parameter.getType().isPrimitive()) {
                 Class<?> clazz = parameter.getType();
                 if(clazz == int.class || clazz == short.class || clazz == long.class || clazz == byte.class)
-                    return new ExpressionInt(position, Long.parseLong(optional.value()), environment.getType(clazz));
+                    return new ExpressionInt(position, optional.valueLong(), environment.getType(clazz));
                 else if(clazz == boolean.class)
-                    return new ExpressionBool(position, Boolean.parseBoolean(optional.value()));
+                    return new ExpressionBool(position, optional.valueBoolean());
                 else if(clazz == float.class || clazz == double.class)
-                    return new ExpressionFloat(position, Double.parseDouble(optional.value()), environment.getType(clazz));
+                    return new ExpressionFloat(position, optional.valueDouble(), environment.getType(clazz));
                 else {
                     //Should never happen
                     environment.error(position, "Optional Annotation Error, not a known primitive: " + clazz);
