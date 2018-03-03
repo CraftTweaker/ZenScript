@@ -48,7 +48,7 @@ public class ParsedExpressionFunction extends ParsedExpression {
                 }
                 for(int i = 0; i < arguments.size(); i++) {
                     ZenType argumentType = environment.getType(method.getParameterTypes()[i]);
-                    if(arguments.get(i).getType() != ZenTypeAny.INSTANCE && !argumentType.canCastImplicit(arguments.get(i).getType(), environment)) {
+                    if(arguments.get(i).getType() != ZenTypeAny.INSTANCE && !arguments.get(i).getType().canCastImplicit(argumentType, environment)) {
                         environment.error(getPosition(), "argument " + i + " doesn't match");
                         return new ExpressionInvalid(getPosition());
                     }
