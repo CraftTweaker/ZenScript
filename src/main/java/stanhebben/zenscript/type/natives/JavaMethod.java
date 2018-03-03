@@ -166,13 +166,76 @@ public class JavaMethod implements IJavaMethod {
         }
         
         for(int i = arguments.length; i < doUntil; i++) {
-            result[i] = parameterTypes[i].defaultValue(position);
+            if(method instanceof JavaMethod) {
+                JavaMethod javaMethod = (JavaMethod) method;
+                result[i] = getOptionalValue(position, javaMethod, i, environment);
+            } else
+                result[i] = parameterTypes[i].defaultValue(position);
         }
         for(int i = 0; i < Math.min(arguments.length, doUntil); i++) {
             result[i] = arguments[i].cast(position, environment, parameterTypes[i]);
         }
         
         return result;
+    }
+    
+    /**
+     * Creates the value for the optional Expression
+     *
+     * @param position    position
+     * @param javaMethod  Method to calculate for
+     * @param parameterNr which parameter
+     * @param environment ZS environment (used for ZS types and Expression creation)
+     *
+     * @return default optional (0, false, null) or default value according to the @Optional annotation
+     */
+    private static Expression getOptionalValue(ZenPosition position, JavaMethod javaMethod, int parameterNr, IEnvironmentGlobal environment) {
+        Parameter parameter = javaMethod.getMethod().getParameters()[parameterNr];
+        Optional optional = parameter.getAnnotation(Optional.class);
+        
+        //No optional or empty value --> default value
+        if(optional == null || optional.value().isEmpty()) {
+            return javaMethod.getParameterTypes()[parameterNr].defaultValue(position);
+        }
+        
+        //Method Class given --> Find methodClass method with name methodName and String parameter
+        if(optional.methodClass() != Optional.class) {
+            Class<?> parameterType = parameter.getType();
+            Class<?> valueClass = optional.methodClass();
+            try {
+                Method method = valueClass.getMethod(optional.methodName(), String.class);
+                if(!parameterType.isAssignableFrom(method.getReturnType())) {
+                    environment.error(position, "Optional Annotation Error, cannot assign " + parameterType + " from " + method);
+                    return new ExpressionInvalid(position);
+                }
+                return new ExpressionCallStatic(position, environment, new JavaMethod(method, environment.getEnvironment().getTypeRegistry()), new ExpressionString(position, optional.value()));
+            } catch(NoSuchMethodException ignored) {
+                //Method not found --> Null
+                return new ExpressionNull(position);
+            }
+            //No method class given --> Either primitive or String. If not --> ExpressionInvalid
+            //If null is wanted, no value should be given to the annotation
+        } else {
+            if(parameter.getType().isPrimitive()) {
+                Class<?> clazz = parameter.getType();
+                if(clazz == int.class || clazz == short.class || clazz == long.class || clazz == byte.class)
+                    return new ExpressionInt(position, Long.parseLong(optional.value()), environment.getType(clazz));
+                else if(clazz == boolean.class)
+                    return new ExpressionBool(position, Boolean.parseBoolean(optional.value()));
+                else if(clazz == float.class || clazz == double.class)
+                    return new ExpressionFloat(position, Double.parseDouble(optional.value()), environment.getType(clazz));
+                else {
+                    //Should never happen
+                    environment.error(position, "Optional Annotation Error, not a known primitive: " + clazz);
+                    return new ExpressionInvalid(position);
+                }
+            } else {
+                if(parameter.getType() == String.class) {
+                    return new ExpressionString(position, optional.value());
+                } else
+                    return javaMethod.getParameterTypes()[parameterNr].defaultValue(position);
+            }
+        }
     }
     
     @Override
