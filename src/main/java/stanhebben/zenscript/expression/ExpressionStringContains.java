@@ -21,16 +21,18 @@ public class ExpressionStringContains extends Expression {
 
     @Override
     public ZenType getType() {
-        return ZenType.STRING;
+        return ZenType.BOOL;
     }
 
     @Override
     public void compile(boolean result, IEnvironmentMethod environment) {
+        
         haystack.compile(result, environment);
         needle.compile(result, environment);
 
         if(result) {
-            environment.getOutput().invokeVirtual(String.class, "contains", CharSequence.class);
+            environment.getOutput().invokeVirtual(String.class, "contains", boolean.class, CharSequence.class);
         }
     }
+    
 }

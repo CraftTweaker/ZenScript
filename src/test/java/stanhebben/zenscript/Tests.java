@@ -27,7 +27,6 @@ public class Tests {
     
     @BeforeEach
     public void clearPrints() {
-        System.out.println("Clearing");
         prints.clear();
     }
     
@@ -229,6 +228,22 @@ public class Tests {
         assertEquals("100", prints.get(0));
         assertEquals("66", prints.get(1));
         
+    }
+    
+    
+    @Test
+    public void testContains(){
+        try {
+            ZenModule module = ZenModule.compileScriptString("var checkthisString = \"Checking\" as string; var checkforthisString = \"ing\" as string; if (checkthisString in checkforthisString) { print(\"Yes\"); } else { print(\"No\"); }", "test.zs", compileEnvironment, Test.class.getClassLoader());
+            Runnable runnable = module.getMain();
+            if(runnable != null)
+                runnable.run();
+        } catch(Throwable ex) {
+            registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
+        }
+    
+        assertEquals("Yes", prints.get(0));
+    
     }
     
     public static void print(String value) {
