@@ -31,13 +31,8 @@ public class ExpressionStringContains extends Expression {
         needle.compile(result, environment);
 
         if(result) {
-            environment.getOutput().invokeStatic(ExpressionStringContains.class, "contains", boolean.class, String.class, String.class);
+            environment.getOutput().invokeVirtual(String.class, "contains", boolean.class, CharSequence.class);
         }
     }
-    
-    public static boolean contains(String hay, String need){
-        return hay.contains(need);
-    }
-    
     
 }
