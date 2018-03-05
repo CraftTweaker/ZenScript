@@ -14,6 +14,16 @@ public interface IZenRegistry {
     
     void registerExpansion(Class<?> cls);
     
+    void registerBracketHandler(IBracketHandler handler);
+    
+    void removeBracketHandler(IBracketHandler handler);
+    
+    void registerNativeClass(Class<?> cls);
+    
+    IZenSymbol getStaticFunction(Class cls, String name, Class... arguments);
+    
+    IZenSymbol getStaticField(Class cls, String name);
+    
     IZenSymbol resolveBracket(IEnvironmentGlobal environment, List<Token> tokens);
     
     IEnvironmentGlobal makeGlobalEnvironment(Map<String, byte[]> classes);
@@ -45,5 +55,9 @@ public interface IZenRegistry {
     IZenErrorLogger getErrorLogger();
     
     void setErrorLogger(IZenErrorLogger errorLogger);
+    
+    IZenLogger getLogger();
+    
+    void setLogger(IZenLogger logger);
     
 }
