@@ -88,7 +88,7 @@ public class ZenModule {
                 if (fileName.startsWith("scripts.zip\\"))
                     fileName = fileName.substring(12);
                 
-                String[] splitName = fileName.replaceAll("\\.zip", "").split("\\.|\\\\");
+                String[] splitName = fileName.replaceAll("\\.zip", "").split("\\.|\\" + File.separator);
                 PartialScriptReference reference = SymbolScriptReference.getOrCreateReference(environmentGlobal);
                 if(splitName.length != 0)
                     reference.addScriptOrDirectory(environmentScript, Arrays.copyOfRange(splitName, 0, splitName.length - 1));
