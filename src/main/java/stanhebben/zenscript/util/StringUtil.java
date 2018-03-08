@@ -243,14 +243,10 @@ public class StringUtil {
                 continue; /* switch */
             }
             
-            if(cp == '\\') {
-                saw_backslash = false;
-                newstr.append('\\');
-                newstr.append('\\');
-                continue; /* switch */
-            }
-            
             switch(cp) {
+                case '\\':
+                    newstr.append('\\');
+                    break; /* switch */
                 
                 case 'r':
                     newstr.append('\r');
