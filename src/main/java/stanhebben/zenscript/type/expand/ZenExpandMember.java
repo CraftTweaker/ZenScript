@@ -131,6 +131,14 @@ public class ZenExpandMember {
 
         @Override
         public Expression eval(IEnvironmentGlobal environment) {
+            if (getter == null) {
+                for(IJavaMethod method : methods) {
+                    if (method.accepts(0))
+                        return new ExpressionCallStatic(position, environment, method);
+                }
+                environment.error(position, "Could not evaluate ZenExpandMember " + name + " in " + type);
+                return new ExpressionInvalid(position);
+            }
             return new ExpressionCallStatic(position, environment, getter);
         }
 
@@ -162,7 +170,11 @@ public class ZenExpandMember {
 
         @Override
         public ZenType getType() {
-            return getter.getReturnType();
+            if (getter != null)
+                return getter.getReturnType();
+            if (methods.size() > 1)
+                return methods.get(0).getReturnType();
+            return ZenType.ANY;
         }
 
         @Override

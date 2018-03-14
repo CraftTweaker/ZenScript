@@ -25,7 +25,7 @@ public class ParsedExpressionCall extends ParsedExpression {
 
     @Override
     public IPartialExpression compile(IEnvironmentMethod environment, ZenType predictedType) {
-        IPartialExpression cReceiver = receiver.compile(environment, null);
+        IPartialExpression cReceiver = receiver.compile(environment, predictedType);
         ZenType[] predictedTypes = cReceiver.predictCallTypes(arguments.size());
 
         Expression[] cArguments = new Expression[arguments.size()];
