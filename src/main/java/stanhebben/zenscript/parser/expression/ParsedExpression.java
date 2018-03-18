@@ -253,7 +253,7 @@ public abstract class ParsedExpression {
         while(true) {
             Token next = parser.peek();
             if(parser.optional(T_DOT) != null) {
-                Token indexString = parser.optional(T_ID);
+                Token indexString = parser.optional(T_ID, T_VERSION);
                 if(indexString != null) {
                     base = new ParsedExpressionMember(position, base, indexString.getValue());
                 } else {

@@ -92,6 +92,15 @@ public class TokenStream implements Iterator<Token> {
         return peek().getType() == type;
     }
     
+    public Token optional(int... types) {
+        for(int type : types) {
+            Token token = optional(type);
+            if (token != null)
+                return token;
+        }
+        return null;
+    }
+    
     public Token optional(int type) {
         if(peek() != null && peek().getType() == type) {
             return next();
