@@ -181,6 +181,10 @@ public abstract class ZenType {
                 returnType = read(parser, environment);
                 base = new ZenTypeFunctionCallable(returnType, argumentTypes.toArray(new ZenType[0]), environment.makeClassName());
                 break;
+            case ZenTokener.T_SQBROPEN:
+                base = new ZenTypeArrayList(read(parser, environment));
+                parser.required(ZenTokener.T_SQBRCLOSE, "] expected");
+                break;
             default:
                 throw new ParseException(next, "Unknown type: " + next.getValue());
         }
