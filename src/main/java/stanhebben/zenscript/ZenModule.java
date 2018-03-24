@@ -85,7 +85,7 @@ public class ZenModule {
             
             if(!script.getFunctions().isEmpty() || !script.getGlobals().isEmpty()) {
                 String fileName = script.getFileName();
-                if(fileName.startsWith("scripts.zip\\"))
+                if(fileName.startsWith("scripts.zip" + File.separator))
                     fileName = fileName.substring(12);
                 
                 String[] splitName = fileName.replaceAll("\\.zip", "").split("\\.|\\" + File.separator);
