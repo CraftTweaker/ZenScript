@@ -16,6 +16,7 @@ import stanhebben.zenscript.value.IAny;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.Optional;
 
 import static stanhebben.zenscript.util.AnyClassWriter.*;
 import static stanhebben.zenscript.util.ZenTypeUtil.*;
@@ -65,7 +66,7 @@ public class ZenTypeNative extends ZenType {
     public void complete(ITypeRegistry types) {
         int iterator = ITERATOR_NONE;
         Annotation _iteratorAnnotation = null;
-        String _classPkg = cls.getPackage().getName().replace('/', '.');
+        String _classPkg = Optional.ofNullable(cls.getPackage()).map(Package::getName).orElse("null").replace('/', '.');
         String _className = cls.getSimpleName();
         boolean fully = false;
         
@@ -488,9 +489,9 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, unaryOperator.getMethod(), value);
             }
         }
-    
+        
         for(ZenTypeNative parent : implementing)
-            if (parent.hasTernary(this, operator))
+            if(parent.hasTernary(this, operator))
                 return parent.unary(position, environment, value, operator);
         
         environment.error(position, "operator not supported");
@@ -521,9 +522,9 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, trinaryOperator.getMethod(), first, second, third);
             }
         }
-    
+        
         for(ZenTypeNative parent : implementing)
-            if (parent.hasTernary(third.getType(), operator))
+            if(parent.hasTernary(third.getType(), operator))
                 return parent.trinary(position, environment, first, second, third, operator);
         
         environment.error(position, "operator not supported");
