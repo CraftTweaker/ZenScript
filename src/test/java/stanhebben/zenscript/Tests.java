@@ -146,7 +146,7 @@ public class Tests {
     @Test
     public void testCalculations() {
         try {
-            ZenModule module = ZenModule.compileScriptString("print(\"Hello\" ~ \" \" ~ \"World\"); if(3+1 == 2*2) {print(\"Used a calculation!\");}", "test.zs", compileEnvironment, Test.class.getClassLoader());
+            ZenModule module = ZenModule.compileScriptString("print(\"Hello\" ~ \" \" ~ \"World\"); if(3+1 == 2*2) {print(\"Used a calculation!\");} print(0x7fffffffffffffff);", "test.zs", compileEnvironment, Test.class.getClassLoader());
             Runnable runnable = module.getMain();
             if(runnable != null)
                 runnable.run();
@@ -157,6 +157,7 @@ public class Tests {
         }
         assertEquals("Hello World", prints.get(0));
         assertEquals("Used a calculation!", prints.get(1));
+        assertEquals("9223372036854775807", prints.get(2));
     }
     
     @Test

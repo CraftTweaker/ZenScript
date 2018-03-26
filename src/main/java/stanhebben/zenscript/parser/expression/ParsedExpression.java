@@ -305,7 +305,8 @@ public abstract class ParsedExpression {
     private static ParsedExpression readPrimaryExpression(ZenPosition position, ZenTokener parser, IEnvironmentGlobal environment) {
         switch(parser.peek().getType()) {
             case T_INTVALUE:
-                return new ParsedExpressionValue(position, new ExpressionInt(position, Long.parseLong(parser.next().getValue()), ZenTypeInt.INSTANCE));
+                long l = Long.decode(parser.next().getValue());
+                return new ParsedExpressionValue(position, new ExpressionInt(position, l, Long.bitCount(l) > 32 ? ZenType.LONG : ZenTypeInt.INSTANCE));
             case T_FLOATVALUE:
                 String value = parser.next().getValue();
                 ZenType zenType = ZenTypeDouble.INSTANCE;
