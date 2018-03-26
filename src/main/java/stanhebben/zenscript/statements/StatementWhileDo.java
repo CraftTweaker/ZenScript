@@ -6,6 +6,8 @@ import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.type.iterator.IteratorWhileDo;
 import stanhebben.zenscript.util.*;
 
+import java.util.*;
+
 
 public class StatementWhileDo extends Statement {
     
@@ -33,10 +35,23 @@ public class StatementWhileDo extends Statement {
         
         output.label(repeat);
         iterator.compilePreIterate(locals, exit);
+        
+        for (Statement statement : body.getSubStatements()) {
+            if (statement instanceof StatementBreak)
+                ((StatementBreak) statement).setExit(exit);
+        }
+        
         body.compile(environment);
         iterator.compilePostIterate(locals, exit, repeat);
         output.label(exit);
         iterator.compileEnd();
-        
+    }
+    
+    @Override
+    public List<Statement> getSubStatements() {
+        List<Statement> out = new ArrayList<>();
+        out.add(this);
+        out.addAll(body.getSubStatements());
+        return out;
     }
 }

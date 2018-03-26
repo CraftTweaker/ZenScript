@@ -8,6 +8,8 @@ import stanhebben.zenscript.symbols.SymbolLocal;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.*;
 
+import java.util.*;
+
 public class StatementForeach extends Statement {
 
     private final String[] varnames;
@@ -56,5 +58,13 @@ public class StatementForeach extends Statement {
         iterator.compilePostIterate(localVariables, exit, repeat);
         methodOutput.label(exit);
         iterator.compileEnd();
+    }
+    
+    @Override
+    public List<Statement> getSubStatements() {
+        List<Statement> out = new ArrayList<>();
+        out.add(this);
+        out.addAll(body.getSubStatements());
+        return out;
     }
 }

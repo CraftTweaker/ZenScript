@@ -93,6 +93,11 @@ public abstract class Statement {
                 parser.required(T_SEMICOLON, "; expected");
                 return new StatementNull(t.getPosition());
             }
+            case T_BREAK: {
+                parser.next();
+                parser.required(T_SEMICOLON, "; expected");
+                return new StatementBreak(next.getPosition());
+            }
         }
 
         ZenPosition position = parser.peek().getPosition();
@@ -110,4 +115,8 @@ public abstract class Statement {
     }
 
     public abstract void compile(IEnvironmentMethod environment);
+    
+    public List<Statement> getSubStatements() {
+        return Collections.singletonList(this);
+    }
 }
