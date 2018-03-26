@@ -80,6 +80,12 @@ public abstract class Statement {
                 Statement content = read(parser, environment, null);
                 return new StatementForeach(t.getPosition(), names.toArray(new String[names.size()]), source, content);
             }
+            case T_WHILE: {
+                parser.next();
+                ParsedExpression condition = ParsedExpression.read(parser, environment);
+                Statement content = read(parser, environment, null);
+                return new StatementWhileDo(next.getPosition(), content, condition);
+            }
             case T_VERSION: {
                 Token t = parser.next();
                 parser.required(T_INTVALUE, "integer expected");
