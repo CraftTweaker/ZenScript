@@ -51,7 +51,13 @@ public class StatementForeach extends Statement {
 
         Label repeat = new Label();
         Label exit = new Label();
-
+    
+        //Allows for break statements, sets the exit label!
+        for (Statement statement : body.getSubStatements()) {
+            if (statement instanceof StatementBreak)
+                ((StatementBreak) statement).setExit(exit);
+        }
+        
         methodOutput.label(repeat);
         iterator.compilePreIterate(localVariables, exit);
         body.compile(local);

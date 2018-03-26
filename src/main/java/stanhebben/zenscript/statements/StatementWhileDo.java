@@ -35,7 +35,8 @@ public class StatementWhileDo extends Statement {
         
         output.label(repeat);
         iterator.compilePreIterate(locals, exit);
-        
+    
+        //Allows for break statements, sets the exit label!
         for (Statement statement : body.getSubStatements()) {
             if (statement instanceof StatementBreak)
                 ((StatementBreak) statement).setExit(exit);
