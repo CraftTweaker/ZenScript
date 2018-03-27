@@ -1,6 +1,7 @@
 package stanhebben.zenscript.util;
 
 import org.objectweb.asm.*;
+import stanhebben.zenscript.compiler.ZenClassWriter;
 import stanhebben.zenscript.type.natives.*;
 import stanhebben.zenscript.value.IAny;
 
@@ -63,7 +64,7 @@ public class AnyClassWriter {
     
     public static byte[] construct(IAnyDefinition definition, String name, Type asmType) {
         try {
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+            ClassWriter writer = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
             writer.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, name, null, internal(Object.class), new String[]{internal(IAny.class)});
             
             definition.defineMembers(writer);

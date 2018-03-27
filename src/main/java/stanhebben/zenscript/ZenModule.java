@@ -52,7 +52,7 @@ public class ZenModule {
      * @param debug             enable debug mode (outputs classes to generated directory)
      */
     public static void compileScripts(String mainFileName, List<ZenParsedFile> scripts, IEnvironmentGlobal environmentGlobal, boolean debug) {
-        ClassWriter clsMain = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        ClassWriter clsMain = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
         clsMain.visitSource(mainFileName, null);
         
         clsMain.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, "__ZenMain__", null, internal(Object.class), new String[]{internal(Runnable.class)});
@@ -60,7 +60,7 @@ public class ZenModule {
         mainRun.start();
         
         for(ZenParsedFile script : scripts) {
-            ClassWriter clsScript = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+            ClassWriter clsScript = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
             clsScript.visitSource(script.getFileName(), null);
             EnvironmentClass environmentScript = new EnvironmentClass(clsScript, script.getEnvironment());
             
@@ -85,7 +85,7 @@ public class ZenModule {
             
             if(!script.getFunctions().isEmpty() || !script.getGlobals().isEmpty()) {
                 String fileName = script.getFileName();
-                if (fileName.startsWith("scripts.zip\\"))
+                if(fileName.startsWith("scripts.zip" + File.separator))
                     fileName = fileName.substring(12);
                 
                 String[] splitName = fileName.replaceAll("\\.zip", "").split("\\.|\\" + File.separator);

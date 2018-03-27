@@ -253,7 +253,7 @@ public abstract class ParsedExpression {
         while(true) {
             Token next = parser.peek();
             if(parser.optional(T_DOT) != null) {
-                Token indexString = parser.optional(T_ID);
+                Token indexString = parser.optional(T_ID, T_VERSION);
                 if(indexString != null) {
                     base = new ParsedExpressionMember(position, base, indexString.getValue());
                 } else {
@@ -305,7 +305,8 @@ public abstract class ParsedExpression {
     private static ParsedExpression readPrimaryExpression(ZenPosition position, ZenTokener parser, IEnvironmentGlobal environment) {
         switch(parser.peek().getType()) {
             case T_INTVALUE:
-                return new ParsedExpressionValue(position, new ExpressionInt(position, Long.parseLong(parser.next().getValue()), ZenTypeInt.INSTANCE));
+                long l = Long.decode(parser.next().getValue());
+                return new ParsedExpressionValue(position, new ExpressionInt(position, l, Long.bitCount(l) > 32 ? ZenType.LONG : ZenTypeInt.INSTANCE));
             case T_FLOATVALUE:
                 String value = parser.next().getValue();
                 ZenType zenType = ZenTypeDouble.INSTANCE;

@@ -80,12 +80,23 @@ public abstract class Statement {
                 Statement content = read(parser, environment, null);
                 return new StatementForeach(t.getPosition(), names.toArray(new String[names.size()]), source, content);
             }
+            case T_WHILE: {
+                parser.next();
+                ParsedExpression condition = ParsedExpression.read(parser, environment);
+                Statement content = read(parser, environment, null);
+                return new StatementWhileDo(next.getPosition(), content, condition);
+            }
             case T_VERSION: {
                 Token t = parser.next();
                 parser.required(T_INTVALUE, "integer expected");
 
                 parser.required(T_SEMICOLON, "; expected");
                 return new StatementNull(t.getPosition());
+            }
+            case T_BREAK: {
+                parser.next();
+                parser.required(T_SEMICOLON, "; expected");
+                return new StatementBreak(next.getPosition());
             }
         }
 
@@ -104,4 +115,8 @@ public abstract class Statement {
     }
 
     public abstract void compile(IEnvironmentMethod environment);
+    
+    public List<Statement> getSubStatements() {
+        return Collections.singletonList(this);
+    }
 }

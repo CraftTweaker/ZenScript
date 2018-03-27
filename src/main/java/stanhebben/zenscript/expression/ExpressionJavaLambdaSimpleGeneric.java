@@ -2,10 +2,7 @@ package stanhebben.zenscript.expression;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import stanhebben.zenscript.compiler.EnvironmentClass;
-import stanhebben.zenscript.compiler.EnvironmentMethod;
-import stanhebben.zenscript.compiler.IEnvironmentClass;
-import stanhebben.zenscript.compiler.IEnvironmentMethod;
+import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.symbols.SymbolArgument;
@@ -74,7 +71,7 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
         // generate class
         String clsName = environment.makeClassName();
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        ClassWriter cw = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, clsName, createMethodSignature(), "java/lang/Object", new String[]{internal(interfaceClass)});
 
 

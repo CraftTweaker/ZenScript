@@ -3,7 +3,7 @@ package stanhebben.zenscript.statements;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.util.ZenPosition;
 
-import java.util.List;
+import java.util.*;
 
 public class StatementBlock extends Statement {
 
@@ -14,7 +14,7 @@ public class StatementBlock extends Statement {
 
         this.statements = statements;
     }
-
+    
     @Override
     public void compile(IEnvironmentMethod environment) {
         IEnvironmentMethod local = new EnvironmentScope(environment);
@@ -24,5 +24,14 @@ public class StatementBlock extends Statement {
                 return;
             }
         }
+    }
+    
+    @Override
+    public List<Statement> getSubStatements() {
+        List<Statement> out = new ArrayList<>();
+        out.add(this);
+        for (Statement statement : statements)
+            out.addAll(statement.getSubStatements());
+        return out;
     }
 }

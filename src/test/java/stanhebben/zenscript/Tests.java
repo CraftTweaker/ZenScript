@@ -146,7 +146,7 @@ public class Tests {
     @Test
     public void testCalculations() {
         try {
-            ZenModule module = ZenModule.compileScriptString("print(\"Hello\" ~ \" \" ~ \"World\"); if(3+1 == 2*2) {print(\"Used a calculation!\");}", "test.zs", compileEnvironment, Test.class.getClassLoader());
+            ZenModule module = ZenModule.compileScriptString("print(\"Hello\" ~ \" \" ~ \"World\"); if(3+1 == 2*2) {print(\"Used a calculation!\");} print(0x7fffffffffffffff);", "test.zs", compileEnvironment, Test.class.getClassLoader());
             Runnable runnable = module.getMain();
             if(runnable != null)
                 runnable.run();
@@ -157,6 +157,7 @@ public class Tests {
         }
         assertEquals("Hello World", prints.get(0));
         assertEquals("Used a calculation!", prints.get(1));
+        assertEquals("9223372036854775807", prints.get(2));
     }
     
     @Test
@@ -232,7 +233,7 @@ public class Tests {
     
     
     @Test
-    public void testContains(){
+    public void testContains() {
         try {
             ZenModule module = ZenModule.compileScriptString("var checkthisString = \"Checking\" as string; var checkforthisString = \"ing\" as string; if (checkthisString in checkforthisString) { print(\"Yes\"); } else { print(\"No\"); }", "test.zs", compileEnvironment, Test.class.getClassLoader());
             Runnable runnable = module.getMain();
@@ -241,9 +242,30 @@ public class Tests {
         } catch(Throwable ex) {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
-    
+        
         assertEquals("Yes", prints.get(0));
+        
+    }
     
+    @Test
+    public void testWhile() {
+        try {
+            ZenModule module = ZenModule.compileScriptString("var i = 0; while i < 10 {print(i); i += 1;} print(\"After loop: \" + i); while (i > 0) {if i == 5 break; print(i); i -= 1;} print(\"After loop 2: \" + i);", "test.zs", compileEnvironment, Test.class.getClassLoader());
+            Runnable runnable = module.getMain();
+            if(runnable != null)
+                runnable.run();
+        } catch(Throwable ex) {
+            registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
+        }
+    
+        for(int i = 0; i < 10; i++) {
+            assertEquals(Integer.toString(i), prints.get(i));
+        }
+        assertEquals("After loop: 10", prints.get(10));
+        for(int i = 10; i > 5; i--) {
+            assertEquals(Integer.toString(i), prints.get(21-i));
+        }
+        assertEquals("After loop 2: 5", prints.get(16));
     }
     
     public static void print(String value) {
