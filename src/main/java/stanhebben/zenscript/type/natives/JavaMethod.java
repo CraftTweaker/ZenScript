@@ -199,50 +199,48 @@ public class JavaMethod implements IJavaMethod {
         Parameter parameter = javaMethod.getMethod().getParameters()[parameterNr];
         Optional optional = parameter.getAnnotation(Optional.class);
         
-        //No optional or empty value --> default value
-        if(optional == null || optional.value().isEmpty()) {
+        //No annotation (not sure how but lets be sure) -> Default value
+        if(optional == null)
             return javaMethod.getParameterTypes()[parameterNr].defaultValue(position);
-        }
         
-        //Method Class given --> Find methodClass method with name methodName and String parameter
-        if(optional.methodClass() != Optional.class) {
-            Class<?> parameterType = parameter.getType();
-            Class<?> valueClass = optional.methodClass();
-            try {
-                Method method = valueClass.getMethod(optional.methodName(), String.class);
-                if(!parameterType.isAssignableFrom(method.getReturnType())) {
-                    environment.error(position, "Optional Annotation Error, cannot assign " + parameterType + " from " + method);
-                    return new ExpressionInvalid(position);
-                }
-                return new ExpressionCallStatic(position, environment, new JavaMethod(method, environment.getEnvironment().getTypeRegistry()), new ExpressionString(position, optional.value()));
-            } catch(NoSuchMethodException ignored) {
-                //Method not found --> Null
-                environment.error(position, "Optional Annotation Error, cannot find method " + optional.methodName());
+        Class<?> parameterType = parameter.getType();
+        //Primitives
+        if(parameterType.isPrimitive()) {
+            Class<?> clazz = parameter.getType();
+            if(clazz == int.class || clazz == short.class || clazz == long.class || clazz == byte.class)
+                return new ExpressionInt(position, optional.valueLong(), environment.getType(clazz));
+            else if(clazz == boolean.class)
+                return new ExpressionBool(position, optional.valueBoolean());
+            else if(clazz == float.class || clazz == double.class)
+                return new ExpressionFloat(position, optional.valueDouble(), environment.getType(clazz));
+            else {
+                //Should never happen
+                environment.error(position, "Optional Annotation Error, not a known primitive: " + clazz);
                 return new ExpressionInvalid(position);
             }
-            //No method class given --> Either primitive or String. If not --> ExpressionInvalid
-            //If null is wanted, no value should be given to the annotation
-        } else {
-            if(parameter.getType().isPrimitive()) {
-                Class<?> clazz = parameter.getType();
-                if(clazz == int.class || clazz == short.class || clazz == long.class || clazz == byte.class)
-                    return new ExpressionInt(position, optional.valueLong(), environment.getType(clazz));
-                else if(clazz == boolean.class)
-                    return new ExpressionBool(position, optional.valueBoolean());
-                else if(clazz == float.class || clazz == double.class)
-                    return new ExpressionFloat(position, optional.valueDouble(), environment.getType(clazz));
-                else {
-                    //Should never happen
-                    environment.error(position, "Optional Annotation Error, not a known primitive: " + clazz);
-                    return new ExpressionInvalid(position);
-                }
-            } else {
-                if(parameter.getType() == String.class) {
-                    return new ExpressionString(position, optional.value());
-                } else
-                    return javaMethod.getParameterTypes()[parameterNr].defaultValue(position);
-            }
         }
+        
+        Class<?> methodClass = optional.methodClass();
+        if(methodClass == Optional.class) {
+            //Not a String -> null
+            //Empty String -> null;
+            //Backwards compat!
+            return (parameterType == String.class && !optional.value().isEmpty()) ? new ExpressionString(position, optional.value()) : javaMethod.getParameterTypes()[parameterNr].defaultValue(position);
+        }
+    
+        try {
+            Method method = methodClass.getMethod(optional.methodName(), String.class);
+            if(!parameterType.isAssignableFrom(method.getReturnType())) {
+                environment.error(position, "Optional Annotation Error, cannot assign " + parameterType + " from " + method);
+                return new ExpressionInvalid(position);
+            }
+            return new ExpressionCallStatic(position, environment, new JavaMethod(method, environment.getEnvironment().getTypeRegistry()), new ExpressionString(position, optional.value()));
+        } catch(NoSuchMethodException ignored) {
+            //Method not found --> Null
+            environment.error(position, "Optional Annotation Error, cannot find method " + optional.methodName());
+            return new ExpressionInvalid(position);
+        }
+        
     }
     
     @Override
