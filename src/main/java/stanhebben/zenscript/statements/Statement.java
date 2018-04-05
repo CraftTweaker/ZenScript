@@ -119,4 +119,8 @@ public abstract class Statement {
     public List<Statement> getSubStatements() {
         return Collections.singletonList(this);
     }
+    
+    public void compile(IEnvironmentMethod environment, boolean forced) {
+        compile(environment);
+    }
 }

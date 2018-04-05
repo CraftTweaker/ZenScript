@@ -34,6 +34,7 @@ public class ZenParsedFile {
     private final List<Import> imports;
     private final Map<String, ParsedFunction> functions;
     private final Map<String, ParsedGlobalValue> globals = new HashMap<>();
+    private final Map<String, ParsedFrigginClass> classes = new HashMap<>();
     private final List<Statement> statements;
     private final IEnvironmentGlobal environmentScript;
     
@@ -117,18 +118,27 @@ public class ZenParsedFile {
         
         while(tokener.hasNext()) {
             Token next = tokener.peek();
-            if (next.getType() == T_GLOBAL || next.getType() == T_STATIC) {
-            	ParsedGlobalValue value = ParsedGlobalValue.parse(tokener, environmentScript, classname, next.getType() == T_GLOBAL);
-            	if(globals.containsKey(value.getName())) {
-            		environment.warning(value.getPosition(), "Global already defined: " + value.getName());
-            	}
-            	globals.put(value.getName(), value);
+            if(next.getType() == T_GLOBAL || next.getType() == T_STATIC) {
+                ParsedGlobalValue value = ParsedGlobalValue.parse(tokener, environmentScript, classname, next.getType() == T_GLOBAL);
+                if(globals.containsKey(value.getName())) {
+                    environment.warning(value.getPosition(), "Global already defined: " + value.getName());
+                }
+                globals.put(value.getName(), value);
             } else if(next.getType() == T_FUNCTION) {
                 ParsedFunction function = ParsedFunction.parse(tokener, environmentScript);
                 if(functions.containsKey(function.getName())) {
                     environment.error(function.getPosition(), "function " + function.getName() + " already exists");
                 }
                 functions.put(function.getName(), function);
+            } else if(next.getType() == T_FRIGGIN_CLASS) {
+                ParsedFrigginClass frigginClass = ParsedFrigginClass.createFrigginClass(tokener, environmentScript);
+                if(classes.containsKey(frigginClass.name))
+                    environment.error(frigginClass.position, "Class " + frigginClass.name + " already exists!");
+                else {
+                    classes.put(frigginClass.name, frigginClass);
+                    environment.putValue(frigginClass.name, new SymbolType(frigginClass.type), frigginClass.position);
+                }
+                frigginClass.writeClass(environmentScript);
             } else {
                 statements.add(Statement.read(tokener, environmentScript, null));
             }
@@ -185,11 +195,15 @@ public class ZenParsedFile {
     }
     
     public Map<String, ParsedGlobalValue> getGlobals() {
-    	return globals;
+        return globals;
     }
     
     @Override
     public String toString() {
         return filename;
+    }
+    
+    public Map<String, ParsedFrigginClass> getClasses() {
+        return classes;
     }
 }
