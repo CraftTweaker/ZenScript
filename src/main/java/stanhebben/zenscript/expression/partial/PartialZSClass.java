@@ -17,15 +17,12 @@ public class PartialZSClass implements IPartialExpression {
     
     @Override
     public Expression eval(IEnvironmentGlobal environment) {
-        return new ExpressionNull(type.parsedFrigginClass.position) {
-            @Override
-            public void compile(boolean result, IEnvironmentMethod environment) {}
-        };
+        return new ExpressionNothing(type.parsedFrigginClass.position);
     }
     
     @Override
     public Expression assign(ZenPosition position, IEnvironmentGlobal environment, Expression other) {
-        throw new UnsupportedOperationException("Cannot assogn to a class");
+        throw new UnsupportedOperationException("Cannot assign to a class");
     }
     
     @Override

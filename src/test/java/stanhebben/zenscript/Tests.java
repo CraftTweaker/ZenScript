@@ -268,6 +268,32 @@ public class Tests {
         assertEquals("After loop 2: 5", prints.get(16));
     }
     
+    @Test
+    public void testClasses() {
+        try {
+            ZenModule module = ZenModule.compileScriptString("frigginClass name {\n" + "\tstatic myStatic as string = \"value\";\n" + "\tstatic otherStatic as string = \"value\";\n" + "\n" + "\tval nonStatic as string = \"123\";\n" + "\tval nonStaticTwo as string;\n" + "\n" + "\tfrigginConstructor(parameter as string, parameter2 as string) {\n" + "\t\tprint(\"TETETE\");\n" + "\t\tprint(parameter);\n" + "\t\tnonStaticTwo = parameter2;\n" + "\t}\n" + "\n" + "\tfrigginConstructor(parameter as string) {\n" + "\t\tprint(\"FFFFFF\");\n" + "\t}\n" + "\n" + "\tfunction myMethod(arg as string, arg1 as string) as string {\n" + "\t\treturn \"value\" + arg ~ arg1;\n" + "\t}\n" + "\n" + "}\n" + "\n" + "var test = name(\"NOPE\");\n" + "test = name(\"nope\", \"noper\");\n" + "print(test.myMethod(\"one\", \"two\"));\n" + "print(name.myStatic);\n" + "print(name(\"parameter1\", \"parameter2\").nonStatic);\n" + "val ttt = name(\"t\");\n" + "ttt.myStatic = \"1\";\n" + "print(ttt.myStatic);\n" + "ttt.nonStatic = \"0\";\n" + "print(ttt.nonStatic);\n" + "print(name(\"MYParam1\", \"MyPAram2\").nonStaticTwo);", "test.zs", compileEnvironment, Test.class.getClassLoader());
+            Runnable runnable = module.getMain();
+            if(runnable != null)
+                runnable.run();
+        } catch(Throwable ex) {
+            registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
+        }
+        assertEquals("FFFFFF", prints.get(0));
+        assertEquals("TETETE", prints.get(1));
+        assertEquals("nope", prints.get(2));
+        assertEquals("valueonetwo", prints.get(3));
+        assertEquals("value", prints.get(4));
+        assertEquals("TETETE", prints.get(5));
+        assertEquals("parameter1", prints.get(6));
+        assertEquals("123", prints.get(7));
+        assertEquals("FFFFFF", prints.get(8));
+        assertEquals("1", prints.get(9));
+        assertEquals( "0", prints.get(10));
+        assertEquals( "TETETE", prints.get(11));
+        assertEquals( "MYParam1", prints.get(12));
+        assertEquals( "MyPAram2", prints.get(13));
+    }
+    
     public static void print(String value) {
         prints.add(value);
     }

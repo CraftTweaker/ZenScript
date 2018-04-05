@@ -3,7 +3,7 @@ package stanhebben.zenscript.parser.expression;
 import stanhebben.zenscript.ZenTokener;
 import stanhebben.zenscript.annotations.*;
 import stanhebben.zenscript.compiler.*;
-import stanhebben.zenscript.definitions.*;
+import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.parser.*;

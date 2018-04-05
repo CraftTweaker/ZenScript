@@ -12,7 +12,6 @@ import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.type.natives.*;
 import stanhebben.zenscript.util.*;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -27,28 +26,20 @@ public class ParsedFrigginClass {
     public final String className;
     public final ZenTypeFrigginClass type;
     public final List<ParsedClassConstructor> constructors;
-    public final Map<String, Pair<ZenType, Statement>> staticFields;
-    public final Map<String, Pair<ZenType, Statement>> nonStaticFields;
-    public final Map<String, ZenNativeMember> members = new HashMap<>();
-    public final List<ParsedFunction> methods;
+    private final Map<String, Pair<ZenType, Statement>> staticFields;
+    private final Map<String, Pair<ZenType, Statement>> nonStaticFields;
+    private final Map<String, ZenNativeMember> members = new HashMap<>();
+    private final List<ParsedFunction> methods = new ArrayList<>();
     public Class<?> thisClass = Object.class;
     
-    public ParsedFrigginClass(ZenPosition position, String name, String className, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, Statement>> staticFields, Map<String, Pair<ZenType, Statement>> nonStaticFields, List<ParsedFunction> methods) {
+    private ParsedFrigginClass(ZenPosition position, String name, IEnvironmentGlobal environment, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, Statement>> staticFields, Map<String, Pair<ZenType, Statement>> nonStaticFields) {
         this.position = position;
         this.name = name;
-        this.className = className;
+        this.className = environment.makeClassName();
         this.constructors = constructors;
         this.staticFields = staticFields;
         this.nonStaticFields = nonStaticFields;
-        this.methods = methods;
         this.type = new ZenTypeFrigginClass(this);
-        
-        
-        for(ParsedFunction method : methods) {
-            if(!members.containsKey(method.getName()))
-                members.put(method.getName(), new ZenNativeMember());
-            members.get(method.getName()).addMethod(new ZenClassMethod(method));
-        }
         
         for(Map.Entry<String, Pair<ZenType, Statement>> statics : staticFields.entrySet()) {
             if(!members.containsKey(statics.getKey()))
@@ -65,6 +56,8 @@ public class ParsedFrigginClass {
             member.setGetter(new ZenClassFieldMethod(false, false, nonStatics.getKey(), nonStatics.getValue().getKey()));
             member.setSetter(new ZenClassFieldMethod(false, true, nonStatics.getKey(), nonStatics.getValue().getKey()));
         }
+        
+        environment.putValue(name, new SymbolType(type), position);
     }
     
     
@@ -83,7 +76,7 @@ public class ParsedFrigginClass {
             parser.required(T_ASSIGN, "'=' expected");
             statics.put(name, new Pair<>(type, Statement.read(parser, environment, type)));
         }
-        Map<String, Pair<ZenType, Statement>> nonstatics = new HashMap<>();
+        Map<String, Pair<ZenType, Statement>> nonStatics = new HashMap<>();
         while(parser.optional(T_VAL) != null) {
             String name = parser.required(T_ID, "Nonstatic variable identifier required").getValue();
             ZenType type = ZenType.ANY;
@@ -96,26 +89,26 @@ public class ParsedFrigginClass {
             } else {
                 statement = Statement.read(parser, environment, type);
             }
-            nonstatics.put(name, new Pair<>(type, statement));
+            nonStatics.put(name, new Pair<>(type, statement));
         }
         List<ParsedClassConstructor> constructors = new ArrayList<>();
         while(parser.optional(T_FRIGGIN_CONSTRUCTOR) != null) {
             constructors.add(ParsedClassConstructor.parse(parser, environment));
         }
         
-        List<ParsedFunction> methods = new ArrayList<>();
+        
+        ParsedFrigginClass classTemplate = new ParsedFrigginClass(id.getPosition(), id.getValue(), environment, constructors, statics, nonStatics);
         while(parser.peek().getType() == T_FUNCTION) {
-            methods.add(ParsedFunction.parse(parser, environment));
+            classTemplate.addMethod(ParsedFunction.parse(parser, environment));
         }
         
         parser.required(T_ACLOSE, "You need to close the class, don't ya?");
         
-        return new ParsedFrigginClass(id.getPosition(), id.getValue(), environment.makeClassName(), constructors, statics, nonstatics, methods);
+        return classTemplate;
     }
     
     
     public void writeClass(IEnvironmentGlobal environmentGlobal) {
-        //String classname = environmentGlobal.makeClassName();
         ClassWriter newClass = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
         newClass.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, className, null, "java/lang/Object", new String[0]);
         
@@ -177,14 +170,11 @@ public class ParsedFrigginClass {
         newClass.visitEnd();
         byte[] thisClassArray = newClass.toByteArray();
         environmentGlobal.putClass(className, thisClassArray);
-        thisClass =  new ClassLoader() {
+        thisClass = new ClassLoader() {
             private Class<?> find() {
                 return defineClass(className, thisClassArray, 0, thisClassArray.length);
             }
         }.find();
-        //environmentGlobal.putClass(name, newClass.toByteArray());
-        //environmentGlobal.putValue(name, new SymbolType(type), position);
-        //environmentGlobal.putValue(className, new SymbolType(type), position);
     }
     
     
@@ -236,20 +226,14 @@ public class ParsedFrigginClass {
         }
     }
     
-    public Field getField(String name) {
-        try {
-            return Class.forName(name).getField(name);
-        } catch(NoSuchFieldException | ClassNotFoundException e) {
-            return null;
-        }
+    private void addMethod(ParsedFunction method) {
+        if(!members.containsKey(method.getName()))
+            members.put(method.getName(), new ZenNativeMember());
+        members.get(method.getName()).addMethod(new ZenClassMethod(method));
+        methods.add(method);
     }
     
     public IPartialExpression getMember(ZenPosition position, IEnvironmentGlobal environment, IPartialExpression value, String name, boolean isStatic) {
-        /*if(staticFields.containsKey(name)) {
-            return new ExpressionFieldGet(position, name, value, true);
-        } else if(!isStatic && nonStaticFields.containsKey(name)) {
-            return new ExpressionFieldGet(position, name, value, false);
-        } else */
         if(members.containsKey(name))
             return members.get(name).instance(position, environment, value);
         environment.error("Could not find " + (isStatic ? "static " : "") + "member " + name);
@@ -264,43 +248,13 @@ public class ParsedFrigginClass {
         return new ZenType[0];
     }
     
-    public class ExpressionFieldGet extends Expression {
-        
-        private final String field;
-        private final IPartialExpression receiver;
-        private final boolean isStatic;
-        
-        public ExpressionFieldGet(ZenPosition position, String field, IPartialExpression receiver, boolean isStatic) {
-            super(position);
-            this.field = field;
-            this.receiver = receiver;
-            this.isStatic = isStatic;
-        }
-        
-        @Override
-        public void compile(boolean result, IEnvironmentMethod environment) {
-            if(!isStatic && receiver != null) {
-                receiver.eval(environment).compile(result, environment);
-                environment.getOutput().getField(className, field, nonStaticFields.get(field).getKey().getSignature());
-            } else
-                environment.getOutput().getStaticField(className, field, staticFields.get(field).getKey().getSignature());
-            
-        }
-        
-        @Override
-        public ZenType getType() {
-            return (isStatic ? staticFields.get(field) : nonStaticFields.get(field)).getKey();
-        }
-    }
-    
-    public class ZenClassMethod implements IJavaMethod {
+    class ZenClassMethod implements IJavaMethod {
         
         private final ParsedFunction method;
         
-        public ZenClassMethod(ParsedFunction method) {
+        ZenClassMethod(ParsedFunction method) {
             this.method = method;
         }
-        
         
         @Override
         public boolean isStatic() {
@@ -315,7 +269,6 @@ public class ParsedFrigginClass {
         @Override
         public boolean accepts(IEnvironmentGlobal environment, Expression... arguments) {
             return accepts(arguments.length) && IntStream.range(0, arguments.length).allMatch(i -> arguments[i].getType().canCastImplicit(method.getArgumentTypes()[i], environment));
-            
         }
         
         @Override
@@ -330,7 +283,7 @@ public class ParsedFrigginClass {
         
         @Override
         public void invokeStatic(MethodOutput output) {
-            throw new UnsupportedOperationException("Cannot statically invoke a virutal method");
+            throw new UnsupportedOperationException("Cannot statically invoke a virtual method");
         }
         
         @Override
@@ -349,7 +302,7 @@ public class ParsedFrigginClass {
         }
     }
     
-    public class ZenClassFieldMethod implements IJavaMethod {
+    class ZenClassFieldMethod implements IJavaMethod {
         
         private final boolean isSetter;
         //Is the FIELD static
@@ -423,9 +376,9 @@ public class ParsedFrigginClass {
         }
     }
     
-    public class ExpressionThis extends Expression {
+    class ExpressionThis extends Expression {
         
-        public ExpressionThis(ZenPosition position) {
+        ExpressionThis(ZenPosition position) {
             super(position);
         }
         

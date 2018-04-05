@@ -5,13 +5,9 @@ import stanhebben.zenscript.annotations.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.*;
 import stanhebben.zenscript.expression.*;
-import stanhebben.zenscript.expression.partial.*;
+import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.casting.ICastingRuleDelegate;
-import stanhebben.zenscript.type.natives.JavaMethod;
 import stanhebben.zenscript.util.ZenPosition;
-
-import java.lang.reflect.Field;
-import java.util.Objects;
 
 public class ZenTypeFrigginClass extends ZenType {
     
@@ -24,7 +20,7 @@ public class ZenTypeFrigginClass extends ZenType {
     
     @Override
     public Expression unary(ZenPosition position, IEnvironmentGlobal environment, Expression value, OperatorType operator) {
-        throw new UnsupportedOperationException("Friggin Classes cannot be unaried!");
+        throw new UnsupportedOperationException("Cannot use unary operators for ZenClasses");
     }
     
     @Override
@@ -56,8 +52,7 @@ public class ZenTypeFrigginClass extends ZenType {
     public Expression call(ZenPosition position, IEnvironmentGlobal environment, Expression receiver, Expression... arguments) {
         for(ParsedClassConstructor constructor : parsedFrigginClass.constructors) {
             if(constructor.canAccept(arguments, environment))
-                return constructor.call(position, environment, receiver, arguments, this);
-                //return new ExpressionCallVirtual(position, environment, JavaMethod.get(environment.getEnvironment().getTypeRegistry(), toJavaClass(), parsedFrigginClass.name, constructor.parameterClasses()), receiver, arguments);
+                return constructor.call(position, arguments, this);
         }
         environment.error("Could not find constructor for " + parsedFrigginClass.name + "with " + arguments.length + " arguments.");
         return new ExpressionInvalid(position);

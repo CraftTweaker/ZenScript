@@ -1,16 +1,14 @@
 package stanhebben.zenscript.expression;
 
 import stanhebben.zenscript.compiler.IEnvironmentMethod;
-import stanhebben.zenscript.type.*;
+import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.ZenPosition;
 
-public class ExpressionZSClass extends Expression {
+public class ExpressionNothing extends Expression {
     
-    private final ZenTypeFrigginClass type;
     
-    public ExpressionZSClass(ZenPosition position, ZenTypeFrigginClass type) {
+    public ExpressionNothing(ZenPosition position) {
         super(position);
-        this.type = type;
     }
     
     @Override
@@ -20,6 +18,6 @@ public class ExpressionZSClass extends Expression {
     
     @Override
     public ZenType getType() {
-        return type;
+        return ZenType.NULL;
     }
 }

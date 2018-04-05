@@ -136,7 +136,6 @@ public class ZenParsedFile {
                     environment.error(frigginClass.position, "Class " + frigginClass.name + " already exists!");
                 else {
                     classes.put(frigginClass.name, frigginClass);
-                    environment.putValue(frigginClass.name, new SymbolType(frigginClass.type), frigginClass.position);
                 }
                 frigginClass.writeClass(environmentScript);
             } else {
