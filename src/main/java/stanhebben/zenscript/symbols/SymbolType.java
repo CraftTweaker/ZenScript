@@ -1,8 +1,11 @@
 package stanhebben.zenscript.symbols;
 
+import stanhebben.zenscript.dump.IDumpedObject;
 import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.ZenPosition;
+
+import java.util.*;
 
 /**
  * @author Stan
@@ -27,5 +30,10 @@ public class SymbolType implements IZenSymbol {
     
     public ZenType getType() {
         return type;
+    }
+    
+    @Override
+    public List<? extends IDumpedObject> asDumpedObject() {
+        return type.asDumpedObject();
     }
 }

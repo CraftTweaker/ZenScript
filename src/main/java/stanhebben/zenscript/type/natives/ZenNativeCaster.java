@@ -2,15 +2,19 @@ package stanhebben.zenscript.type.natives;
 
 import org.objectweb.asm.Label;
 import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.dump.*;
+import stanhebben.zenscript.dump.types.DumpIJavaMethod;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.type.casting.CastingRuleVirtualMethod;
 import stanhebben.zenscript.type.casting.ICastingRuleDelegate;
 import stanhebben.zenscript.util.MethodOutput;
 
+import java.util.*;
+
 /**
  * @author Stanneke
  */
-public class ZenNativeCaster {
+public class ZenNativeCaster implements IDumpable {
 
     private final IJavaMethod method;
 
@@ -78,5 +82,10 @@ public class ZenNativeCaster {
 
         output.returnType(method.getReturnType().toASMType());
         output.label(skip2);
+    }
+    
+    @Override
+    public List<? extends IDumpedObject> asDumpedObject() {
+        return Collections.singletonList(new DumpIJavaMethod(method, "[CASTER]"));
     }
 }
