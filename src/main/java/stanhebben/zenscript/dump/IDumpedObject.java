@@ -1,9 +1,7 @@
 package stanhebben.zenscript.dump;
 
-import com.google.gson.stream.JsonWriter;
-
-import java.io.IOException;
+import com.google.gson.*;
 
 public interface IDumpedObject {
-    void serialize(JsonWriter out) throws IOException;
+    JsonElement serialize(JsonSerializationContext context);
 }

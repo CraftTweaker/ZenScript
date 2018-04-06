@@ -1,10 +1,8 @@
 package stanhebben.zenscript.dump.types;
 
 import com.google.gson.*;
-import com.google.gson.stream.JsonWriter;
 import stanhebben.zenscript.type.natives.*;
 
-import java.io.IOException;
 import java.util.*;
 
 public class DumpZenTypeNative extends DumpZenType {
@@ -26,107 +24,61 @@ public class DumpZenTypeNative extends DumpZenType {
         this.trinaryOperators = trinaryOperators;
         this.binaryOperators = binaryOperators;
         this.unaryOperators = unaryOperators;
-    
-        // goes over all non static members
-        
-    
-    
     }
-    
-    @Override
-    public void serialize(JsonWriter writer) throws IOException {
-        super.serialize(writer);
-        
-        writer.name("members").beginArray();
-    
-        for(Map.Entry<String, ZenNativeMember> entry : members.entrySet()) {
-            writer.name(entry.getKey()).beginArray();
-    
-            for(IJavaMethod iJavaMethod : entry.getValue().getMethods()) {
-                writer.value("\t" + iJavaMethod.toString());
-            }
-    
-            if(entry.getValue().getGetter() != null) {
-                writer.value("Getter: " + entry.getValue().getGetter().toString());
-            }
-            if(entry.getValue().getSetter() != null) {
-                writer.value("Setter: " + entry.getValue().getSetter().toString());
-            }
-            
-            writer.endArray();
-        }
-        writer.endArray();
-        
-        writer.name("staticMembers").beginArray();
-    
-        for(Map.Entry<String, ZenNativeMember> entry : members.entrySet()) {
-            writer.name(entry.getKey()).beginArray();
-    
-            for(IJavaMethod iJavaMethod : entry.getValue().getMethods()) {
-                writer.value("\t" + iJavaMethod.toString());
-            }
-    
-            if(entry.getValue().getGetter() != null) {
-                writer.value("Getter: " + entry.getValue().getGetter().toString());
-            }
-            if(entry.getValue().getSetter() != null) {
-                writer.value("Setter: " + entry.getValue().getSetter().toString());
-            }
-            
-            writer.endArray();
-        }
-        writer.endArray();
-    
-    
-        staticMembers.forEach((s, zenNativeMember) -> {
-            staticMembersArray.add("Static Members: " + s);
-            for(IJavaMethod iJavaMethod : zenNativeMember.getMethods()) {
-                staticMembersArray.add("\t" + iJavaMethod.toString());
-            }
-        
-            if(zenNativeMember.getGetter() != null) {
-                staticMembersArray.add("Static Getter: " + zenNativeMember.getGetter().toString());
-            }
-            if(zenNativeMember.getSetter() != null) {
-                staticMembersArray.add("Static Setter: " + zenNativeMember.getSetter().toString());
-            }
-        });
-    
-    }
-    
+
     @SuppressWarnings("Duplicates")
     @Override
     public JsonObject serialize(JsonSerializationContext context) {
         JsonObject obj = super.serialize(context);
-    
-    
-        JsonArray membersArray = new JsonArray();
-        JsonArray staticMembersArray = new JsonArray();
+        
+        JsonObject memberMap = new JsonObject();
         JsonArray castersArray = new JsonArray();
         
+        members.forEach((name, zenNativeMember) -> zenTypeNativeMemberHelper(memberMap, name,  zenNativeMember, false, context));
+        staticMembers.forEach((name, zenNativeMember) -> zenTypeNativeMemberHelper(memberMap, name,  zenNativeMember, true, context));
+        obj.add("members", memberMap);
         
-        staticMembers.forEach((s, zenNativeMember) -> {
-            staticMembersArray.add("Static Members: " + s);
-            for(IJavaMethod iJavaMethod : zenNativeMember.getMethods()) {
-                staticMembersArray.add("\t" + iJavaMethod.toString());
+        if (!casters.isEmpty()) {
+            for(ZenNativeCaster caster : casters) {
+                castersArray.add(caster.asDumpedObject().get(0).serialize(context));
             }
-        
-            if(zenNativeMember.getGetter() != null) {
-                staticMembersArray.add("Static Getter: " + zenNativeMember.getGetter().toString());
-            }
-            if(zenNativeMember.getSetter() != null) {
-                staticMembersArray.add("Static Setter: " + zenNativeMember.getSetter().toString());
-            }
-        });
     
-        for(ZenNativeCaster caster : casters) {
-            castersArray.add(caster.asDumpedObject().get(0).serialize(context));
+            obj.add("casters", castersArray);
         }
+    
+        for(ZenNativeOperator trinaryOperator : trinaryOperators) {
         
-        obj.add("members", membersArray);
-        obj.add("staticMembers", staticMembersArray);
+        }
         
     
         return obj;
+    }
+    
+    /**
+     *
+     * @param memberMap Map to add the entries to
+     * @param name ZS name of the member
+     * @param zenNativeMember the actual member
+     */
+    private void zenTypeNativeMemberHelper(JsonObject memberMap, String name, ZenNativeMember zenNativeMember, boolean isStatic, JsonSerializationContext context){
+        JsonObject jsonMember = new JsonObject();
+        
+        if(zenNativeMember.getGetter() != null)
+            jsonMember.add("getter", new DumpIJavaMethod(zenNativeMember.getGetter()).withStaticOverride(isStatic).serialize(context));
+    
+        if(zenNativeMember.getSetter() != null)
+            jsonMember.add("setter", new DumpIJavaMethod(zenNativeMember.getSetter()).withStaticOverride(isStatic).serialize(context));
+        
+        
+        List<IJavaMethod> methodList = zenNativeMember.getMethods();
+        if (!methodList.isEmpty()) {
+            JsonArray methodArray = new JsonArray();
+        
+            for(IJavaMethod iJavaMethod : zenNativeMember.getMethods()) {
+                methodArray.add(new DumpIJavaMethod(iJavaMethod).serialize(context));
+            }
+        }
+        
+        memberMap.add(name, jsonMember);
     }
 }

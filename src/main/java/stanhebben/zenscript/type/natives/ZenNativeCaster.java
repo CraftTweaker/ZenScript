@@ -86,6 +86,6 @@ public class ZenNativeCaster implements IDumpable {
     
     @Override
     public List<? extends IDumpedObject> asDumpedObject() {
-        return Collections.singletonList(new DumpIJavaMethod(method, "[CASTER]"));
+        return Collections.singletonList(new DumpIJavaMethod(method));
     }
 }

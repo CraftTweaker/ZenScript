@@ -36,9 +36,16 @@ public class DumpClassBase implements IDumpedObject {
     }
     
     @Override
-    public void serialize(JsonWriter writer) throws IOException {
-        writer.beginObject()
-                .name("javaPath").value(getFullPathNameJava())
-                .name("zsPath").value(getZsAliasPath());
+    public JsonObject serialize(JsonSerializationContext context) {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("javaPath", getFullPathNameJava());
+        obj.addProperty("zsPath", getZsAliasPath());
+        
+        return obj;
+    }
+    
+    @Override
+    public String toString() {
+        return "DumpClassBase: {" + fullPathNameJava + "}";
     }
 }

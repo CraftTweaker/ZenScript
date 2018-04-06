@@ -1,26 +1,35 @@
 package stanhebben.zenscript.dump.types;
 
 import com.google.gson.*;
-import com.google.gson.stream.JsonWriter;
 import stanhebben.zenscript.dump.IDumpedObject;
-import stanhebben.zenscript.type.natives.IJavaMethod;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
+import stanhebben.zenscript.type.natives.*;
 
 public class DumpIJavaMethod implements IDumpedObject {
     
-    private IJavaMethod method;
-    private String methodName;
+    private transient IJavaMethod method;
+    private boolean staticOverride = false;
     
-    public DumpIJavaMethod(IJavaMethod method, String methodName) {
+    public DumpIJavaMethod(IJavaMethod method) {
         this.method = method;
-        this.methodName = methodName;
     }
     
-    
     @Override
-    public void serialize(JsonWriter out) throws IOException {
-        out.beginObject().name("methodName").value(methodName).endObject();
+    public JsonElement serialize(JsonSerializationContext context) {
+        JsonObject obj = new JsonObject();
+        
+        obj.addProperty("static", method.isStatic() || staticOverride);
+        obj.addProperty("returnClass", method.getReturnType().toJavaClass().getCanonicalName());
+        obj.addProperty("name", method.toString());
+        
+        if (method instanceof JavaMethodGenerated) {
+            obj.addProperty("isSynthetic", true);
+        }
+        
+        return obj;
+    }
+    
+    public DumpIJavaMethod withStaticOverride(boolean override){
+        staticOverride = override;
+        return this;
     }
 }
