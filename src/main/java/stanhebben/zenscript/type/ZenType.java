@@ -19,7 +19,7 @@ import java.util.*;
 
 import static stanhebben.zenscript.util.ZenTypeUtil.EMPTY_REGISTRY;
 
-public abstract class ZenType implements IDumpable {
+public abstract class ZenType implements IDumpConvertable {
     
     public static final ZenTypeAny ANY = ZenTypeAny.INSTANCE;
     public static final ZenTypeBool BOOL = new ZenTypeBool();

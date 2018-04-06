@@ -1,6 +1,6 @@
 package stanhebben.zenscript.symbols;
 
-import stanhebben.zenscript.dump.IDumpedObject;
+import stanhebben.zenscript.dump.IDumpable;
 import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.ZenPosition;
@@ -33,7 +33,7 @@ public class SymbolType implements IZenSymbol {
     }
     
     @Override
-    public List<? extends IDumpedObject> asDumpedObject() {
+    public List<? extends IDumpable> asDumpedObject() {
         return type.asDumpedObject();
     }
 }

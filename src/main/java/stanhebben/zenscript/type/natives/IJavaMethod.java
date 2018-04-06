@@ -1,6 +1,8 @@
 package stanhebben.zenscript.type.natives;
 
+import com.google.gson.*;
 import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.dump.IDumpable;
 import stanhebben.zenscript.expression.Expression;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.MethodOutput;
@@ -27,5 +29,4 @@ public interface IJavaMethod {
     ZenType getReturnType();
     
     boolean isVarargs();
-    
 }

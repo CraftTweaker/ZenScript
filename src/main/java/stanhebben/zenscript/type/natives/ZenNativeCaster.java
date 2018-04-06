@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * @author Stanneke
  */
-public class ZenNativeCaster implements IDumpable {
+public class ZenNativeCaster implements IDumpConvertable {
 
     private final IJavaMethod method;
 
@@ -85,7 +85,7 @@ public class ZenNativeCaster implements IDumpable {
     }
     
     @Override
-    public List<? extends IDumpedObject> asDumpedObject() {
+    public List<? extends IDumpable> asDumpedObject() {
         return Collections.singletonList(new DumpIJavaMethod(method));
     }
 }

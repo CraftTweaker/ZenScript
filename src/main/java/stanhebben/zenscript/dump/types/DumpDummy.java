@@ -1,9 +1,9 @@
 package stanhebben.zenscript.dump.types;
 
 import com.google.gson.*;
-import stanhebben.zenscript.dump.IDumpedObject;
+import stanhebben.zenscript.dump.IDumpable;
 
-public class DumpDummy implements IDumpedObject {
+public class DumpDummy implements IDumpable {
     private String className;
     private String toString;
     

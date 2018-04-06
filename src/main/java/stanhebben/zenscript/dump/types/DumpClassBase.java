@@ -1,12 +1,9 @@
 package stanhebben.zenscript.dump.types;
 
 import com.google.gson.*;
-import com.google.gson.stream.JsonWriter;
 import stanhebben.zenscript.dump.*;
 
-import java.io.IOException;
-
-public class DumpClassBase implements IDumpedObject {
+public class DumpClassBase implements IDumpable {
     private String classNameJava;
     private String fullPathNameJava;
     private String zsAliasPath;

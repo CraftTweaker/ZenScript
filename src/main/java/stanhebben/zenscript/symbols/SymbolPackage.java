@@ -1,7 +1,7 @@
 package stanhebben.zenscript.symbols;
 
 import stanhebben.zenscript.IZenErrorLogger;
-import stanhebben.zenscript.dump.IDumpedObject;
+import stanhebben.zenscript.dump.IDumpable;
 import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.util.*;
 
@@ -80,8 +80,8 @@ public class SymbolPackage implements IZenSymbol {
     }
     
     @Override
-    public List<? extends IDumpedObject> asDumpedObject() {
-        List<IDumpedObject> list = new ArrayList<>();
+    public List<? extends IDumpable> asDumpedObject() {
+        List<IDumpable> list = new ArrayList<>();
         for(Map.Entry<String, IZenSymbol> entry : members.entrySet()) {
             list.addAll(entry.getValue().asDumpedObject());
         }

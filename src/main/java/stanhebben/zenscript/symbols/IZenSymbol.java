@@ -10,12 +10,12 @@ import java.util.*;
 /**
  * @author Stanneke
  */
-public interface IZenSymbol extends IDumpable {
+public interface IZenSymbol extends IDumpConvertable {
     
     IPartialExpression instance(ZenPosition position);
     
     @Override
-    default List<? extends IDumpedObject> asDumpedObject() {
+    default List<? extends IDumpable> asDumpedObject() {
         return Collections.singletonList(new DumpDummy(this));
     }
 }

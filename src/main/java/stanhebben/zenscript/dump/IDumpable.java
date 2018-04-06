@@ -1,11 +1,7 @@
 package stanhebben.zenscript.dump;
 
-import java.util.*;
+import com.google.gson.*;
 
 public interface IDumpable {
-    
-    /**
-     * Gets a List of dumpable objects that can easily serialized into JSON
-     */
-    default List<? extends IDumpedObject> asDumpedObject() {return Collections.emptyList();}
+    default JsonElement serialize(JsonSerializationContext context) {return JsonNull.INSTANCE;}
 }

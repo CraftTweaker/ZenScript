@@ -1,10 +1,10 @@
 package stanhebben.zenscript.dump.types;
 
 import com.google.gson.*;
-import stanhebben.zenscript.dump.IDumpedObject;
+import stanhebben.zenscript.dump.IDumpable;
 import stanhebben.zenscript.type.natives.*;
 
-public class DumpIJavaMethod implements IDumpedObject {
+public class DumpIJavaMethod implements IDumpable {
     
     private transient IJavaMethod method;
     private boolean staticOverride = false;
@@ -14,7 +14,7 @@ public class DumpIJavaMethod implements IDumpedObject {
     }
     
     @Override
-    public JsonElement serialize(JsonSerializationContext context) {
+    public JsonObject serialize(JsonSerializationContext context) {
         JsonObject obj = new JsonObject();
         
         obj.addProperty("static", method.isStatic() || staticOverride);

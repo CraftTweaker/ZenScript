@@ -25,7 +25,7 @@ public class DumpZenTypeNative extends DumpZenType {
         this.binaryOperators = binaryOperators;
         this.unaryOperators = unaryOperators;
     }
-
+    
     @SuppressWarnings("Duplicates")
     @Override
     public JsonObject serialize(JsonSerializationContext context) {
@@ -34,51 +34,61 @@ public class DumpZenTypeNative extends DumpZenType {
         JsonObject memberMap = new JsonObject();
         JsonArray castersArray = new JsonArray();
         
-        members.forEach((name, zenNativeMember) -> zenTypeNativeMemberHelper(memberMap, name,  zenNativeMember, false, context));
-        staticMembers.forEach((name, zenNativeMember) -> zenTypeNativeMemberHelper(memberMap, name,  zenNativeMember, true, context));
+        members.forEach((name, zenNativeMember) -> zenTypeNativeMemberHelper(memberMap, name, zenNativeMember, false, context));
+        staticMembers.forEach((name, zenNativeMember) -> zenTypeNativeMemberHelper(memberMap, name, zenNativeMember, true, context));
         obj.add("members", memberMap);
         
-        if (!casters.isEmpty()) {
+        if(!casters.isEmpty()) {
             for(ZenNativeCaster caster : casters) {
                 castersArray.add(caster.asDumpedObject().get(0).serialize(context));
             }
-    
+            
             obj.add("casters", castersArray);
         }
     
-        for(ZenNativeOperator trinaryOperator : trinaryOperators) {
+        JsonArray array = new JsonArray();
         
-        }
-        
+        if (operatorHelper(array, unaryOperators, context) || operatorHelper(array, binaryOperators, context) || operatorHelper(array, trinaryOperators,  context))
+            obj.add("operators", array);
     
         return obj;
     }
     
     /**
-     *
-     * @param memberMap Map to add the entries to
-     * @param name ZS name of the member
+     * @param memberMap       Map to add the entries to
+     * @param name            ZS name of the member
      * @param zenNativeMember the actual member
      */
-    private void zenTypeNativeMemberHelper(JsonObject memberMap, String name, ZenNativeMember zenNativeMember, boolean isStatic, JsonSerializationContext context){
+    private void zenTypeNativeMemberHelper(JsonObject memberMap, String name, ZenNativeMember zenNativeMember, boolean isStatic, JsonSerializationContext context) {
         JsonObject jsonMember = new JsonObject();
         
         if(zenNativeMember.getGetter() != null)
             jsonMember.add("getter", new DumpIJavaMethod(zenNativeMember.getGetter()).withStaticOverride(isStatic).serialize(context));
-    
+        
         if(zenNativeMember.getSetter() != null)
             jsonMember.add("setter", new DumpIJavaMethod(zenNativeMember.getSetter()).withStaticOverride(isStatic).serialize(context));
         
         
         List<IJavaMethod> methodList = zenNativeMember.getMethods();
-        if (!methodList.isEmpty()) {
+        if(!methodList.isEmpty()) {
             JsonArray methodArray = new JsonArray();
-        
+            
             for(IJavaMethod iJavaMethod : zenNativeMember.getMethods()) {
                 methodArray.add(new DumpIJavaMethod(iJavaMethod).serialize(context));
             }
         }
         
         memberMap.add(name, jsonMember);
+    }
+    
+    private boolean operatorHelper(JsonArray obj, List<ZenNativeOperator> operators, JsonSerializationContext context) {
+        if(operators.isEmpty())
+            return false;
+        
+        for(ZenNativeOperator unaryOperator : operators) {
+            obj.add(unaryOperator.serialize(context));
+        }
+        
+        return true;
     }
 }
