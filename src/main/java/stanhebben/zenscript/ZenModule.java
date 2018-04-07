@@ -90,7 +90,7 @@ public class ZenModule {
                 clinit.end();
             }
             
-            if(!script.getFunctions().isEmpty() || !script.getGlobals().isEmpty()) {
+            if(!script.getFunctions().isEmpty() || !script.getGlobals().isEmpty() || !script.getClasses().isEmpty()) {
                 String fileName = script.getFileName();
                 if(fileName.startsWith("scripts.zip" + File.separator))
                     fileName = fileName.substring(12);

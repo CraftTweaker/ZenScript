@@ -6,6 +6,7 @@ import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.parser.Token;
+import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.statements.*;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.*;
@@ -26,13 +27,13 @@ public class ParsedFrigginClass {
     public final String className;
     public final ZenTypeFrigginClass type;
     public final List<ParsedClassConstructor> constructors;
-    private final Map<String, Pair<ZenType, Statement>> staticFields;
-    private final Map<String, Pair<ZenType, Statement>> nonStaticFields;
+    private final Map<String, Pair<ZenType, ParsedExpression>> staticFields;
+    private final Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields;
     private final Map<String, ZenNativeMember> members = new HashMap<>();
     private final List<ParsedFunction> methods = new ArrayList<>();
     public Class<?> thisClass = Object.class;
     
-    private ParsedFrigginClass(ZenPosition position, String name, IEnvironmentGlobal environment, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, Statement>> staticFields, Map<String, Pair<ZenType, Statement>> nonStaticFields) {
+    private ParsedFrigginClass(ZenPosition position, String name, IEnvironmentGlobal environment, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, ParsedExpression>> staticFields, Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields) {
         this.position = position;
         this.name = name;
         this.className = environment.makeClassName();
@@ -41,7 +42,7 @@ public class ParsedFrigginClass {
         this.nonStaticFields = nonStaticFields;
         this.type = new ZenTypeFrigginClass(this);
         
-        for(Map.Entry<String, Pair<ZenType, Statement>> statics : staticFields.entrySet()) {
+        for(Map.Entry<String, Pair<ZenType, ParsedExpression>> statics : staticFields.entrySet()) {
             if(!members.containsKey(statics.getKey()))
                 members.put(statics.getKey(), new ZenNativeMember());
             ZenNativeMember member = members.get(statics.getKey());
@@ -49,7 +50,7 @@ public class ParsedFrigginClass {
             member.setSetter(new ZenClassFieldMethod(true, true, statics.getKey(), statics.getValue().getKey()));
         }
         
-        for(Map.Entry<String, Pair<ZenType, Statement>> nonStatics : nonStaticFields.entrySet()) {
+        for(Map.Entry<String, Pair<ZenType, ParsedExpression>> nonStatics : nonStaticFields.entrySet()) {
             if(!members.containsKey(nonStatics.getKey()))
                 members.put(nonStatics.getKey(), new ZenNativeMember());
             ZenNativeMember member = members.get(nonStatics.getKey());
@@ -66,7 +67,7 @@ public class ParsedFrigginClass {
         
         Token id = parser.required(T_ID, "ClassName required");
         parser.required(T_AOPEN, "You need to start the class, don't ya?");
-        Map<String, Pair<ZenType, Statement>> statics = new HashMap<>();
+        Map<String, Pair<ZenType, ParsedExpression>> statics = new LinkedHashMap<>();
         while(parser.optional(T_STATIC) != null) {
             String name = parser.required(T_ID, "Static variable identifier required").getValue();
             ZenType type = ZenType.ANY;
@@ -74,22 +75,24 @@ public class ParsedFrigginClass {
                 type = ZenType.read(parser, environment);
             }
             parser.required(T_ASSIGN, "'=' expected");
-            statics.put(name, new Pair<>(type, Statement.read(parser, environment, type)));
+            statics.put(name, new Pair<>(type, ParsedExpression.read(parser, environment)));
+            parser.required(T_SEMICOLON, "; expected");
         }
-        Map<String, Pair<ZenType, Statement>> nonStatics = new HashMap<>();
+        Map<String, Pair<ZenType, ParsedExpression>> nonStatics = new LinkedHashMap<>();
         while(parser.optional(T_VAL) != null) {
             String name = parser.required(T_ID, "Nonstatic variable identifier required").getValue();
             ZenType type = ZenType.ANY;
             if(parser.optional(T_AS) != null) {
                 type = ZenType.read(parser, environment);
             }
-            Statement statement = null;
+            ParsedExpression parsedExpression = null;
             if(parser.optional(T_ASSIGN) == null) {
                 parser.required(T_SEMICOLON, "; expected");
             } else {
-                statement = Statement.read(parser, environment, type);
+                parsedExpression = ParsedExpression.read(parser, environment);
+                parser.required(T_SEMICOLON, "; expected");
             }
-            nonStatics.put(name, new Pair<>(type, statement));
+            nonStatics.put(name, new Pair<>(type, parsedExpression));
         }
         List<ParsedClassConstructor> constructors = new ArrayList<>();
         while(parser.optional(T_FRIGGIN_CONSTRUCTOR) != null) {
@@ -107,7 +110,6 @@ public class ParsedFrigginClass {
         return classTemplate;
     }
     
-    
     public void writeClass(IEnvironmentGlobal environmentGlobal) {
         ClassWriter newClass = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
         newClass.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, className, null, "java/lang/Object", new String[0]);
@@ -118,16 +120,17 @@ public class ParsedFrigginClass {
             MethodOutput clinit = new MethodOutput(newClass, Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
             EnvironmentMethod clinitEnvironment = new EnvironmentMethod(clinit, environmentNewClass);
             clinit.start();
-            for(Map.Entry<String, Pair<ZenType, Statement>> statics : staticFields.entrySet()) {
+            for(Map.Entry<String, Pair<ZenType, ParsedExpression>> statics : staticFields.entrySet()) {
                 
                 String fieldName = statics.getKey();
                 
-                String descriptor = statics.getValue().getKey().toASMType().getDescriptor();
-                Statement statement = statics.getValue().getValue();
-                clinitEnvironment.putValue(fieldName, position1 -> type.getMember(position1, environmentGlobal, null, fieldName), position);
+                ParsedExpression parsedExpression = statics.getValue().getValue();
+                clinitEnvironment.putValue(fieldName, position1 -> type.getMember(position1, environmentGlobal, new ExpressionNothing(position1), fieldName), position);
                 
+                Expression expression = parsedExpression.compile(clinitEnvironment, statics.getValue().getKey()).eval(clinitEnvironment);
+                String descriptor = expression.getType().toASMType().getDescriptor();
                 newClass.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, fieldName, descriptor, null, null).visitEnd();
-                statement.compile(clinitEnvironment, true);
+                expression.compile(true, clinitEnvironment);
                 clinit.putStaticField(className, fieldName, descriptor);
             }
             
@@ -136,14 +139,14 @@ public class ParsedFrigginClass {
         }
         
         if(!nonStaticFields.isEmpty()) {
-            for(Map.Entry<String, Pair<ZenType, Statement>> nonStatic : nonStaticFields.entrySet()) {
+            for(Map.Entry<String, Pair<ZenType, ParsedExpression>> nonStatic : nonStaticFields.entrySet()) {
                 String fieldName = nonStatic.getKey();
                 String descriptor = nonStatic.getValue().getKey().toASMType().getDescriptor();
                 newClass.visitField(Opcodes.ACC_PUBLIC, fieldName, descriptor, null, null).visitEnd();
             }
         }
         environmentNewClass.putValue("thisFrigginClass", ExpressionThis::new, position);
-        for(Map.Entry<String, Pair<ZenType, Statement>> nonStatic : nonStaticFields.entrySet()) {
+        for(Map.Entry<String, Pair<ZenType, ParsedExpression>> nonStatic : nonStaticFields.entrySet()) {
             String fieldName = nonStatic.getKey();
             environmentNewClass.putValue(fieldName, position1 -> type.getMember(position1, environmentGlobal, new ExpressionThis(position1), fieldName), position);
         }
@@ -177,17 +180,16 @@ public class ParsedFrigginClass {
         }.find();
     }
     
-    
     private void initNonStaticFields(IEnvironmentMethod environmentMethod, MethodOutput initVisitor, String classname) {
-        for(Map.Entry<String, Pair<ZenType, Statement>> nonStatic : nonStaticFields.entrySet()) {
+        for(Map.Entry<String, Pair<ZenType, ParsedExpression>> nonStatic : nonStaticFields.entrySet()) {
             initVisitor.loadObject(0);
-            Statement statement = nonStatic.getValue().getValue();
-            if(statement == null)
+            ParsedExpression parsedExpression = nonStatic.getValue().getValue();
+            if(parsedExpression == null)
                 continue;
             String fieldName = nonStatic.getKey();
             String descriptor = nonStatic.getValue().getKey().toASMType().getDescriptor();
             
-            statement.compile(environmentMethod, true);
+            parsedExpression.compile(environmentMethod, nonStatic.getValue().getKey()).eval(environmentMethod).compile(true, environmentMethod);
             initVisitor.putField(classname, fieldName, descriptor);
         }
     }

@@ -85,7 +85,7 @@ public class ZenTypeFrigginClass extends ZenType {
     
     @Override
     public String getSignature() {
-        return toASMType().getDescriptor();
+        return "L" + parsedFrigginClass.className + ";";
     }
     
     @Override
