@@ -9,11 +9,11 @@ import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.casting.ICastingRuleDelegate;
 import stanhebben.zenscript.util.ZenPosition;
 
-public class ZenTypeFrigginClass extends ZenType {
+public class ZenTypeZenClass extends ZenType {
     
-    public final ParsedFrigginClass parsedFrigginClass;
+    public final ParsedZenClass parsedFrigginClass;
     
-    public ZenTypeFrigginClass(ParsedFrigginClass parsedFrigginClass) {
+    public ZenTypeZenClass(ParsedZenClass parsedFrigginClass) {
         
         this.parsedFrigginClass = parsedFrigginClass;
     }

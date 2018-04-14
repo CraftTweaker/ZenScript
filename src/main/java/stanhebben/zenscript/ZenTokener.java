@@ -88,8 +88,8 @@ public class ZenTokener extends TokenStream {
     public static final int T_STATIC = 667;
     public static final int T_INSTANCEOF = 668;
     
-    public static final int T_FRIGGIN_CLASS = 123456789;
-    public static final int T_FRIGGIN_CONSTRUCTOR = 987654321;
+    public static final int T_ZEN_CLASS = 123456789;
+    public static final int T_ZEN_CONSTRUCTOR = 987654321;
     
     private static final HashMap<String, Integer> KEYWORDS;
     private static final String[] REGEXPS = {"#[^\n]*[\n\\e]", "//[^\n]*[\n\\e]", "/\\*[^\\*]*(\\*|\\*[^/\\*][^\\*]*)*\\*/", "[ \t\r\n]*", "[a-zA-Z_][a-zA-Z_0-9]*", "\\-?(0|[1-9][0-9]*)\\.[0-9]+([eE][\\+\\-]?[0-9]+)?[fFdD]?", "\\-?(0|[1-9][0-9]*)", "0x[A-Fa-f0-9]*", "\"([^\"\\\\]|\\\\([\'\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\"", "\'([^\'\\\\]|\\\\([\'\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\'", "\\{", "\\}", "\\[", "\\]", "\\.\\.", "\\.", ",", "\\+=", "\\+", "\\-=", "\\-", "\\*=", "\\*", "/=", "/", "%=", "%", "\\|=", "\\|\\|", "\\|", "&=", "&&", "&", "\\^=", "\\^", "\\?", ":", "\\(", "\\)", "~=", "~", ";", "<=", "<", ">=", ">", "==", "=", "!=", "!", "$"};
@@ -135,8 +135,10 @@ public class ZenTokener extends TokenStream {
         KEYWORDS.put("import", T_IMPORT);
         
         
-        KEYWORDS.put("frigginClass", T_FRIGGIN_CLASS);
-        KEYWORDS.put("frigginConstructor", T_FRIGGIN_CONSTRUCTOR);
+        KEYWORDS.put("frigginClass", T_ZEN_CLASS);
+        KEYWORDS.put("frigginConstructor", T_ZEN_CONSTRUCTOR);
+        KEYWORDS.put("zenClass", T_ZEN_CLASS);
+        KEYWORDS.put("zenConstructor", T_ZEN_CONSTRUCTOR);
     }
     
     private final IZenCompileEnvironment environment;

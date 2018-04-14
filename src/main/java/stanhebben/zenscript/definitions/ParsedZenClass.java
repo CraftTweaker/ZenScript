@@ -19,13 +19,13 @@ import java.util.stream.IntStream;
 import static stanhebben.zenscript.ZenTokener.*;
 import static stanhebben.zenscript.util.ZenTypeUtil.internal;
 
-public class ParsedFrigginClass {
+public class ParsedZenClass {
     
     
     public final ZenPosition position;
     public final String name;
     public final String className;
-    public final ZenTypeFrigginClass type;
+    public final ZenTypeZenClass type;
     public final List<ParsedClassConstructor> constructors;
     private final Map<String, Pair<ZenType, ParsedExpression>> staticFields;
     private final Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields;
@@ -33,14 +33,14 @@ public class ParsedFrigginClass {
     private final List<ParsedFunction> methods = new LinkedList<>();
     public Class<?> thisClass = Object.class;
     
-    private ParsedFrigginClass(ZenPosition position, String name, EnvironmentScript environment, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, ParsedExpression>> staticFields, Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields) {
+    private ParsedZenClass(ZenPosition position, String name, EnvironmentScript environment, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, ParsedExpression>> staticFields, Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields) {
         this.position = position;
         this.name = name;
         this.className = environment.makeClassName();
         this.constructors = constructors;
         this.staticFields = staticFields;
         this.nonStaticFields = nonStaticFields;
-        this.type = new ZenTypeFrigginClass(this);
+        this.type = new ZenTypeZenClass(this);
         
         for(Map.Entry<String, Pair<ZenType, ParsedExpression>> statics : staticFields.entrySet()) {
             if(!members.containsKey(statics.getKey()))
@@ -62,7 +62,7 @@ public class ParsedFrigginClass {
     }
     
     
-    public static ParsedFrigginClass createFrigginClass(ZenTokener parser, IEnvironmentGlobal environment) {
+    public static ParsedZenClass createFrigginClass(ZenTokener parser, IEnvironmentGlobal environment) {
         parser.next();
         EnvironmentScript classEnvo = new EnvironmentScript(environment);
         Token id = parser.required(T_ID, "ClassName required");
@@ -95,12 +95,12 @@ public class ParsedFrigginClass {
             nonStatics.put(name, new Pair<>(type, parsedExpression));
         }
         List<ParsedClassConstructor> constructors = new ArrayList<>();
-        while(parser.optional(T_FRIGGIN_CONSTRUCTOR) != null) {
+        while(parser.optional(T_ZEN_CONSTRUCTOR) != null) {
             constructors.add(ParsedClassConstructor.parse(parser, classEnvo));
         }
         
         
-        ParsedFrigginClass classTemplate = new ParsedFrigginClass(id.getPosition(), id.getValue(), classEnvo, constructors, statics, nonStatics);
+        ParsedZenClass classTemplate = new ParsedZenClass(id.getPosition(), id.getValue(), classEnvo, constructors, statics, nonStatics);
         while(parser.peek().getType() == T_FUNCTION) {
             ParsedFunction fun = ParsedFunction.parse(parser, classEnvo);
             classTemplate.addMethod(fun);

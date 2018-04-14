@@ -34,7 +34,7 @@ public class ZenParsedFile {
     private final List<Import> imports;
     private final Map<String, ParsedFunction> functions;
     private final Map<String, ParsedGlobalValue> globals = new HashMap<>();
-    private final Map<String, ParsedFrigginClass> classes = new HashMap<>();
+    private final Map<String, ParsedZenClass> classes = new HashMap<>();
     private final List<Statement> statements;
     private final IEnvironmentGlobal environmentScript;
     
@@ -130,8 +130,8 @@ public class ZenParsedFile {
                     environment.error(function.getPosition(), "function " + function.getName() + " already exists");
                 }
                 functions.put(function.getName(), function);
-            } else if(next.getType() == T_FRIGGIN_CLASS) {
-                ParsedFrigginClass frigginClass = ParsedFrigginClass.createFrigginClass(tokener, environmentScript);
+            } else if(next.getType() == T_ZEN_CLASS) {
+                ParsedZenClass frigginClass = ParsedZenClass.createFrigginClass(tokener, environmentScript);
                 if(classes.containsKey(frigginClass.name))
                     environment.error(frigginClass.position, "Class " + frigginClass.name + " already exists!");
                 else {
@@ -202,7 +202,7 @@ public class ZenParsedFile {
         return filename;
     }
     
-    public Map<String, ParsedFrigginClass> getClasses() {
+    public Map<String, ParsedZenClass> getClasses() {
         return classes;
     }
 }

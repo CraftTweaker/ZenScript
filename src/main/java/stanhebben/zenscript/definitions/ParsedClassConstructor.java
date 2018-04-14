@@ -68,7 +68,7 @@ public class ParsedClassConstructor {
         return arguments.length == types.length && IntStream.range(0, arguments.length).allMatch(i -> arguments[i].getType().canCastImplicit(types[i], environment));
     }
     
-    public Expression call(ZenPosition position, Expression[] arguments, ZenTypeFrigginClass type) {
+    public Expression call(ZenPosition position, Expression[] arguments, ZenTypeZenClass type) {
         if(arguments.length != this.types.length)
             throw new IllegalArgumentException(String.format("Expected %d arguments, received %d", types.length, arguments.length));
         return new ExpressionCallConstructor(position, type, arguments);
@@ -82,10 +82,10 @@ public class ParsedClassConstructor {
     
     class ExpressionCallConstructor extends Expression {
         
-        private final ZenTypeFrigginClass type;
+        private final ZenTypeZenClass type;
         private final Expression[] arguments;
         
-        ExpressionCallConstructor(ZenPosition position, ZenTypeFrigginClass type, Expression[] arguments) {
+        ExpressionCallConstructor(ZenPosition position, ZenTypeZenClass type, Expression[] arguments) {
             super(position);
             this.type = type;
             this.arguments = arguments;

@@ -67,7 +67,7 @@ public class ZenModule {
             clsScript.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, script.getClassName().replace('.', '/'), null, internal(Object.class), new String[]{internal(Runnable.class)});
             
             if(!script.getClasses().isEmpty()) {
-                for(Map.Entry<String, ParsedFrigginClass> entry : script.getClasses().entrySet()) {
+                for(Map.Entry<String, ParsedZenClass> entry : script.getClasses().entrySet()) {
                     environmentScript.putValue(entry.getKey(), position -> new PartialZSClass(entry.getValue().type), entry.getValue().position);
                 }
             }

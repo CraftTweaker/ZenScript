@@ -8,9 +8,9 @@ import stanhebben.zenscript.util.ZenPosition;
 
 public class PartialZSClass implements IPartialExpression {
     
-    private final ZenTypeFrigginClass type;
+    private final ZenTypeZenClass type;
     
-    public PartialZSClass(ZenTypeFrigginClass type) {
+    public PartialZSClass(ZenTypeZenClass type) {
         
         this.type = type;
     }
