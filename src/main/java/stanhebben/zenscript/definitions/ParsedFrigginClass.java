@@ -30,10 +30,10 @@ public class ParsedFrigginClass {
     private final Map<String, Pair<ZenType, ParsedExpression>> staticFields;
     private final Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields;
     private final Map<String, ZenNativeMember> members = new HashMap<>();
-    private final List<ParsedFunction> methods = new ArrayList<>();
+    private final List<ParsedFunction> methods = new LinkedList<>();
     public Class<?> thisClass = Object.class;
     
-    private ParsedFrigginClass(ZenPosition position, String name, IEnvironmentGlobal environment, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, ParsedExpression>> staticFields, Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields) {
+    private ParsedFrigginClass(ZenPosition position, String name, EnvironmentScript environment, List<ParsedClassConstructor> constructors, Map<String, Pair<ZenType, ParsedExpression>> staticFields, Map<String, Pair<ZenType, ParsedExpression>> nonStaticFields) {
         this.position = position;
         this.name = name;
         this.className = environment.makeClassName();
@@ -58,13 +58,13 @@ public class ParsedFrigginClass {
             member.setSetter(new ZenClassFieldMethod(false, true, nonStatics.getKey(), nonStatics.getValue().getKey()));
         }
         
-        environment.putValue(name, new SymbolType(type), position);
+        environment.getParent().putValue(name, new SymbolType(type), position);
     }
     
     
     public static ParsedFrigginClass createFrigginClass(ZenTokener parser, IEnvironmentGlobal environment) {
         parser.next();
-        
+        EnvironmentScript classEnvo = new EnvironmentScript(environment);
         Token id = parser.required(T_ID, "ClassName required");
         parser.required(T_AOPEN, "You need to start the class, don't ya?");
         Map<String, Pair<ZenType, ParsedExpression>> statics = new LinkedHashMap<>();
@@ -72,37 +72,40 @@ public class ParsedFrigginClass {
             String name = parser.required(T_ID, "Static variable identifier required").getValue();
             ZenType type = ZenType.ANY;
             if(parser.optional(T_AS) != null) {
-                type = ZenType.read(parser, environment);
+                type = ZenType.read(parser, classEnvo);
             }
             parser.required(T_ASSIGN, "'=' expected");
-            statics.put(name, new Pair<>(type, ParsedExpression.read(parser, environment)));
+            statics.put(name, new Pair<>(type, ParsedExpression.read(parser, classEnvo)));
             parser.required(T_SEMICOLON, "; expected");
         }
         Map<String, Pair<ZenType, ParsedExpression>> nonStatics = new LinkedHashMap<>();
-        while(parser.optional(T_VAL) != null) {
+        while(parser.optional(T_VAL, T_VAR) != null) {
             String name = parser.required(T_ID, "Nonstatic variable identifier required").getValue();
             ZenType type = ZenType.ANY;
             if(parser.optional(T_AS) != null) {
-                type = ZenType.read(parser, environment);
+                type = ZenType.read(parser, classEnvo);
             }
             ParsedExpression parsedExpression = null;
             if(parser.optional(T_ASSIGN) == null) {
                 parser.required(T_SEMICOLON, "; expected");
             } else {
-                parsedExpression = ParsedExpression.read(parser, environment);
+                parsedExpression = ParsedExpression.read(parser, classEnvo);
                 parser.required(T_SEMICOLON, "; expected");
             }
             nonStatics.put(name, new Pair<>(type, parsedExpression));
         }
         List<ParsedClassConstructor> constructors = new ArrayList<>();
         while(parser.optional(T_FRIGGIN_CONSTRUCTOR) != null) {
-            constructors.add(ParsedClassConstructor.parse(parser, environment));
+            constructors.add(ParsedClassConstructor.parse(parser, classEnvo));
         }
         
         
-        ParsedFrigginClass classTemplate = new ParsedFrigginClass(id.getPosition(), id.getValue(), environment, constructors, statics, nonStatics);
+        ParsedFrigginClass classTemplate = new ParsedFrigginClass(id.getPosition(), id.getValue(), classEnvo, constructors, statics, nonStatics);
         while(parser.peek().getType() == T_FUNCTION) {
-            classTemplate.addMethod(ParsedFunction.parse(parser, environment));
+            ParsedFunction fun = ParsedFunction.parse(parser, classEnvo);
+            classTemplate.addMethod(fun);
+            if(classEnvo.getValue(fun.getName(), null) == null)
+                classEnvo.putValue(fun.getName(), position1 -> classTemplate.getExpressionThis(position1).getMember(position1, classEnvo, fun.getName()), fun.getPosition());
         }
         
         parser.required(T_ACLOSE, "You need to close the class, don't ya?");
@@ -136,6 +139,12 @@ public class ParsedFrigginClass {
             
             clinit.ret();
             clinit.end();
+        }
+    
+    
+        for(ParsedFunction method : methods) {
+            if(environmentNewClass.getValue(method.getName(), null) == null)
+                environmentNewClass.putValue(method.getName(), position1 -> type.getMember(position1, environmentNewClass, new ExpressionThis(position1), method.getName()), method.getPosition());
         }
         
         if(!nonStaticFields.isEmpty()) {
@@ -242,6 +251,10 @@ public class ParsedFrigginClass {
         return new ExpressionInvalid(position);
     }
     
+    private ExpressionThis getExpressionThis(ZenPosition position) {
+        return new ExpressionThis(position);
+    }
+    
     public ZenType[] predictCallTypes(int numArguments) {
         for(ParsedClassConstructor con : constructors) {
             if(con.types.length == numArguments)
@@ -275,7 +288,7 @@ public class ParsedFrigginClass {
         
         @Override
         public int getPriority(IEnvironmentGlobal environment, Expression... arguments) {
-            return 0;
+            return accepts(environment, arguments) ? JavaMethod.PRIORITY_LOW : JavaMethod.PRIORITY_INVALID;
         }
         
         @Override
