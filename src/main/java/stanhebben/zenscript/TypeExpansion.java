@@ -204,14 +204,14 @@ public class TypeExpansion {
         if (method.getReturnType().equals(Void.TYPE)){
             throw new RuntimeException("ZenGetter needs a non Void returntype - " + cls.getName() + "." + method.getName());
         }
-        if (method.getParameterCount() > 0){
-            throw new RuntimeException("ZenGetter may not have any parameters - " + cls.getName() + "." + method.getName());
+        if (method.getParameterCount() != 1){
+            throw new RuntimeException("ZenGetters in Expansions must have exactly one parameter - " + cls.getName() + "." + method.getName());
         }
     }
 
     private void checkSetter(Method method, Class cls) {
-        if (method.getParameterCount() != 1){
-            throw new RuntimeException("ZenSetter must have exactly one parameter - " + cls.getName() + "." + method.getName());
+        if (method.getParameterCount() != 2){
+            throw new RuntimeException("ZenSetter in Expansions must have exactly two parameters - " + cls.getName() + "." + method.getName());
         }
         if (!method.getReturnType().equals(Void.TYPE)) {
             throw new RuntimeException("ZenSetter must have a void return type");

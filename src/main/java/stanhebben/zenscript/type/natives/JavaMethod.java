@@ -1,6 +1,8 @@
 package stanhebben.zenscript.type.natives;
 
 import stanhebben.zenscript.annotations.Optional;
+import stanhebben.zenscript.annotations.ZenExpansion;
+import stanhebben.zenscript.annotations.ZenMethodStatic;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.type.*;
@@ -27,8 +29,13 @@ public class JavaMethod implements IJavaMethod {
     
     public JavaMethod(Method method, ITypeRegistry types) {
         this.method = method;
-        
-        ownerType = types.getType(method.getDeclaringClass());
+
+        if(method.getDeclaringClass().isAnnotationPresent(ZenExpansion.class) && !method.isAnnotationPresent(ZenMethodStatic.class)) {
+            ownerType = types.getType(method.getParameterTypes()[0]);
+        } else {
+            ownerType = types.getType(method.getDeclaringClass());
+        }
+
         returnType = types.getType(method.getGenericReturnType());
         parameterTypes = new ZenType[method.getParameterTypes().length];
         optional = new boolean[parameterTypes.length];
