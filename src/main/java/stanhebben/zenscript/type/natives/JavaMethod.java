@@ -16,25 +16,18 @@ import java.util.List;
  * @author Stan
  */
 public class JavaMethod implements IJavaMethod {
-    
+
     public static final int PRIORITY_INVALID = -1;
     public static final int PRIORITY_LOW = 1;
     public static final int PRIORITY_MEDIUM = 2;
     public static final int PRIORITY_HIGH = 3;
     private final Method method;
-    private final ZenType ownerType;
     private final ZenType[] parameterTypes;
     private final boolean[] optional;
     private final ZenType returnType;
-    
+
     public JavaMethod(Method method, ITypeRegistry types) {
         this.method = method;
-
-        if(method.getDeclaringClass().isAnnotationPresent(ZenExpansion.class) && !method.isAnnotationPresent(ZenMethodStatic.class)) {
-            ownerType = types.getType(method.getParameterTypes()[0]);
-        } else {
-            ownerType = types.getType(method.getDeclaringClass());
-        }
 
         returnType = types.getType(method.getGenericReturnType());
         parameterTypes = new ZenType[method.getParameterTypes().length];
@@ -55,7 +48,7 @@ public class JavaMethod implements IJavaMethod {
             lastOptional = optional;
         }
     }
-    
+
     public static IJavaMethod get(ITypeRegistry types, Class cls, String name, Class... parameterTypes) {
         try {
             Method method = cls.getMethod(name, parameterTypes);
@@ -69,24 +62,24 @@ public class JavaMethod implements IJavaMethod {
             throw new RuntimeException("method retrieval not permitted", ex);
         }
     }
-    
+
     public static IJavaMethod getStatic(String owner, String name, ZenType returnType, ZenType... arguments) {
         return new JavaMethodGenerated(true, false, false, owner, name, returnType, arguments, new boolean[arguments.length]);
     }
-    
+
     public static IJavaMethod get(ITypeRegistry types, Method method) {
         return new JavaMethod(method, types);
     }
-    
+
     public static IJavaMethod select(boolean doStatic, List<IJavaMethod> methods, IEnvironmentGlobal environment, Expression... arguments) {
         int bestPriority = PRIORITY_INVALID;
         IJavaMethod bestMethod = null;
         boolean isValid = false;
-        
+
         for(IJavaMethod method : methods) {
             if(method.isStatic() != doStatic)
                 continue;
-            
+
             int priority = method.getPriority(environment, arguments);
             if(priority == bestPriority) {
                 isValid = false;
@@ -96,10 +89,10 @@ public class JavaMethod implements IJavaMethod {
                 bestPriority = priority;
             }
         }
-        
+
         return isValid ? bestMethod : null;
     }
-    
+
     public static ZenType[] predict(List<IJavaMethod> methods, int numArguments) {
         ZenType[] results = new ZenType[numArguments];
         boolean[] ambiguous = new boolean[numArguments];
@@ -127,38 +120,38 @@ public class JavaMethod implements IJavaMethod {
                 }
             }
         }
-        
+
         for(int i = 0; i < results.length; i++) {
             if(ambiguous[i]) {
                 results[i] = null;
             }
         }
-        
+
         return results;
     }
-    
+
     public static Expression[] rematch(ZenPosition position, IJavaMethod method, IEnvironmentGlobal environment, Expression... arguments) {
         ZenType[] parameterTypes = method.getParameterTypes();
-        
+
         // small optimization - don't run through this all if not necessary
         if(arguments.length == 0 && parameterTypes.length == 0) {
             return arguments;
         }
-        
+
         Expression[] result = new Expression[method.getParameterTypes().length];
         for(int i = arguments.length; i < method.getParameterTypes().length; i++) {
             result[i] = parameterTypes[i].defaultValue(position);
         }
-        
+
         int doUntil = parameterTypes.length;
         if(method.isVarargs()) {
             doUntil = parameterTypes.length - 1;
             ZenType paramType = parameterTypes[parameterTypes.length - 1];
             ZenType baseType = ((ZenTypeArray) paramType).getBaseType();
-            
+
             if(arguments.length == parameterTypes.length) {
                 ZenType argType = arguments[arguments.length - 1].getType();
-                
+
                 if(argType.equals(paramType)) {
                     result[arguments.length - 1] = arguments[arguments.length - 1];
                 } else if(argType.equals(baseType)) {
@@ -177,7 +170,7 @@ public class JavaMethod implements IJavaMethod {
                 result[offset] = new ExpressionArray(position, (ZenTypeArrayBasic) paramType, values);
             }
         }
-        
+
         for(int i = arguments.length; i < doUntil; i++) {
             if(method instanceof JavaMethod) {
                 JavaMethod javaMethod = (JavaMethod) method;
@@ -188,10 +181,10 @@ public class JavaMethod implements IJavaMethod {
         for(int i = 0; i < Math.min(arguments.length, doUntil); i++) {
             result[i] = arguments[i].cast(position, environment, parameterTypes[i]);
         }
-        
+
         return result;
     }
-    
+
     /**
      * Creates the value for the optional Expression
      *
@@ -205,11 +198,11 @@ public class JavaMethod implements IJavaMethod {
     private static Expression getOptionalValue(ZenPosition position, JavaMethod javaMethod, int parameterNr, IEnvironmentGlobal environment) {
         Parameter parameter = javaMethod.getMethod().getParameters()[parameterNr];
         Optional optional = parameter.getAnnotation(Optional.class);
-        
+
         //No annotation (not sure how but lets be sure) -> Default value
         if(optional == null)
             return javaMethod.getParameterTypes()[parameterNr].defaultValue(position);
-        
+
         Class<?> parameterType = parameter.getType();
         //Primitives
         if(parameterType.isPrimitive()) {
@@ -226,7 +219,7 @@ public class JavaMethod implements IJavaMethod {
                 return new ExpressionInvalid(position);
             }
         }
-        
+
         Class<?> methodClass = optional.methodClass();
         if(methodClass == Optional.class) {
             //Not a String -> null
@@ -234,7 +227,7 @@ public class JavaMethod implements IJavaMethod {
             //Backwards compat!
             return (parameterType == String.class && !optional.value().isEmpty()) ? new ExpressionString(position, optional.value()) : javaMethod.getParameterTypes()[parameterNr].defaultValue(position);
         }
-    
+
         try {
             Method method = methodClass.getMethod(optional.methodName(), String.class);
             if(!parameterType.isAssignableFrom(method.getReturnType())) {
@@ -247,42 +240,42 @@ public class JavaMethod implements IJavaMethod {
             environment.error(position, "Optional Annotation Error, cannot find method " + optional.methodName());
             return new ExpressionInvalid(position);
         }
-        
+
     }
-    
+
     @Override
     public boolean isStatic() {
         return (method.getModifiers() & Modifier.STATIC) > 0;
     }
-    
+
     @Override
     public boolean isVarargs() {
         return method.isVarArgs();
     }
-    
+
     @Override
     public ZenType getReturnType() {
         return returnType;
     }
-    
+
     @Override
     public ZenType[] getParameterTypes() {
         return parameterTypes;
     }
-    
+
     public Class getOwner() {
         return method.getDeclaringClass();
     }
-    
+
     public Method getMethod() {
         return method;
     }
-    
+
     @Override
     public boolean accepts(IEnvironmentGlobal environment, Expression... arguments) {
         return getPriority(environment, arguments) > 0;
     }
-    
+
     @Override
     public boolean accepts(int numArguments) {
         if(numArguments > parameterTypes.length) {
@@ -298,7 +291,7 @@ public class JavaMethod implements IJavaMethod {
             return true;
         }
     }
-    
+
     @Override
     public int getPriority(IEnvironmentGlobal environment, Expression... arguments) {
         int result = PRIORITY_HIGH;
@@ -321,7 +314,7 @@ public class JavaMethod implements IJavaMethod {
             }
         } else if(arguments.length < parameterTypes.length) {
             result = PRIORITY_MEDIUM;
-            
+
             int checkUntil = parameterTypes.length;
             for(int i = arguments.length; i < checkUntil; i++) {
                 if(!optional[i]) {
@@ -329,7 +322,7 @@ public class JavaMethod implements IJavaMethod {
                 }
             }
         }
-        
+
         int checkUntil = arguments.length;
         if(method.isVarArgs())
             checkUntil = parameterTypes.length - 1;
@@ -337,7 +330,7 @@ public class JavaMethod implements IJavaMethod {
             ZenType arrayType = parameterTypes[method.getParameterTypes().length - 1];
             ZenType baseType = ((ZenTypeArray) arrayType).getBaseType();
             ZenType argType = arguments[arguments.length - 1].getType();
-            
+
             if(argType.equals(arrayType) || argType.equals(baseType)) {
                 // OK
             } else if(argType.canCastImplicit(arrayType, environment)) {
@@ -347,10 +340,10 @@ public class JavaMethod implements IJavaMethod {
             } else {
                 return PRIORITY_INVALID;
             }
-            
+
             checkUntil = arguments.length - 1;
         }
-        
+
         for(int i = 0; i < checkUntil; i++) {
             ZenType argType = arguments[i].getType();
             ZenType paramType = parameterTypes[i];
@@ -362,10 +355,10 @@ public class JavaMethod implements IJavaMethod {
                 }
             }
         }
-        
+
         return result;
     }
-    
+
     @Override
     public void invokeVirtual(MethodOutput output) {
         if(isStatic()) {
@@ -378,7 +371,7 @@ public class JavaMethod implements IJavaMethod {
             }
         }
     }
-    
+
     @Override
     public void invokeStatic(MethodOutput output) {
         if(!isStatic()) {
@@ -387,7 +380,7 @@ public class JavaMethod implements IJavaMethod {
             output.invokeStatic(method.getDeclaringClass(), method.getName(), method.getReturnType(), method.getParameterTypes());
         }
     }
-    
+
     @Override
     public String toString() {
         return "JavaMethod: " + method.toString();
