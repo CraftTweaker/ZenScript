@@ -1052,6 +1052,12 @@ public class MethodOutput {
         visitor.visitLineNumber(position.getLine(), label);
     }
     
+    public void swap() {
+        if(debug)
+            System.out.println("swap");
+        visitor.visitInsn(SWAP);
+    }
+    
     private String getLabelName(Label lbl) {
         if(labelNames == null)
             labelNames = new HashMap<>();

@@ -120,4 +120,8 @@ public class EnvironmentScript implements IEnvironmentGlobal {
     public void info(String message) {
         parent.info(message);
     }
+    
+    public IEnvironmentGlobal getParent() {
+        return parent;
+    }
 }
