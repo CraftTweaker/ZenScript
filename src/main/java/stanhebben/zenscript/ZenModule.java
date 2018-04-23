@@ -3,7 +3,7 @@ package stanhebben.zenscript;
 import org.objectweb.asm.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.*;
-import stanhebben.zenscript.expression.partial.PartialScriptReference;
+import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.statements.*;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.ZenType;
@@ -66,6 +66,13 @@ public class ZenModule {
             
             clsScript.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, script.getClassName().replace('.', '/'), null, internal(Object.class), new String[]{internal(Runnable.class)});
             
+            if(!script.getClasses().isEmpty()) {
+                for(Map.Entry<String, ParsedZenClass> entry : script.getClasses().entrySet()) {
+                    environmentScript.putValue(entry.getKey(), position -> new PartialZSClass(entry.getValue().type), entry.getValue().position);
+                }
+            }
+            
+            
             if(!script.getGlobals().isEmpty()) {
                 MethodOutput clinit = new MethodOutput(clsScript, Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
                 EnvironmentMethod clinitEnvironment = new EnvironmentMethod(clinit, environmentScript);
@@ -83,7 +90,7 @@ public class ZenModule {
                 clinit.end();
             }
             
-            if(!script.getFunctions().isEmpty() || !script.getGlobals().isEmpty()) {
+            if(!script.getFunctions().isEmpty() || !script.getGlobals().isEmpty() || !script.getClasses().isEmpty()) {
                 String fileName = script.getFileName();
                 if(fileName.startsWith("scripts.zip" + File.separator))
                     fileName = fileName.substring(12);

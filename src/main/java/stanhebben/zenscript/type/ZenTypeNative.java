@@ -325,9 +325,8 @@ public class ZenTypeNative extends ZenType {
         ZenNativeMember member = members.get(name);
         if(member == null) {
             for(ZenTypeNative type : implementing) {
-                if(type.members.containsKey(name)) {
-                    member = type.members.get(name);
-                    break;
+                if(type.hasMember(name)) {
+                    return type.getMember(position, environment, value, name);
                 }
             }
         }
@@ -338,8 +337,9 @@ public class ZenTypeNative extends ZenType {
             if(member2 == null) {
                 for(ZenTypeNative type : implementing) {
                     member2 = type.memberExpansion(position, environment, evalue, name);
-                    if(member2 != null)
+                    if(member2 != null) {
                         break;
+                    }
                 }
             }
             if(member2 == null) {
@@ -357,14 +357,25 @@ public class ZenTypeNative extends ZenType {
         }
     }
     
+    private boolean hasMember(String name) {
+        if(members.containsKey(name)) {
+            return true;
+        }
+        for(ZenTypeNative zenTypeNative : implementing) {
+            if(zenTypeNative.hasStaticMember(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @Override
     public IPartialExpression getStaticMember(ZenPosition position, IEnvironmentGlobal environment, String name) {
         ZenNativeMember member = staticMembers.get(name);
         if(member == null) {
             for(ZenTypeNative type : implementing) {
-                if(type.staticMembers.containsKey(name)) {
-                    member = type.staticMembers.get(name);
-                    break;
+                if(type.hasStaticMember(name)) {
+                    return type.getStaticMember(position, environment, name);
                 }
             }
         }
@@ -373,8 +384,9 @@ public class ZenTypeNative extends ZenType {
             if(member2 == null) {
                 for(ZenTypeNative type : implementing) {
                     member2 = type.staticMemberExpansion(position, environment, name);
-                    if(member2 != null)
+                    if(member2 != null) {
                         break;
+                    }
                 }
             }
             if(member2 == null) {
@@ -386,6 +398,18 @@ public class ZenTypeNative extends ZenType {
         } else {
             return member.instance(position, environment);
         }
+    }
+    
+    private boolean hasStaticMember(String name) {
+        if(staticMembers.containsKey(name)) {
+            return true;
+        }
+        for(ZenTypeNative zenTypeNative : implementing) {
+            if(zenTypeNative.hasStaticMember(name)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     @Override
@@ -490,10 +514,12 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, unaryOperator.getMethod(), value);
             }
         }
-        
-        for(ZenTypeNative parent : implementing)
-            if(parent.hasTernary(this, operator))
+    
+        for(ZenTypeNative parent : implementing) {
+            if(parent.hasTernary(this, operator)) {
                 return parent.unary(position, environment, value, operator);
+            }
+        }
         
         environment.error(position, "operator not supported");
         return new ExpressionInvalid(position);
@@ -506,10 +532,12 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, binaryOperator.getMethod(), left, right);
             }
         }
-        
-        for(ZenTypeNative parent : implementing)
-            if(parent.hasBinary(right.getType(), operator))
+    
+        for(ZenTypeNative parent : implementing) {
+            if(parent.hasBinary(right.getType(), operator)) {
                 return parent.binary(position, environment, left, right, operator);
+            }
+        }
         
         
         environment.error(position, "operator not supported");
@@ -523,10 +551,12 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, trinaryOperator.getMethod(), first, second, third);
             }
         }
-        
-        for(ZenTypeNative parent : implementing)
-            if(parent.hasTernary(third.getType(), operator))
+    
+        for(ZenTypeNative parent : implementing) {
+            if(parent.hasTernary(third.getType(), operator)) {
                 return parent.trinary(position, environment, first, second, third, operator);
+            }
+        }
         
         environment.error(position, "operator not supported");
         return new ExpressionInvalid(position);
@@ -563,39 +593,51 @@ public class ZenTypeNative extends ZenType {
     }
     
     private boolean hasBinary(ZenType type, OperatorType operator) {
-        for(ZenNativeOperator binaryOperator : binaryOperators)
-            if(binaryOperator.getOperator() == operator)
+        for(ZenNativeOperator binaryOperator : binaryOperators) {
+            if(binaryOperator.getOperator() == operator) {
                 return true;
-        
-        
-        for(ZenTypeNative parent : implementing)
-            if(parent.hasBinary(type, operator))
+            }
+        }
+    
+    
+        for(ZenTypeNative parent : implementing) {
+            if(parent.hasBinary(type, operator)) {
                 return true;
+            }
+        }
         
         return false;
     }
     
     private boolean hasTernary(ZenType type, OperatorType operator) {
-        for(ZenNativeOperator ternaryOperator : trinaryOperators)
-            if(ternaryOperator.getOperator() == operator)
+        for(ZenNativeOperator ternaryOperator : trinaryOperators) {
+            if(ternaryOperator.getOperator() == operator) {
                 return true;
-        
-        
-        for(ZenTypeNative parent : implementing)
-            if(parent.hasTernary(type, operator))
+            }
+        }
+    
+    
+        for(ZenTypeNative parent : implementing) {
+            if(parent.hasTernary(type, operator)) {
                 return true;
+            }
+        }
         
         return false;
     }
     
     private boolean hasUnary(ZenType type, OperatorType operator) {
-        for(ZenNativeOperator unaryOperator : unaryOperators)
-            if(unaryOperator.getOperator() == operator)
+        for(ZenNativeOperator unaryOperator : unaryOperators) {
+            if(unaryOperator.getOperator() == operator) {
                 return true;
-        
-        for(ZenTypeNative parent : implementing)
-            if(parent.hasUnary(type, operator))
+            }
+        }
+    
+        for(ZenTypeNative parent : implementing) {
+            if(parent.hasUnary(type, operator)) {
                 return true;
+            }
+        }
         
         return false;
     }

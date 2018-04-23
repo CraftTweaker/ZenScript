@@ -27,6 +27,17 @@ public class StatementBlock extends Statement {
     }
     
     @Override
+    public void compile(IEnvironmentMethod environment, boolean forced) {
+        IEnvironmentMethod local = new EnvironmentScope(environment);
+        for(Statement statement : statements) {
+            statement.compile(local, forced);
+            if(statement.isReturn()) {
+                return;
+            }
+        }
+    }
+    
+    @Override
     public List<Statement> getSubStatements() {
         List<Statement> out = new ArrayList<>();
         out.add(this);
