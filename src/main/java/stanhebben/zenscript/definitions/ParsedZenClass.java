@@ -154,7 +154,7 @@ public class ParsedZenClass {
                 newClass.visitField(Opcodes.ACC_PUBLIC, fieldName, descriptor, null, null).visitEnd();
             }
         }
-        environmentNewClass.putValue("thisFrigginClass", ExpressionThis::new, position);
+        environmentNewClass.putValue("this", ExpressionThis::new, position);
         for(Map.Entry<String, Pair<ZenType, ParsedExpression>> nonStatic : nonStaticFields.entrySet()) {
             String fieldName = nonStatic.getKey();
             environmentNewClass.putValue(fieldName, position1 -> type.getMember(position1, environmentGlobal, new ExpressionThis(position1), fieldName), position);
