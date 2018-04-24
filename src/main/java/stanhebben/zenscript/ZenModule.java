@@ -3,6 +3,7 @@ package stanhebben.zenscript;
 import org.objectweb.asm.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.*;
+import stanhebben.zenscript.definitions.zenclasses.ParsedZenClass;
 import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.statements.*;
 import stanhebben.zenscript.symbols.*;
