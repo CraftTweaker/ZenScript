@@ -1,7 +1,13 @@
 package stanhebben.zenscript.type.casting;
 
+import org.objectweb.asm.Label;
 import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.type.*;
+import stanhebben.zenscript.util.MethodOutput;
+
+import java.util.*;
+
+import static stanhebben.zenscript.util.ZenTypeUtil.internal;
 
 /**
  * @author Stan
@@ -20,34 +26,42 @@ public class CastingRuleArrayList implements ICastingRule {
 
     @Override
     public void compile(IEnvironmentMethod method) {
-        // TODO: implement this
-        throw new UnsupportedOperationException("Not yet implemented");
+        if(from.toJavaClass().getComponentType().isPrimitive())
+            throw new IllegalArgumentException("Cannot convert primitive Array to List!");
+        final MethodOutput methodOutput = method.getOutput();
+        methodOutput.iConst0();
+        final int localCounter = methodOutput.local(int.class);
+        methodOutput.storeInt(localCounter);
 
-		/*
-         * Type fromType = componentFrom.toASMType(); Type toType =
-		 * componentTo.toASMType();
-		 * 
-		 * int result = output.local(List.class); int iterator =
-		 * output.local(Iterator.class);
-		 * 
-		 * // construct new list output.dup();
-		 * 
-		 * 
-		 * output.invoke(List.class, "iterator", void.class);
-		 * output.storeObject(iterator);
-		 * 
-		 * Label loop = new Label(); output.label(loop);
-		 * output.loadObject(iterator);
-		 * 
-		 * 
-		 * if (base != null) base.compile(method);
-		 * 
-		 * 
-		 * 
-		 * output.pop();
-		 * 
-		 * output.loadObject(result);
-		 */
+        final int localList = methodOutput.local(ArrayList.class);
+        methodOutput.newObject(ArrayList.class);
+        methodOutput.dup();
+        methodOutput.invokeSpecial("java/util/ArrayList", "<init>", "()V");
+        methodOutput.storeObject(localList);
+
+        final Label start = new Label();
+        final Label end = new Label();
+
+        methodOutput.label(start);
+        methodOutput.dup();
+        methodOutput.dup();
+        methodOutput.arrayLength();
+        methodOutput.loadInt(localCounter);
+
+        methodOutput.ifICmpLE(end);
+        methodOutput.loadInt(localCounter);
+
+        methodOutput.arrayLoad(from.getBaseType().toASMType());
+        if(base != null)
+            base.compile(method);
+        methodOutput.loadObject(localList);
+        methodOutput.swap();
+        methodOutput.invokeInterface(Collection.class, "add", boolean.class, Object.class);
+        methodOutput.pop();
+        methodOutput.iinc(localCounter);
+        methodOutput.goTo(start);
+        methodOutput.label(end);
+        methodOutput.loadObject(localList);
     }
 
     @Override

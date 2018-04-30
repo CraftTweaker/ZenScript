@@ -24,14 +24,17 @@ public class ExpressionArray extends Expression {
             return this;
         }
 
-        if(type instanceof ZenTypeArrayBasic) {
-            ZenTypeArrayBasic arrayType = (ZenTypeArrayBasic) type;
+        if(type instanceof ZenTypeArray) {
+            ZenTypeArray arrayType = (ZenTypeArray) type;
             Expression[] newContents = new Expression[contents.length];
             for(int i = 0; i < contents.length; i++) {
                 newContents[i] = contents[i].cast(position, environment, arrayType.getBaseType());
             }
+            if(type instanceof ZenTypeArrayBasic)
+                return new ExpressionArray(getPosition(), (ZenTypeArrayBasic) arrayType, newContents);
+            else
+                return new ExpressionArrayList(getPosition(), (ZenTypeArrayList) arrayType, newContents);
 
-            return new ExpressionArray(getPosition(), arrayType, newContents);
         } else {
             ICastingRule castingRule = this.type.getCastingRule(type, environment);
             if(castingRule == null) {
