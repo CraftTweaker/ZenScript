@@ -1,22 +1,17 @@
 package stanhebben.zenscript.expression;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.symbols.SymbolArgument;
 import stanhebben.zenscript.type.ZenType;
-import stanhebben.zenscript.util.MethodOutput;
-import stanhebben.zenscript.util.ZenPosition;
-import stanhebben.zenscript.util.ZenTypeUtil;
+import stanhebben.zenscript.util.*;
 
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-import static stanhebben.zenscript.util.ZenTypeUtil.internal;
-import static stanhebben.zenscript.util.ZenTypeUtil.signature;
+import static stanhebben.zenscript.util.ZenTypeUtil.*;
 
 /**
  * @author Stanneke
@@ -44,7 +39,7 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
 
         StringBuilder sb = new StringBuilder();
         sb.append("(");
-        for (int i = 0; i < arguments.size(); i++) {
+        for(int i = 0; i < arguments.size(); i++) {
             ZenType t = arguments.get(i).getType();
             if(t.equals(ZenType.ANY)) {
                 sb.append(signature(interfaceClass.getMethods()[0].getParameterTypes()[i]));
@@ -88,8 +83,10 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
 
         for(int i = 0; i < arguments.size(); i++) {
             ZenType typeToPut = arguments.get(i).getType();
-            if(typeToPut.equals(ZenType.ANY)) typeToPut = environment.getType(method.getGenericParameterTypes()[i]);
-            if(typeToPut == null) typeToPut = environment.getType(method.getParameterTypes()[i]);
+            if(typeToPut.equals(ZenType.ANY))
+                typeToPut = environment.getType(method.getGenericParameterTypes()[i]);
+            if(typeToPut == null)
+                typeToPut = environment.getType(method.getParameterTypes()[i]);
 
             environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1, typeToPut), getPosition());
         }
@@ -101,13 +98,13 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
         output.ret();
         output.end();
 
-        if (!Objects.equals(genericClass, Object.class)) {
+        if(!Objects.equals(genericClass, Object.class)) {
             MethodOutput bridge = new MethodOutput(cw, Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC | Opcodes.ACC_BRIDGE, method.getName(), ZenTypeUtil.descriptor(method), null, null);
             bridge.loadObject(0);
             bridge.loadObject(1);
             bridge.checkCast(internal(genericClass));
             if(arguments.size() > 1) {
-                for (int i = 1; i < arguments.size();) {
+                for(int i = 1; i < arguments.size(); ) {
                     bridge.load(org.objectweb.asm.Type.getType(method.getParameterTypes()[i]), ++i);
                 }
             }

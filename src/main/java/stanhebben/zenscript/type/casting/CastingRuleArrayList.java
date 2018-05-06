@@ -61,6 +61,8 @@ public class CastingRuleArrayList implements ICastingRule {
         methodOutput.iinc(localCounter);
         methodOutput.goTo(start);
         methodOutput.label(end);
+        methodOutput.pop();
+        methodOutput.pop();
         methodOutput.loadObject(localList);
     }
 
