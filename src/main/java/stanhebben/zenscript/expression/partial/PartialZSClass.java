@@ -17,7 +17,7 @@ public class PartialZSClass implements IPartialExpression {
     
     @Override
     public Expression eval(IEnvironmentGlobal environment) {
-        return new ExpressionNothing(type.parsedFrigginClass.position);
+        return new ExpressionNothing(type.zenClass.position);
     }
     
     @Override

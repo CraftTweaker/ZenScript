@@ -23,7 +23,7 @@ public class ParsedFunction {
     private final Statement[] statements;
     private final String signature;
 
-    private ParsedFunction(ZenPosition position, String name, List<ParsedFunctionArgument> arguments, ZenType returnType, Statement[] statements) {
+    public ParsedFunction(ZenPosition position, String name, List<ParsedFunctionArgument> arguments, ZenType returnType, Statement[] statements) {
         this.position = position;
         this.name = name;
         this.arguments = arguments;
