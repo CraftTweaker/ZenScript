@@ -2,6 +2,7 @@ package stanhebben.zenscript;
 
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.*;
+import stanhebben.zenscript.definitions.zenclasses.ParsedZenClass;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.parser.Token;
 import stanhebben.zenscript.statements.Statement;
@@ -131,13 +132,13 @@ public class ZenParsedFile {
                 }
                 functions.put(function.getName(), function);
             } else if(next.getType() == T_ZEN_CLASS) {
-                ParsedZenClass frigginClass = ParsedZenClass.createFrigginClass(tokener, environmentScript);
-                if(classes.containsKey(frigginClass.name))
-                    environment.error(frigginClass.position, "Class " + frigginClass.name + " already exists!");
+                ParsedZenClass parsedZenClass = ParsedZenClass.parse(tokener, environmentScript);
+                if(classes.containsKey(parsedZenClass.name))
+                    environment.error(parsedZenClass.position, "Class " + parsedZenClass.name + " already exists!");
                 else {
-                    classes.put(frigginClass.name, frigginClass);
+                    classes.put(parsedZenClass.name, parsedZenClass);
                 }
-                frigginClass.writeClass(environmentScript);
+                parsedZenClass.writeClass(environmentScript);
             } else {
                 statements.add(Statement.read(tokener, environmentScript, null));
             }

@@ -21,49 +21,45 @@ public class CastingRuleArrayArray implements ICastingRule {
     }
 
     @Override
-    public void compile(IEnvironmentMethod method) {
-        MethodOutput output = method.getOutput();
+    public void compile(final IEnvironmentMethod method) {
+        final MethodOutput output = method.getOutput();
+        final Label end = new Label();
+        final Label start = new Label();
 
-        Type fromType = from.getBaseType().toASMType();
-        Type toType = to.getBaseType().toASMType();
+        final Type toType = to.getBaseType().toASMType();
 
-        int result = output.local(to.toASMType());
+        final int result = output.local(to.toASMType());
 
         output.dup();
         output.arrayLength();
         output.newArray(toType);
         output.storeObject(result);
 
+        final int counter = output.local(int.class);
         output.iConst0();
+        output.storeInt(counter);
 
-        Label lbl = new Label();
-        output.label(lbl);
-
-        // stack: original index
+        output.label(start);
+        output.dup();
+        output.dup();
+        output.arrayLength();
+        output.loadInt(counter);
         output.dupX1();
-        output.dupX1();
-        output.arrayLoad(fromType);
+        output.ifICmpGE(end);
 
-        // stack: original index value
-        if(base != null)
+        output.arrayLoad(from.getBaseType().toASMType());
+        if (base != null)
             base.compile(method);
 
         output.loadObject(result);
-        output.dupX2();
-        output.dupX2();
+        output.swap();
+        output.loadInt(counter);
+        output.swap();
         output.arrayStore(toType);
-        output.pop();
+        output.iinc(counter);
 
-        // stack: original index
-        output.iConst1();
-        output.iAdd();
-        output.dupX1();
-        output.arrayLength();
-        output.ifICmpGE(lbl);
-
-        output.pop();
-        output.pop();
-
+        output.goTo(start);
+        output.label(end);
         output.loadObject(result);
     }
 

@@ -18,20 +18,8 @@ public class CastingAnyString implements ICastingRule {
 
     @Override
     public void compile(IEnvironmentMethod method) {
-        MethodOutput output = method.getOutput();
-        Label lblNonNull = new Label();
-        Label lblAfter = new Label();
-
-        output.dup();
-        output.ifNonNull(lblNonNull);
-        output.pop();
-        output.aConstNull();
-        output.goTo(lblAfter);
-
-        output.label(lblNonNull);
-        output.invokeInterface(IAny.class, "asString", String.class);
-
-        output.label(lblAfter);
+        //IAny is not and probably will not be implemented, so let's at least use a method that works!
+        method.getOutput().invokeVirtual(Object.class, "toString", String.class);
     }
 
     @Override
