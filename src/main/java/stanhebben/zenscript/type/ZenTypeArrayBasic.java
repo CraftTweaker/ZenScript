@@ -38,12 +38,12 @@ public class ZenTypeArrayBasic extends ZenTypeArray {
     @Override
     public ICastingRule getCastingRule(ZenType type, IEnvironmentGlobal environment) {
         ICastingRule base = super.getCastingRule(type, environment);
-        if(base == null && getBaseType() == ANY && type instanceof ZenTypeArray) {
+        if(base == null && type instanceof ZenTypeArray) {
             ZenType toBaseType = ((ZenTypeArray) type).getBaseType();
             if(type instanceof ZenTypeArrayBasic) {
-                return new CastingRuleArrayArray(ANY.getCastingRule(toBaseType, environment), this, (ZenTypeArrayBasic) type);
+                return new CastingRuleArrayArray(getBaseType().getCastingRule(toBaseType, environment), this, (ZenTypeArrayBasic) type);
             } else if(type instanceof ZenTypeArrayList) {
-                return new CastingRuleArrayList(ANY.getCastingRule(toBaseType, environment), this, (ZenTypeArrayList) type);
+                return new CastingRuleArrayList(getBaseType().getCastingRule(toBaseType, environment), this, (ZenTypeArrayList) type);
             } else {
                 throw new RuntimeException("Invalid array type: " + type);
             }

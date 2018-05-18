@@ -23,7 +23,7 @@ public class ZenTypeArrayList extends ZenTypeArray {
     private final Type type;
     
     public ZenTypeArrayList(ZenType baseType) {
-        super(baseType);
+        super(baseType, "[" + baseType + "]");
         
         type = Type.getType(List.class);
     }
@@ -53,7 +53,18 @@ public class ZenTypeArrayList extends ZenTypeArray {
             return null;
         }
     }
-    
+
+    @Override
+    public ICastingRule getCastingRule(ZenType type, IEnvironmentGlobal environment) {
+        ICastingRule superResult = super.getCastingRule(type, environment);
+        if(superResult != null)
+            return superResult;
+        if(type instanceof ZenTypeArrayBasic) {
+            return new CastingRuleListArray(((ZenTypeArrayBasic) type).getBaseType().getCastingRule(this.getBaseType(), environment), this, (ZenTypeArrayBasic) type);
+        }
+        return null;
+    }
+
     @Override
     public Class toJavaClass() {
         return List.class;

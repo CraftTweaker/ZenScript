@@ -1,5 +1,6 @@
-package stanhebben.zenscript.definitions;
+package stanhebben.zenscript.definitions.zenclasses;
 
+import org.objectweb.asm.*;
 import stanhebben.zenscript.ZenTokener;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.expression.Expression;
@@ -12,25 +13,26 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static stanhebben.zenscript.ZenTokener.*;
+import static stanhebben.zenscript.util.ZenTypeUtil.internal;
 
 public class ParsedClassConstructor {
-    
+
     final ZenType[] types;
     private final String[] names;
     private final List<Statement> statements;
-    
+
     private ParsedClassConstructor(List<ZenType> types, List<String> names, List<Statement> statements) {
         this.types = types.toArray(new ZenType[types.size()]);
         this.names = names.toArray(new String[names.size()]);
         this.statements = statements;
     }
-    
-    
+
+
     static ParsedClassConstructor parse(ZenTokener parser, IEnvironmentGlobal environment) {
         parser.required(T_BROPEN, "( Needed");
         List<ZenType> types = new LinkedList<>();
         List<String> names = new LinkedList<>();
-        
+
         while(parser.optional(T_BRCLOSE) == null) {
             String name = parser.required(T_ID, "Parameter identifier required").getValue();
             ZenType type = ZenType.ANY;
@@ -49,7 +51,7 @@ public class ParsedClassConstructor {
         }
         return new ParsedClassConstructor(types, names, statements);
     }
-    
+
     public String getDescription() {
         StringBuilder builder = new StringBuilder("(");
         for(ZenType type : types) {
@@ -57,40 +59,67 @@ public class ParsedClassConstructor {
         }
         return builder.append(")V").toString();
     }
-    
+
+    public void writeAll(IEnvironmentClass environmentNewClass, ClassVisitor newClass, List<ParsedZenClassField> nonStatics, String className, ZenPosition position) {
+        final MethodOutput init = new MethodOutput(newClass, Opcodes.ACC_PUBLIC, "<init>", this.getDescription(), null, null);
+        EnvironmentMethod initEnvironment = new EnvironmentMethod(init, environmentNewClass);
+        init.start();
+        init.loadObject(0);
+        init.invokeSpecial(internal(Object.class), "<init>", "()V");
+
+        for(ParsedZenClassField nonStatic : nonStatics) {
+            if(!nonStatic.hasInitializer())
+                continue;
+            init.loadObject(0);
+            final Expression expression = nonStatic.initializer.compile(initEnvironment, nonStatic.type).eval(environmentNewClass);
+            if(nonStatic.type == ZenType.ANY)
+                nonStatic.type = expression.getType();
+
+            expression.compile(true, initEnvironment);
+            init.putField(className, nonStatic.name, nonStatic.type.toASMType().getDescriptor());
+        }
+
+        final EnvironmentMethod environmentMethod = new EnvironmentMethod(init, environmentNewClass);
+        this.injectParameters(environmentMethod, position);
+        this.writeConstructor(environmentMethod);
+        init.ret();
+        init.end();
+    }
+
+
     public void writeConstructor(IEnvironmentMethod environmentMethod) {
         for(Statement statement : statements) {
             statement.compile(environmentMethod);
         }
     }
-    
+
     public boolean canAccept(Expression[] arguments, IEnvironmentGlobal environment) {
         return arguments.length == types.length && IntStream.range(0, arguments.length).allMatch(i -> arguments[i].getType().canCastImplicit(types[i], environment));
     }
-    
+
     public Expression call(ZenPosition position, Expression[] arguments, ZenTypeZenClass type) {
         if(arguments.length != this.types.length)
             throw new IllegalArgumentException(String.format("Expected %d arguments, received %d", types.length, arguments.length));
         return new ExpressionCallConstructor(position, type, arguments);
     }
-    
+
     public void injectParameters(IEnvironmentMethod environmentMethod, ZenPosition position) {
         for(int i = 0; i < types.length; i++) {
             environmentMethod.putValue(names[i], new SymbolArgument(i + 1, types[i]), position);
         }
     }
-    
-    class ExpressionCallConstructor extends Expression {
-        
+
+    private final class ExpressionCallConstructor extends Expression {
+
         private final ZenTypeZenClass type;
         private final Expression[] arguments;
-        
+
         ExpressionCallConstructor(ZenPosition position, ZenTypeZenClass type, Expression[] arguments) {
             super(position);
             this.type = type;
             this.arguments = arguments;
         }
-        
+
         @Override
         public void compile(boolean result, IEnvironmentMethod environment) {
             MethodOutput output = environment.getOutput();
@@ -101,7 +130,7 @@ public class ParsedClassConstructor {
             }
             output.invokeSpecial(type.getName(), "<init>", ParsedClassConstructor.this.getDescription());
         }
-        
+
         @Override
         public ZenType getType() {
             return type;
