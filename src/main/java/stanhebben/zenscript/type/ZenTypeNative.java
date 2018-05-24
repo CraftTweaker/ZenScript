@@ -5,6 +5,7 @@ import org.objectweb.asm.Type;
 import stanhebben.zenscript.TypeExpansion;
 import stanhebben.zenscript.annotations.*;
 import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.dump.types.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.casting.*;
@@ -1083,4 +1084,8 @@ public class ZenTypeNative extends ZenType {
             throwUnsupportedException(output, getName(), "hashCode");
         }
     }
+    
+    @Override
+    public List<DumpZenType> asDumpedObject() {
+        return Collections.singletonList(new DumpZenTypeNative(toJavaClass(), getName(), members, staticMembers, casters, trinaryOperators, binaryOperators, unaryOperators));    }
 }

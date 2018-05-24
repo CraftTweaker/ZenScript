@@ -1,7 +1,5 @@
 package stanhebben.zenscript;
 
-import stanhebben.zenscript.util.ZenPosition;
-
 public interface IZenLogger {
     
     /**
