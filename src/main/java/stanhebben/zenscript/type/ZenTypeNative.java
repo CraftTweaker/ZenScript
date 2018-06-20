@@ -239,9 +239,9 @@ public class ZenTypeNative extends ZenType {
                     
                     
                     final Map<String, ZenNativeMember> memberMap = Modifier.isStatic(field.getModifiers()) ? staticMembers : members;
-                    final ZenNativeMember zenNativeMember = memberMap.get(propertyName);
-    
                     memberMap.putIfAbsent(propertyName, new ZenNativeMember());
+    
+                    final ZenNativeMember zenNativeMember = memberMap.get(propertyName);
                     
                     
                     try {
@@ -255,16 +255,17 @@ public class ZenTypeNative extends ZenType {
                         memberMap.get(getterName).addMethod(getterMethod);
                     }
                     
-                    try {
-                        Method setterMethod = cls.getMethod(setterName, field.getType());
-                        checkSetter(setterMethod, cls);
-                        zenNativeMember.setSetter(new JavaMethod(setterMethod, types));
-                    } catch(NoSuchMethodException e) {
-                        ZenFieldMethod setterMethod = new ZenFieldMethod(field, types, true);
-                        zenNativeMember.setSetter(setterMethod);
-                        memberMap.putIfAbsent(setterName, new ZenNativeMember());
-                        memberMap.get(setterName).addMethod(setterMethod);
-                    }
+                    if(!Modifier.isFinal(field.getModifiers()))
+                        try {
+                            Method setterMethod = cls.getMethod(setterName, field.getType());
+                            checkSetter(setterMethod, cls);
+                            zenNativeMember.setSetter(new JavaMethod(setterMethod, types));
+                        } catch(NoSuchMethodException e) {
+                            ZenFieldMethod setterMethod = new ZenFieldMethod(field, types, true);
+                            zenNativeMember.setSetter(setterMethod);
+                            memberMap.putIfAbsent(setterName, new ZenNativeMember());
+                            memberMap.get(setterName).addMethod(setterMethod);
+                        }
                     
                     
                 }
