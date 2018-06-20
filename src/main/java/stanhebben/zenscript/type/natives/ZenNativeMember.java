@@ -133,12 +133,12 @@ public class ZenNativeMember {
         
         @Override
         public Expression eval(IEnvironmentGlobal environment) {
-            return new ExpressionCallStatic(position, environment, setter);
+            return new ExpressionCallStatic(position, environment, getter);
         }
         
         @Override
         public Expression assign(ZenPosition position, IEnvironmentGlobal environment, Expression other) {
-            return new ExpressionCallStatic(position, environment, setter);
+            return new ExpressionCallStatic(position, environment, setter, other);
         }
         
         @Override

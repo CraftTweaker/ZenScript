@@ -236,29 +236,36 @@ public class ZenTypeNative extends ZenType {
                         setterName = "set" + methodEnding;
                     }
                     
-                    members.putIfAbsent(propertyName, new ZenNativeMember());
+                    
+                    final Map<String, ZenNativeMember> memberMap = Modifier.isStatic(field.getModifiers()) ? staticMembers : members;
+                    final ZenNativeMember zenNativeMember = memberMap.get(propertyName);
+    
+                    memberMap.putIfAbsent(propertyName, new ZenNativeMember());
+                    
                     
                     try {
                         Method getterMethod = cls.getMethod(getterName);
                         checkGetter(getterMethod, cls);
-                        members.get(propertyName).setGetter(new JavaMethod(getterMethod, types));
+                        zenNativeMember.setGetter(new JavaMethod(getterMethod, types));
                     } catch(NoSuchMethodException e) {
-                        ZenFieldMethod setterMethod = new ZenFieldMethod(field, types, false);
-                        members.get(propertyName).setGetter(setterMethod);
-                        members.putIfAbsent(getterName, new ZenNativeMember());
-                        members.get(getterName).addMethod(setterMethod);
+                        ZenFieldMethod getterMethod = new ZenFieldMethod(field, types, false);
+                        zenNativeMember.setGetter(getterMethod);
+                        memberMap.putIfAbsent(getterName, new ZenNativeMember());
+                        memberMap.get(getterName).addMethod(getterMethod);
                     }
                     
                     try {
                         Method setterMethod = cls.getMethod(setterName, field.getType());
                         checkSetter(setterMethod, cls);
-                        members.get(propertyName).setSetter(new JavaMethod(setterMethod, types));
+                        zenNativeMember.setSetter(new JavaMethod(setterMethod, types));
                     } catch(NoSuchMethodException e) {
                         ZenFieldMethod setterMethod = new ZenFieldMethod(field, types, true);
-                        members.get(propertyName).setSetter(setterMethod);
-                        members.putIfAbsent(setterName, new ZenNativeMember());
-                        members.get(setterName).addMethod(setterMethod);
+                        zenNativeMember.setSetter(setterMethod);
+                        memberMap.putIfAbsent(setterName, new ZenNativeMember());
+                        memberMap.get(setterName).addMethod(setterMethod);
                     }
+                    
+                    
                 }
             }
         }
@@ -513,7 +520,7 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, unaryOperator.getMethod(), value);
             }
         }
-    
+        
         for(ZenTypeNative parent : implementing) {
             if(parent.hasTernary(this, operator)) {
                 return parent.unary(position, environment, value, operator);
@@ -531,7 +538,7 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, binaryOperator.getMethod(), left, right);
             }
         }
-    
+        
         for(ZenTypeNative parent : implementing) {
             if(parent.hasBinary(right.getType(), operator)) {
                 return parent.binary(position, environment, left, right, operator);
@@ -550,7 +557,7 @@ public class ZenTypeNative extends ZenType {
                 return new ExpressionCallVirtual(position, environment, trinaryOperator.getMethod(), first, second, third);
             }
         }
-    
+        
         for(ZenTypeNative parent : implementing) {
             if(parent.hasTernary(third.getType(), operator)) {
                 return parent.trinary(position, environment, first, second, third, operator);
@@ -597,8 +604,8 @@ public class ZenTypeNative extends ZenType {
                 return true;
             }
         }
-    
-    
+        
+        
         for(ZenTypeNative parent : implementing) {
             if(parent.hasBinary(type, operator)) {
                 return true;
@@ -614,8 +621,8 @@ public class ZenTypeNative extends ZenType {
                 return true;
             }
         }
-    
-    
+        
+        
         for(ZenTypeNative parent : implementing) {
             if(parent.hasTernary(type, operator)) {
                 return true;
@@ -631,7 +638,7 @@ public class ZenTypeNative extends ZenType {
                 return true;
             }
         }
-    
+        
         for(ZenTypeNative parent : implementing) {
             if(parent.hasUnary(type, operator)) {
                 return true;
@@ -1082,5 +1089,10 @@ public class ZenTypeNative extends ZenType {
             // TODO: implement
             throwUnsupportedException(output, getName(), "hashCode");
         }
+    }
+    
+    @Override
+    public List<DumpZenType> asDumpedObject() {
+        return Collections.singletonList(new DumpZenTypeNative(toJavaClass(), getName(), members, staticMembers, casters, trinaryOperators, binaryOperators, unaryOperators));
     }
 }
