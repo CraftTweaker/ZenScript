@@ -44,11 +44,15 @@ repositories {
 
 dependencies {
     compile group: 'org.ow2.asm', name: 'asm-debug-all', version: '5.2'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+
 
 //    compile 'org.ow2.asm:asm-debug-all:6.0_BETA'
+
     testCompile(
             'org.junit.jupiter:junit-jupiter-api:5.0.1'
     )
+
     testRuntime(
             'org.junit.jupiter:junit-jupiter-engine:5.0.1',
             'org.junit.vintage:junit-vintage-engine:4.12.1',

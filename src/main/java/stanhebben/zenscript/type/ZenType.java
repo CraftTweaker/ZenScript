@@ -4,6 +4,8 @@ import org.objectweb.asm.Type;
 import stanhebben.zenscript.*;
 import stanhebben.zenscript.annotations.*;
 import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.dump.*;
+import stanhebben.zenscript.dump.types.DumpZenType;
 import stanhebben.zenscript.expression.Expression;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.parser.*;
@@ -17,7 +19,7 @@ import java.util.*;
 
 import static stanhebben.zenscript.util.ZenTypeUtil.EMPTY_REGISTRY;
 
-public abstract class ZenType {
+public abstract class ZenType implements IDumpConvertable {
     
     public static final ZenTypeAny ANY = ZenTypeAny.INSTANCE;
     public static final ZenTypeBool BOOL = new ZenTypeBool();
@@ -373,5 +375,10 @@ public abstract class ZenType {
         if(other == null)
             return false;
         return other instanceof ZenType && (Objects.equals(this.getName(), ((ZenType) other).getName()) || Objects.equals(this.toJavaClass(), ((ZenType) other).toJavaClass()));
+    }
+    
+    @Override
+    public List<DumpZenType> asDumpedObject() {
+        return Collections.singletonList(new DumpZenType(toJavaClass(), getName()));
     }
 }

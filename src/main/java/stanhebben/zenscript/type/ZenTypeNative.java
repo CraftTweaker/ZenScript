@@ -5,6 +5,7 @@ import org.objectweb.asm.Type;
 import stanhebben.zenscript.TypeExpansion;
 import stanhebben.zenscript.annotations.*;
 import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.dump.types.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.casting.*;

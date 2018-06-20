@@ -34,7 +34,7 @@ public class ZenParsedFile {
     private final String classname;
     private final List<Import> imports;
     private final Map<String, ParsedFunction> functions;
-    private final Map<String, ParsedGlobalValue> globals = new HashMap<>();
+    private final Map<String, ParsedGlobalValue> globals = new LinkedHashMap<>();
     private final Map<String, ParsedZenClass> classes = new HashMap<>();
     private final List<Statement> statements;
     private final IEnvironmentGlobal environmentScript;
