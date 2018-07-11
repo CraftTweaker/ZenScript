@@ -387,17 +387,34 @@ public class ZenModule {
      */
     private class MyClassLoader extends ClassLoader {
         
+        private final Map<String, Class> loadedClasses = new HashMap<>();
+        
         private MyClassLoader(ClassLoader baseClassLoader) {
             super(baseClassLoader);
         }
         
         @Override
         public Class<?> findClass(String name) throws ClassNotFoundException {
+            if(loadedClasses.containsKey(name))
+                return loadedClasses.get(name);
             if(classes.containsKey(name)) {
-                return defineClass(name, classes.get(name), 0, classes.get(name).length);
+                final byte[] bytes = classes.get(name);
+                loadedClasses.put(name, defineClass(name, bytes, 0, bytes.length));
+                return loadedClasses.get(name);
             }
-            
             return super.findClass(name);
+        }
+        
+        @Override
+        public Class<?> loadClass(String name) throws ClassNotFoundException {
+            if(loadedClasses.containsKey(name))
+                return loadedClasses.get(name);
+            if(classes.containsKey(name)) {
+                final byte[] bytes = classes.get(name);
+                loadedClasses.put(name, defineClass(name, bytes, 0, bytes.length));
+                return loadedClasses.get(name);
+            }
+            return super.loadClass(name);
         }
     }
 }
