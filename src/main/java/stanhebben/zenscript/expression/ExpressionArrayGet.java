@@ -1,6 +1,6 @@
 package stanhebben.zenscript.expression;
 
-import stanhebben.zenscript.compiler.IEnvironmentMethod;
+import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.ZenPosition;
 
@@ -34,5 +34,10 @@ public class ExpressionArrayGet extends Expression {
         if(result) {
             environment.getOutput().arrayLoad(baseType.toASMType());
         }
+    }
+    
+    @Override
+    public Expression assign(ZenPosition position, IEnvironmentGlobal environment, Expression other) {
+        return new ExpressionArraySet(position, array, index, other);
     }
 }
