@@ -56,6 +56,11 @@ public class JavaMethodGenerated implements IJavaMethod {
     }
     
     @Override
+    public String getErrorDescription() {
+        return descriptor;
+    }
+    
+    @Override
     public boolean accepts(int numArguments) {
         if(numArguments > parameterTypes.length) {
             return isVarargs;
