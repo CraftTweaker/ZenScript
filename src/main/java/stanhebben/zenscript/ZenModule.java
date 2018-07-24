@@ -28,7 +28,8 @@ import static stanhebben.zenscript.util.ZenTypeUtil.internal;
  */
 public class ZenModule {
     
-    private final Map<String, byte[]> classes;
+    public static final Map<String, byte[]> classes = new HashMap<>();
+    public static final Map<String, Class> loadedClasses = new HashMap<>();
     private final MyClassLoader classLoader;
     
     
@@ -36,11 +37,11 @@ public class ZenModule {
      * Constructs a module for the given set of classes. Mostly intended for
      * internal use.
      *
-     * @param classes         classes for module
+     * @param clazzes         classes for module
      * @param baseClassLoader class loader
      */
-    public ZenModule(Map<String, byte[]> classes, ClassLoader baseClassLoader) {
-        this.classes = classes;
+    public ZenModule(Map<String, byte[]> clazzes, ClassLoader baseClassLoader) {
+        classes.putAll(clazzes);
         classLoader = new MyClassLoader(baseClassLoader);
     }
     
@@ -387,8 +388,6 @@ public class ZenModule {
      */
     private class MyClassLoader extends ClassLoader {
         
-        private final Map<String, Class> loadedClasses = new HashMap<>();
-        
         private MyClassLoader(ClassLoader baseClassLoader) {
             super(baseClassLoader);
         }
@@ -399,6 +398,8 @@ public class ZenModule {
                 return loadedClasses.get(name);
             if(classes.containsKey(name)) {
                 final byte[] bytes = classes.get(name);
+                if("__ZenMain__".equals(name))
+                    return defineClass(name, bytes, 0, bytes.length);
                 loadedClasses.put(name, defineClass(name, bytes, 0, bytes.length));
                 return loadedClasses.get(name);
             }
@@ -411,6 +412,8 @@ public class ZenModule {
                 return loadedClasses.get(name);
             if(classes.containsKey(name)) {
                 final byte[] bytes = classes.get(name);
+                if("__ZenMain__".equals(name))
+                    return defineClass(name, bytes, 0, bytes.length);
                 loadedClasses.put(name, defineClass(name, bytes, 0, bytes.length));
                 return loadedClasses.get(name);
             }
