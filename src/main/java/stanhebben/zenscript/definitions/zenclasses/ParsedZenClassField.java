@@ -136,5 +136,10 @@ public class ParsedZenClassField {
         public boolean isVarargs() {
             return false;
         }
+    
+        @Override
+        public String getErrorDescription() {
+            return "INTERNAL METHOD";
+        }
     }
 }

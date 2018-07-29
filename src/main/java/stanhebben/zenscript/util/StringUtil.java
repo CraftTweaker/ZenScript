@@ -1,5 +1,6 @@
 package stanhebben.zenscript.util;
 
+import stanhebben.zenscript.definitions.zenclasses.ParsedZenClassMethod;
 import stanhebben.zenscript.expression.Expression;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.type.natives.*;
@@ -74,25 +75,8 @@ public class StringUtil {
             }
             message.append(")");
             message.append("\nThis is \u00a7ousually\u00a7r an error in your script, not in the mod");
-            methods.forEach(meth -> {
-                if(meth instanceof JavaMethod) {
-                    JavaMethod m = (JavaMethod) meth;
-                    message.append("\n").append(m.getMethod().getName()).append("(");
-                    for(int i = 0; i < m.getParameterTypes().length; i++) {
-                        ZenType type = m.getParameterTypes()[i];
-                        for(int i1 = 0; i1 < m.getMethod().getParameterAnnotations()[i].length; i1++) {
-                            Annotation an = m.getMethod().getParameterAnnotations()[i][i1];
-                            message.append("\u00a7a").append(an.annotationType().getSimpleName()).append(" ");
-                        }
-                        message.append("\u00a7r").append(type.toString()).append(", ");
-                    }
-                    
-                    //Removes last ', ' and closes the bracket
-                    message.deleteCharAt(message.length()-1);
-                    message.deleteCharAt(message.length()-1);
-                    message.append(")");
-                }
-            });
+            for(IJavaMethod meth : methods)
+                message.append(meth.getErrorDescription());
             return message.toString();
         }
     }

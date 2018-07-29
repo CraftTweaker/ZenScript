@@ -30,6 +30,12 @@ public class Tests {
         prints.clear();
     }
     
+    @BeforeEach
+    public void clearClasses() {
+        ZenModule.classes.clear();
+        ZenModule.loadedClasses.clear();
+    }
+    
     @Test
     public void testCompile() {
         try {

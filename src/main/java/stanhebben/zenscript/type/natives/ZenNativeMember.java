@@ -133,12 +133,16 @@ public class ZenNativeMember {
         
         @Override
         public Expression eval(IEnvironmentGlobal environment) {
-            return new ExpressionCallStatic(position, environment, setter);
+            if(getter == null)
+                throw new RuntimeException("No Getter found!");
+            return new ExpressionCallStatic(position, environment, getter);
         }
         
         @Override
         public Expression assign(ZenPosition position, IEnvironmentGlobal environment, Expression other) {
-            return new ExpressionCallStatic(position, environment, setter);
+            if(setter == null)
+                throw new RuntimeException("No Setter found!");
+            return new ExpressionCallStatic(position, environment, setter, other);
         }
         
         @Override

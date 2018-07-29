@@ -74,4 +74,9 @@ public class ZenFieldMethod implements IJavaMethod {
     public boolean isVarargs() {
         return false;
     }
+    
+    @Override
+    public String getErrorDescription() {
+        return "FIELD " + field.getName();
+    }
 }

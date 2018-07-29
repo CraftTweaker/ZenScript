@@ -385,4 +385,25 @@ public class JavaMethod implements IJavaMethod {
     public String toString() {
         return "JavaMethod: " + method.toString();
     }
+    
+    
+    @Override
+    public String getErrorDescription() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("\n").append(method.getName()).append("(");
+        for(int i = 0; i < parameterTypes.length; i++) {
+            ZenType type = parameterTypes[i];
+            for(int i1 = 0; i1 < method.getParameterAnnotations()[i].length; i1++) {
+                Annotation an = method.getParameterAnnotations()[i][i1];
+                builder.append("\u00a7a").append(an.annotationType().getSimpleName()).append(" ");
+            }
+            builder.append("\u00a7r").append(type.toString()).append(", ");
+        }
+    
+        //Removes last ', ' and closes the bracket
+        final int length = builder.length();
+        builder.delete(length - 2, length);
+        builder.append(")");
+        return builder.toString();
+    }
 }
