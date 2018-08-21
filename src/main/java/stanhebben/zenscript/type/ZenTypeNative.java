@@ -69,7 +69,6 @@ public class ZenTypeNative extends ZenType {
         Annotation _iteratorAnnotation = null;
         String _classPkg = Optional.ofNullable(cls.getPackage()).map(Package::getName).orElse("null").replace('/', '.');
         String _className = cls.getSimpleName();
-        boolean fully = false;
         
         Queue<ZenTypeNative> todo = new LinkedList<>();
         todo.add(this);
@@ -114,13 +113,12 @@ public class ZenTypeNative extends ZenType {
         //TODO check this
         for(Method method : cls.getMethods()) {
             
-            boolean isMethod = fully;
+            boolean isMethod = false;
             String methodName = method.getName();
             
             for(Annotation annotation : method.getAnnotations()) {
                 if(annotation instanceof ZenCaster) {
                     casters.add(new ZenNativeCaster(JavaMethod.get(types, method)));
-                    isMethod = false;
                 } else if(annotation instanceof ZenGetter) {
                     ZenGetter getterAnnotation = (ZenGetter) annotation;
                     
@@ -132,7 +130,6 @@ public class ZenTypeNative extends ZenType {
                     }
                     JavaMethod javaMethod = new JavaMethod(method, types);
                     members.get(name).setGetter(javaMethod);
-                    isMethod = false;
                 } else if(annotation instanceof ZenSetter) {
                     ZenSetter setterAnnotation = (ZenSetter) annotation;
                     
@@ -143,7 +140,6 @@ public class ZenTypeNative extends ZenType {
                         members.put(name, new ZenNativeMember());
                     }
                     members.get(name).setSetter(new JavaMethod(method, types));
-                    isMethod = false;
                 } else if(annotation instanceof ZenMemberGetter) {
                     binaryOperators.add(new ZenNativeOperator(OperatorType.MEMBERGETTER, new JavaMethod(method, types)));
                 } else if(annotation instanceof ZenMemberSetter) {
@@ -187,7 +183,6 @@ public class ZenTypeNative extends ZenType {
                             }
                             break;
                     }
-                    isMethod = false;
                 } else if(annotation instanceof ZenMethod) {
                     isMethod = true;
                     
