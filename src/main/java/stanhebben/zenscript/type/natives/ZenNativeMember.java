@@ -113,7 +113,7 @@ public class ZenNativeMember {
         
         @Override
         public ZenType getType() {
-            return getter.getReturnType();
+            return getter != null ? getter.getReturnType() : setter.getParameterTypes()[0];
         }
         
         @Override
@@ -173,7 +173,7 @@ public class ZenNativeMember {
         
         @Override
         public ZenType getType() {
-            return getter.getReturnType();
+            return getter != null ? getter.getReturnType() : setter.getParameterTypes()[0];
         }
         
         @Override
