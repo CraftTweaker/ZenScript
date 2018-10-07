@@ -1,13 +1,17 @@
 package stanhebben.zenscript.type.natives;
 
-import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.symbols.IZenSymbol;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.ZenPosition;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
 
 import static stanhebben.zenscript.util.StringUtil.methodMatchingError;
 
@@ -87,7 +91,12 @@ public class ZenNativeMember {
         
         @Override
         public IPartialExpression getMember(ZenPosition position, IEnvironmentGlobal environment, String name) {
-            return getter.getReturnType().getMember(position, environment, this, name);
+            final ZenType type = getType();
+            if(type == null){
+                environment.error(position, "No such member: " + name);
+                return new ExpressionInvalid(position);
+            }
+            return type.getMember(position, environment, this, name);
         }
         
         @Override
@@ -113,7 +122,7 @@ public class ZenNativeMember {
         
         @Override
         public ZenType getType() {
-            return getter.getReturnType();
+            return getter != null ? getter.getReturnType() : setter != null ? setter.getParameterTypes()[0] : null;
         }
         
         @Override
@@ -147,7 +156,12 @@ public class ZenNativeMember {
         
         @Override
         public IPartialExpression getMember(ZenPosition position, IEnvironmentGlobal environment, String name) {
-            return getter.getReturnType().getMember(position, environment, this, name);
+            final ZenType type = getType();
+            if(type == null){
+                environment.error(position, "No such member: " + name);
+                return new ExpressionInvalid(position);
+            }
+            return type.getMember(position, environment, this, name);
         }
         
         @Override
@@ -173,7 +187,7 @@ public class ZenNativeMember {
         
         @Override
         public ZenType getType() {
-            return getter.getReturnType();
+            return getter != null ? getter.getReturnType() : setter != null ? setter.getParameterTypes()[0] : null;
         }
         
         @Override
