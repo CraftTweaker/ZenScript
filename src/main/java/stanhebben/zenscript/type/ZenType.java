@@ -152,6 +152,10 @@ public abstract class ZenType implements IDumpConvertable {
                 StringBuilder typeName = new StringBuilder();
                 typeName.append(next.getValue());
                 IPartialExpression partial = environment.getValue(next.getValue(), next.getPosition());
+                if(partial == null) {
+                    environment.error(next.getPosition(), "could not find type " + typeName);
+                    break;
+                }
                 while(parser.optional(ZenTokener.T_DOT) != null) {
                     typeName.append('.');
                     
