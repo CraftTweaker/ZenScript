@@ -104,7 +104,7 @@ public class ParsedZenClassMethod {
         }
         
         if(method.getReturnType() != ZenType.VOID) {
-            if(statements[statements.length - 1] instanceof StatementReturn) {
+            if(statements.length != 0 && statements[statements.length - 1] instanceof StatementReturn) {
                 if(((StatementReturn) statements[statements.length - 1]).getExpression() != null) {
                     method.getReturnType().defaultValue(method.getPosition()).compile(true, methodEnvironment);
                     methodOutput.returnType(method.getReturnType().toASMType());
@@ -113,7 +113,7 @@ public class ParsedZenClassMethod {
                 method.getReturnType().defaultValue(method.getPosition()).compile(true, methodEnvironment);
                 methodOutput.returnType(method.getReturnType().toASMType());
             }
-        } else if(!(statements[statements.length - 1] instanceof StatementReturn)) {
+        } else if(statements.length == 0 || !(statements[statements.length - 1] instanceof StatementReturn)) {
             methodOutput.ret();
         }
         methodOutput.end();
