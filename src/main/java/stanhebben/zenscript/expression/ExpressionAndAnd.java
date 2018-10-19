@@ -30,13 +30,17 @@ public class ExpressionAndAnd extends Expression {
 
         MethodOutput output = environment.getOutput();
 
-        Label skip = new Label();
+        final Label onFalse = new Label();
+        final Label end = new Label();
         a.compile(true, environment);
-        output.ifEQ(skip);
+        output.ifEQ(onFalse);
         b.compile(true, environment);
-        output.ifEQ(skip);
+        output.ifEQ(onFalse);
         output.iConst1();
-        output.label(skip);
+        output.goTo(end);
+        output.label(onFalse);
+        output.iConst0();
+        output.label(end);
 
         if(!result) {
             output.pop();

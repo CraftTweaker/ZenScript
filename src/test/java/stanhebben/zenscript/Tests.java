@@ -300,6 +300,8 @@ public class Tests {
         assertEquals( "MyPAram2", prints.get(13));
     }
     
+    
+    @SuppressWarnings("unused")
     public static void print(String value) {
         prints.add(value);
     }
