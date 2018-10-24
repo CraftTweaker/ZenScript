@@ -38,6 +38,11 @@ public class EnvironmentScript implements IEnvironmentGlobal {
     }
     
     @Override
+    public String makeClassNameWithMiddleName(String middleName) {
+        return parent.makeClassNameWithMiddleName(middleName);
+    }
+    
+    @Override
     public boolean containsClass(String name) {
         return parent.containsClass(name);
     }

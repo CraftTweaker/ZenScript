@@ -65,6 +65,11 @@ public class EnvironmentScope implements IEnvironmentMethod {
     }
     
     @Override
+    public String makeClassNameWithMiddleName(String middleName) {
+        return outer.makeClassNameWithMiddleName(middleName);
+    }
+    
+    @Override
     public boolean containsClass(String name) {
         return outer.containsClass(name);
     }

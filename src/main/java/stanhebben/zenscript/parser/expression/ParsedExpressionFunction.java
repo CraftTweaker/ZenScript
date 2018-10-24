@@ -63,7 +63,7 @@ public class ParsedExpressionFunction extends ParsedExpression {
                 return new ExpressionFunction(getPosition(), arguments, returnType, statements, ((ZenTypeFunctionCallable) predictedType).getClassName());
             }
             System.out.println("No known predicted type");
-            return new ExpressionFunction(getPosition(), arguments, returnType, statements, environment.makeClassName());
+            return new ExpressionFunction(getPosition(), arguments, returnType, statements, environment.makeClassNameWithMiddleName(getPosition().getFile().getClassName()));
         }
     }
     

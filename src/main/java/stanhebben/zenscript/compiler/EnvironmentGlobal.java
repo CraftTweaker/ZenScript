@@ -55,6 +55,11 @@ public class EnvironmentGlobal implements IEnvironmentGlobal {
     }
     
     @Override
+    public String makeClassNameWithMiddleName(String middleName) {
+        return nameGen.generateWithMiddleName(middleName);
+    }
+    
+    @Override
     public TypeExpansion getExpansion(String type) {
         return environment.getExpansion(type);
     }

@@ -18,6 +18,8 @@ public interface IEnvironmentGlobal extends ITypeRegistry, IZenErrorLogger {
     
     String makeClassName();
     
+    String makeClassNameWithMiddleName(String middleName);
+    
     boolean containsClass(String name);
     
     Set<String> getClassNames();

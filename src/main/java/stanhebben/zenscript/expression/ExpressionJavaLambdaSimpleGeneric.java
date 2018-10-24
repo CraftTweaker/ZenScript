@@ -64,7 +64,7 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
         Method method = interfaceClass.getMethods()[0];
 
         // generate class
-        String clsName = environment.makeClassName();
+        String clsName = environment.makeClassNameWithMiddleName(getPosition().getFile().getClassName());
 
         ClassWriter cw = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, clsName, createMethodSignature(), "java/lang/Object", new String[]{internal(interfaceClass)});
