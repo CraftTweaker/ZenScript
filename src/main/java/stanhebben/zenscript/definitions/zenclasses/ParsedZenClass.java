@@ -46,8 +46,10 @@ public class ParsedZenClass {
 
         final Token id = parser.required(T_ID, "ClassName required");
         parser.required(T_AOPEN, "{ expected");
-
-        ParsedZenClass classTemplate = new ParsedZenClass(id.getPosition(), id.getValue(), environmentGlobal.makeClassName(), classEnvironment);
+    
+        final String name = id.getValue();
+        final ZenPosition position = id.getPosition();
+        ParsedZenClass classTemplate = new ParsedZenClass(position, name, environmentGlobal.makeClassNameWithMiddleName(position.getFile().getClassName() + "_" + name + "_"), classEnvironment);
 
         Token keyword;
         while((keyword = parser.optional(T_VAL, T_VAR, T_STATIC, T_ZEN_CONSTRUCTOR, T_FUNCTION)) != null) {

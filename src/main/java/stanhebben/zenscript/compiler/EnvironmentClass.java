@@ -52,6 +52,11 @@ public class EnvironmentClass implements IEnvironmentClass {
     }
     
     @Override
+    public String makeClassNameWithMiddleName(String middleName) {
+        return global.makeClassNameWithMiddleName(middleName);
+    }
+    
+    @Override
     public boolean containsClass(String name) {
         return global.containsClass(name);
     }

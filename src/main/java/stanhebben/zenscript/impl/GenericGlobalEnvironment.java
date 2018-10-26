@@ -40,6 +40,11 @@ public class GenericGlobalEnvironment implements IEnvironmentGlobal {
     }
     
     @Override
+    public String makeClassNameWithMiddleName(String middleName) {
+        return generator.generateWithMiddleName(middleName);
+    }
+    
+    @Override
     public boolean containsClass(String name) {
         return classes.containsKey(name);
     }

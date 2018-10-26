@@ -81,6 +81,11 @@ public class EnvironmentMethod implements IEnvironmentMethod {
     }
     
     @Override
+    public String makeClassNameWithMiddleName(String middleName) {
+        return environment.makeClassNameWithMiddleName(middleName);
+    }
+    
+    @Override
     public void putClass(String name, byte[] data) {
         environment.putClass(name, data);
     }
