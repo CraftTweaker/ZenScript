@@ -30,10 +30,11 @@ public class ExpressionConditional extends Expression {
         Label lblExit = new Label();
         
         condition.compileIf(lblElse, environment);
-        onIf.compile(result, environment);
+        onIf.cast(getPosition(), environment, getType()).compile(result, environment);
         environment.getOutput().goTo(lblExit);
         environment.getOutput().label(lblElse);
-        onElse.compile(result, environment);
+        onElse.cast(getPosition(), environment, getType()).compile(result, environment);
+        
         environment.getOutput().label(lblExit);
     }
 }
