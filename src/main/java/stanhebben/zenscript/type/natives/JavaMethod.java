@@ -1,8 +1,6 @@
 package stanhebben.zenscript.type.natives;
 
-import stanhebben.zenscript.annotations.Optional;
-import stanhebben.zenscript.annotations.ZenExpansion;
-import stanhebben.zenscript.annotations.ZenMethodStatic;
+import stanhebben.zenscript.annotations.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.type.*;
@@ -22,12 +20,15 @@ public class JavaMethod implements IJavaMethod {
     public static final int PRIORITY_MEDIUM = 2;
     public static final int PRIORITY_HIGH = 3;
     private final Method method;
+    public final boolean returnsSelf;
     private final ZenType[] parameterTypes;
     private final boolean[] optional;
     private final ZenType returnType;
 
     public JavaMethod(Method method, ITypeRegistry types) {
+        
         this.method = method;
+        this.returnsSelf = method.getDeclaredAnnotationsByType(ReturnsSelf.class).length != 0;
 
         returnType = types.getType(method.getGenericReturnType());
         parameterTypes = new ZenType[method.getParameterTypes().length];

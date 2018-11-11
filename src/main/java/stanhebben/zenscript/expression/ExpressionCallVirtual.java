@@ -1,8 +1,10 @@
 package stanhebben.zenscript.expression;
 
-import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.type.ZenType;
-import stanhebben.zenscript.type.natives.*;
+import stanhebben.zenscript.type.natives.IJavaMethod;
+import stanhebben.zenscript.type.natives.JavaMethod;
 import stanhebben.zenscript.util.ZenPosition;
 
 /**
@@ -26,6 +28,8 @@ public class ExpressionCallVirtual extends Expression {
 
     @Override
     public ZenType getType() {
+        if(method instanceof JavaMethod && ((JavaMethod) method).returnsSelf)
+            return receiver.getType();
         return method.getReturnType();
     }
 
@@ -41,5 +45,8 @@ public class ExpressionCallVirtual extends Expression {
         if(method.getReturnType() != ZenType.VOID && !result) {
             environment.getOutput().pop(method.getReturnType().isLarge());
         }
+        
+        if(method instanceof JavaMethod && ((JavaMethod) method).returnsSelf)
+            environment.getOutput().checkCast(receiver.getType().toASMType().getInternalName());
     }
 }
