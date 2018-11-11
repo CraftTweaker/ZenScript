@@ -70,7 +70,7 @@ public class ZenTypeZenClass extends ZenType {
 
     @Override
     public Type toASMType() {
-        return Type.getType(toJavaClass());
+        return toJavaClass() != null ? Type.getType(toJavaClass()) : Type.getType(getSignature());
     }
 
     @Override

@@ -7,6 +7,7 @@ import stanhebben.zenscript.definitions.ParsedFunction;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.parser.Token;
+import stanhebben.zenscript.symbols.SymbolType;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.type.natives.ZenNativeMember;
 import stanhebben.zenscript.util.*;
@@ -50,6 +51,7 @@ public class ParsedZenClass {
         final String name = id.getValue();
         final ZenPosition position = id.getPosition();
         ParsedZenClass classTemplate = new ParsedZenClass(position, name, environmentGlobal.makeClassNameWithMiddleName(position.getFile().getClassName() + "_" + name + "_"), classEnvironment);
+        classEnvironment.putValue(name, new SymbolType(classTemplate.type), classTemplate.position);
 
         Token keyword;
         while((keyword = parser.optional(T_VAL, T_VAR, T_STATIC, T_ZEN_CONSTRUCTOR, T_FUNCTION)) != null) {
