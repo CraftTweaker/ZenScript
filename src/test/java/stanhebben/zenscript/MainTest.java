@@ -3,10 +3,12 @@ package stanhebben.zenscript;
 import stanhebben.zenscript.compiler.IEnvironmentGlobal;
 import stanhebben.zenscript.impl.*;
 
-import java.io.*;
-import java.util.*;
-
-import static stanhebben.zenscript.ZenModule.compileScripts;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainTest {
     
@@ -23,7 +25,7 @@ public class MainTest {
         //Creates a IEnvironmentGlobal needed to compile the scripts
         Map<String, byte[]> classes = new HashMap<>();
         IEnvironmentGlobal environmentGlobal = registry.makeGlobalEnvironment(classes);
-    
+        
         //Loads the script file
         File file = new File("script.zs");
         String fileName = file.getName();

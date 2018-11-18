@@ -115,9 +115,11 @@ public class ZenModule {
                 EnvironmentMethod methodEnvironment = new EnvironmentMethod(methodOutput, environmentScript);
                 
                 List<ParsedFunctionArgument> arguments = function.getValue().getArguments();
-                for(int i = 0; i < arguments.size(); i++) {
+                for(int i = 0, j = 0; i < arguments.size(); i++) {
                     ParsedFunctionArgument argument = arguments.get(i);
-                    methodEnvironment.putValue(argument.getName(), new SymbolArgument(i, argument.getType()), fn.getPosition());
+                    methodEnvironment.putValue(argument.getName(), new SymbolArgument(i + j, argument.getType()), fn.getPosition());
+                    if(argument.getType().isLarge())
+                        ++j;
                 }
                 
                 methodOutput.start();

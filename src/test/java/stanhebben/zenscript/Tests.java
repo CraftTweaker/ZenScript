@@ -1,10 +1,15 @@
 package stanhebben.zenscript;
 
 
-import org.junit.jupiter.api.*;
-import stanhebben.zenscript.impl.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import stanhebben.zenscript.impl.GenericCompileEnvironment;
+import stanhebben.zenscript.impl.GenericErrorLogger;
+import stanhebben.zenscript.impl.GenericRegistry;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,6 +28,11 @@ public class Tests {
         logger = new GenericErrorLogger(System.out);
         registry = new GenericRegistry(compileEnvironment, logger);
         registry.registerGlobal("print", registry.getStaticFunction(Tests.class, "print", String.class));
+    }
+    
+    @SuppressWarnings("unused")
+    public static void print(String value) {
+        prints.add(value);
     }
     
     @BeforeEach
@@ -62,7 +72,6 @@ public class Tests {
         }
         assertEquals("5", prints.get(0));
     }
-    
     
     @Test
     public void testLoop() {
@@ -189,56 +198,6 @@ public class Tests {
     }
     
     @Test
-    public void testFunctions() {
-        try {
-            ZenModule module = ZenModule.compileScriptString("tens();  realTens(\"Hello World!\");  function tens(){     realTens(\"a\"); }  function realTens(a as string){     for i in 1 to 11{         print(a);     } }", "test.zs", compileEnvironment, Test.class.getClassLoader());
-            Runnable runnable = module.getMain();
-            if(runnable != null)
-                runnable.run();
-            
-            
-        } catch(Throwable ex) {
-            registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
-        }
-        assertEquals("a", prints.get(0));
-        assertEquals("a", prints.get(1));
-        assertEquals("a", prints.get(2));
-        assertEquals("a", prints.get(3));
-        assertEquals("a", prints.get(4));
-        assertEquals("a", prints.get(5));
-        assertEquals("a", prints.get(6));
-        assertEquals("a", prints.get(7));
-        assertEquals("a", prints.get(8));
-        assertEquals("a", prints.get(9));
-        assertEquals("Hello World!", prints.get(10));
-        assertEquals("Hello World!", prints.get(11));
-        assertEquals("Hello World!", prints.get(12));
-        assertEquals("Hello World!", prints.get(13));
-        assertEquals("Hello World!", prints.get(14));
-        assertEquals("Hello World!", prints.get(15));
-        assertEquals("Hello World!", prints.get(16));
-        assertEquals("Hello World!", prints.get(17));
-        assertEquals("Hello World!", prints.get(18));
-        assertEquals("Hello World!", prints.get(19));
-    }
-    
-    @Test
-    public void testFunctionsTwo() {
-        try {
-            ZenModule module = ZenModule.compileScriptString("val result = add(1,99); print(result);  print(add(2,64));  function add(a as int,b as int) as int{     return a+b; }", "test.zs", compileEnvironment, Test.class.getClassLoader());
-            Runnable runnable = module.getMain();
-            if(runnable != null)
-                runnable.run();
-        } catch(Throwable ex) {
-            registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
-        }
-        assertEquals("100", prints.get(0));
-        assertEquals("66", prints.get(1));
-        
-    }
-    
-    
-    @Test
     public void testContains() {
         try {
             ZenModule module = ZenModule.compileScriptString("var checkthisString = \"Checking\" as string; var checkforthisString = \"ing\" as string; if (checkthisString in checkforthisString) { print(\"Yes\"); } else { print(\"No\"); }", "test.zs", compileEnvironment, Test.class.getClassLoader());
@@ -263,13 +222,13 @@ public class Tests {
         } catch(Throwable ex) {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
-    
+        
         for(int i = 0; i < 10; i++) {
             assertEquals(Integer.toString(i), prints.get(i));
         }
         assertEquals("After loop: 10", prints.get(10));
         for(int i = 10; i > 5; i--) {
-            assertEquals(Integer.toString(i), prints.get(21-i));
+            assertEquals(Integer.toString(i), prints.get(21 - i));
         }
         assertEquals("After loop 2: 5", prints.get(16));
     }
@@ -294,16 +253,10 @@ public class Tests {
         assertEquals("123", prints.get(7));
         assertEquals("FFFFFF", prints.get(8));
         assertEquals("1", prints.get(9));
-        assertEquals( "0", prints.get(10));
-        assertEquals( "TETETE", prints.get(11));
-        assertEquals( "MYParam1", prints.get(12));
-        assertEquals( "MyPAram2", prints.get(13));
-    }
-    
-    
-    @SuppressWarnings("unused")
-    public static void print(String value) {
-        prints.add(value);
+        assertEquals("0", prints.get(10));
+        assertEquals("TETETE", prints.get(11));
+        assertEquals("MYParam1", prints.get(12));
+        assertEquals("MyPAram2", prints.get(13));
     }
     
     

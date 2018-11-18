@@ -34,6 +34,12 @@ public class TestBoolOperators {
         registry.registerGlobal("print", registry.getStaticFunction(TestBoolOperators.class, "print", String.class));
     }
     
+    private static void assertMany(String... lines) {
+        for(int i = 0; i < lines.length; i++) {
+            assertEquals(lines[i], prints.get(i));
+        }
+    }
+    
     @BeforeEach
     public void clearPrints() {
         prints.clear();
@@ -116,9 +122,7 @@ public class TestBoolOperators {
     @Test
     public void TestAndAndOrder() {
         try {
-            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" +
-                    "printFin(methodTrue() && methodTrue()); printFin(methodTrue() && methodFalse()); printFin(methodFalse() && methodTrue()); printFin(methodFalse() && methodFalse()); ",
-                    "test.zs", compileEnvironment, Test.class.getClassLoader());
+            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" + "printFin(methodTrue() && methodTrue()); printFin(methodTrue() && methodFalse()); printFin(methodFalse() && methodTrue()); printFin(methodFalse() && methodFalse()); ", "test.zs", compileEnvironment, Test.class.getClassLoader());
             Runnable runnable = module.getMain();
             if(runnable != null)
                 runnable.run();
@@ -126,18 +130,13 @@ public class TestBoolOperators {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
         
-        assertMany("methodTrue", "methodTrue", "true", "Fin",
-                "methodTrue", "methodFalse", "false", "Fin",
-                "methodFalse", "false", "Fin",
-                "methodFalse", "false", "Fin");
+        assertMany("methodTrue", "methodTrue", "true", "Fin", "methodTrue", "methodFalse", "false", "Fin", "methodFalse", "false", "Fin", "methodFalse", "false", "Fin");
     }
     
     @Test
     public void TestOrOrOrder() {
         try {
-            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" +
-                            "printFin(methodTrue() || methodTrue()); printFin(methodTrue() || methodFalse()); printFin(methodFalse() || methodTrue()); printFin(methodFalse() || methodFalse()); ",
-                    "test.zs", compileEnvironment, Test.class.getClassLoader());
+            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" + "printFin(methodTrue() || methodTrue()); printFin(methodTrue() || methodFalse()); printFin(methodFalse() || methodTrue()); printFin(methodFalse() || methodFalse()); ", "test.zs", compileEnvironment, Test.class.getClassLoader());
             Runnable runnable = module.getMain();
             if(runnable != null)
                 runnable.run();
@@ -145,10 +144,7 @@ public class TestBoolOperators {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
         
-        assertMany("methodTrue", "true", "Fin",
-                "methodTrue", "true", "Fin",
-                "methodFalse", "methodTrue", "true", "Fin",
-                "methodFalse", "methodFalse", "false", "Fin");
+        assertMany("methodTrue", "true", "Fin", "methodTrue", "true", "Fin", "methodFalse", "methodTrue", "true", "Fin", "methodFalse", "methodFalse", "false", "Fin");
         
         
     }
@@ -156,9 +152,7 @@ public class TestBoolOperators {
     @Test
     public void TestAndOrder() {
         try {
-            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" +
-                            "printFin(methodTrue() & methodTrue()); printFin(methodTrue() & methodFalse()); printFin(methodFalse() & methodTrue()); printFin(methodFalse() & methodFalse()); ",
-                    "test.zs", compileEnvironment, Test.class.getClassLoader());
+            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" + "printFin(methodTrue() & methodTrue()); printFin(methodTrue() & methodFalse()); printFin(methodFalse() & methodTrue()); printFin(methodFalse() & methodFalse()); ", "test.zs", compileEnvironment, Test.class.getClassLoader());
             Runnable runnable = module.getMain();
             if(runnable != null)
                 runnable.run();
@@ -166,18 +160,13 @@ public class TestBoolOperators {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
         
-        assertMany("methodTrue", "methodTrue", "true", "Fin",
-                "methodTrue", "methodFalse", "false", "Fin",
-                "methodFalse", "methodTrue", "false", "Fin",
-                "methodFalse", "methodFalse", "false", "Fin");
+        assertMany("methodTrue", "methodTrue", "true", "Fin", "methodTrue", "methodFalse", "false", "Fin", "methodFalse", "methodTrue", "false", "Fin", "methodFalse", "methodFalse", "false", "Fin");
     }
     
     @Test
     public void TestOrOrder() {
         try {
-            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" +
-                            "printFin(methodTrue() | methodTrue()); printFin(methodTrue() | methodFalse()); printFin(methodFalse() | methodTrue()); printFin(methodFalse() | methodFalse()); ",
-                    "test.zs", compileEnvironment, Test.class.getClassLoader());
+            ZenModule module = ZenModule.compileScriptString("function methodTrue() as bool {print('methodTrue'); return true;} function methodFalse() as bool {print('methodFalse'); return false;} function printFin(a as bool) as void {print(a); print('Fin');}" + "printFin(methodTrue() | methodTrue()); printFin(methodTrue() | methodFalse()); printFin(methodFalse() | methodTrue()); printFin(methodFalse() | methodFalse()); ", "test.zs", compileEnvironment, Test.class.getClassLoader());
             Runnable runnable = module.getMain();
             if(runnable != null)
                 runnable.run();
@@ -185,18 +174,22 @@ public class TestBoolOperators {
             registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
         
-        assertMany("methodTrue", "methodTrue", "true", "Fin",
-                "methodTrue", "methodFalse", "true", "Fin",
-                "methodFalse", "methodTrue", "true", "Fin",
-                "methodFalse", "methodFalse", "false", "Fin");
+        assertMany("methodTrue", "methodTrue", "true", "Fin", "methodTrue", "methodFalse", "true", "Fin", "methodFalse", "methodTrue", "true", "Fin", "methodFalse", "methodFalse", "false", "Fin");
         
         
     }
     
-    
-    private static void assertMany(String... lines) {
-        for(int i = 0; i < lines.length; i++) {
-            assertEquals(lines[i], prints.get(i));
+    @Test
+    public void TestConditional() {
+        try {
+            ZenModule module = ZenModule.compileScriptString("print(true ? 'a' : 'b'); print(false ? 'a' : 'b');" + "print(true ? 'a' : 10.0D); print(false ? 'a' : 10.0D);" + "print((true ? 10.0D : '11') + 1); print((false ? 10.0D : '11') + 1);", "test.zs", compileEnvironment, Test.class.getClassLoader());
+            Runnable runnable = module.getMain();
+            if(runnable != null)
+                runnable.run();
+        } catch(Throwable ex) {
+            registry.getErrorLogger().error("Error executing: test.zs: " + ex.getMessage(), ex);
         }
+        
+        assertMany("a", "b", "a", "10.0", "11.0", "12.0");
     }
 }
