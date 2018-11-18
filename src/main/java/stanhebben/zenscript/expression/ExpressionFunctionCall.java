@@ -31,6 +31,9 @@ public class ExpressionFunctionCall extends Expression {
             value.compile(true, environment);
         }
         environment.getOutput().invokeVirtual(className, "accept", descriptor);
+        if(returnType != ZenType.VOID && !result) {
+            environment.getOutput().pop(returnType.isLarge());
+        }
     }
     
     @Override
