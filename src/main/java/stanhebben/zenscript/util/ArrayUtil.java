@@ -70,7 +70,7 @@ public class ArrayUtil {
     
     public static <T> boolean contains(T[] array, T toCheck) {
         for(T item : array) {
-            if(item.equals(toCheck))
+            if(Objects.equals(item, toCheck))
                 return true;
         }
         return false;
