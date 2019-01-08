@@ -4,23 +4,31 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.Type;
 import stanhebben.zenscript.TypeExpansion;
 import stanhebben.zenscript.annotations.*;
-import stanhebben.zenscript.compiler.*;
-import stanhebben.zenscript.dump.types.*;
+import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.compiler.IEnvironmentMethod;
+import stanhebben.zenscript.compiler.ITypeRegistry;
+import stanhebben.zenscript.dump.types.DumpZenType;
+import stanhebben.zenscript.dump.types.DumpZenTypeNative;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.casting.*;
 import stanhebben.zenscript.type.iterator.*;
 import stanhebben.zenscript.type.natives.*;
-import stanhebben.zenscript.util.*;
+import stanhebben.zenscript.util.IAnyDefinition;
+import stanhebben.zenscript.util.MethodOutput;
+import stanhebben.zenscript.util.ZenPosition;
 import stanhebben.zenscript.value.IAny;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.*;
 import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static stanhebben.zenscript.util.AnyClassWriter.*;
-import static stanhebben.zenscript.util.ZenTypeUtil.*;
+import static stanhebben.zenscript.util.AnyClassWriter.throwCastException;
+import static stanhebben.zenscript.util.AnyClassWriter.throwUnsupportedException;
+import static stanhebben.zenscript.util.ZenTypeUtil.internal;
+import static stanhebben.zenscript.util.ZenTypeUtil.signature;
 
 /**
  * @author Stanneke
@@ -38,6 +46,7 @@ public class ZenTypeNative extends ZenType {
     private final List<ZenTypeNative> implementing;
     private final Map<String, ZenNativeMember> members;
     private final Map<String, ZenNativeMember> staticMembers;
+    private final List<ZenNativeConstructor> constructors;
     private final List<ZenNativeCaster> casters;
     private final List<ZenNativeOperator> trinaryOperators;
     private final List<ZenNativeOperator> binaryOperators;
@@ -59,6 +68,7 @@ public class ZenTypeNative extends ZenType {
         binaryOperators = new ArrayList<>();
         unaryOperators = new ArrayList<>();
         implementing = new ArrayList<>();
+        constructors = new ArrayList<>();
         
         anyName2 = cls.getName() + "Any";
         anyName = anyName2.replace('.', '/');
@@ -265,6 +275,11 @@ public class ZenTypeNative extends ZenType {
                     
                 }
             }
+        }
+        
+        for(Constructor constructor: cls.getConstructors()) {
+            if(constructor.isAnnotationPresent(ZenConstructor.class))
+                this.constructors.add(new ZenNativeConstructor(constructor));
         }
         
         this.iteratorType = iterator;
@@ -585,8 +600,15 @@ public class ZenTypeNative extends ZenType {
     
     @Override
     public Expression call(ZenPosition position, IEnvironmentGlobal environment, Expression receiver, Expression... arguments) {
-        // TODO: support functional interfaces
-        throw new UnsupportedOperationException("Not supported yet.");
+    
+        for(ZenNativeConstructor constructor : this.constructors) {
+            if(constructor.canAccept(environment, arguments)) {
+                return constructor.call(position, arguments);
+            }
+        }
+        
+        environment.error(position, "Could not find matching constructor with " + arguments.length + " arguments!");
+        return new ExpressionInvalid(position);
     }
     
     @Override
@@ -1091,5 +1113,50 @@ public class ZenTypeNative extends ZenType {
     @Override
     public List<DumpZenType> asDumpedObject() {
         return Collections.singletonList(new DumpZenTypeNative(toJavaClass(), getName(), members, staticMembers, casters, trinaryOperators, binaryOperators, unaryOperators));
+    }
+    
+    private class ZenNativeConstructor {
+        private final Constructor<?> constructor;
+    
+        private ZenNativeConstructor(Constructor<?> constructor) {
+            this.constructor = constructor;
+        }
+        
+        boolean canAccept(IEnvironmentGlobal environment, Expression... arguments) {
+            
+            final Class<?>[] parameters = constructor.getParameterTypes();
+            if(arguments.length != parameters.length)
+                return false;
+            
+            for(int i = 0; i < arguments.length; i++) {
+                if(!arguments[i].getType().canCastImplicit(environment.getType(parameters[i]), environment))
+                    return false;
+            }
+            return true;
+            
+        }
+    
+        public Expression call(ZenPosition position, Expression... arguments) {
+            return new Expression(position) {
+                @Override
+                public void compile(boolean result, IEnvironmentMethod environment) {
+                    environment.getOutput().newObject(ZenTypeNative.this.getNativeClass());
+                    environment.getOutput().dup();
+                    for(int i = 0; i < arguments.length; i++) {
+                        Expression argument = arguments[i];
+                        argument.cast(getPosition(), environment, environment.getType(constructor.getParameterTypes()[i])).compile(true, environment);
+                    }
+                    String signatureBuilder = Arrays.stream(constructor.getParameterTypes())
+                            .map(Type::getDescriptor)
+                            .collect(Collectors.joining("", "(", ")V"));
+                    environment.getOutput().invokeSpecial(Type.getInternalName(constructor.getDeclaringClass()), "<init>", signatureBuilder);
+                }
+    
+                @Override
+                public ZenType getType() {
+                    return ZenTypeNative.this;
+                }
+            };
+        }
     }
 }
