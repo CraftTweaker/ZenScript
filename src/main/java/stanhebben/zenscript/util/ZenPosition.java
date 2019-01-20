@@ -25,6 +25,10 @@ public class ZenPosition {
         return file;
     }
     
+    public String getFileName() {
+        return (file == null ? (fileNameFallback == null ? "?" : fileNameFallback) : file.getFileName());
+    }
+    
     public int getLine() {
         return line;
     }
@@ -35,6 +39,6 @@ public class ZenPosition {
     
     @Override
     public String toString() {
-        return (file == null ? (fileNameFallback == null ? "?" : fileNameFallback) : file.getFileName()) + ":" + Integer.toString(line);
+        return getFileName() + ":" + line;
     }
 }
