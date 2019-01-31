@@ -57,7 +57,7 @@ public class ExpressionArithmeticUnary extends Expression {
                 }
             } else if(type == ZenTypeDouble.INSTANCE) {
                 if(operator == OperatorType.NEG) {
-                    output.fNeg();
+                    output.dNeg();
                     return;
                 }
             }
