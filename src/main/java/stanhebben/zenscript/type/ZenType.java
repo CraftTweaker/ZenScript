@@ -104,7 +104,9 @@ public abstract class ZenType implements IDumpConvertable {
     
     public static ZenType parse(String type, IEnvironmentGlobal environment) {
         try {
-            ZenTokener parser = new ZenTokener(type, environment.getEnvironment(), "", false);
+            final String fileName = "";
+            ZenTokener parser = new ZenTokener(type, environment.getEnvironment(), fileName, false);
+            parser.setFile(new ZenParsedFile(fileName, fileName, parser, environment));
             return read(parser, environment);
         } catch(IOException ex) {
             return null;
