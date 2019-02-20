@@ -55,7 +55,10 @@ public class ZenTypeUtil {
     }
     
     public static ZenType checkPrimitive(ZenType type) {
-    	if (type.toJavaClass().isPrimitive()) {
+        final Class javaClass = type.toJavaClass();
+        if(javaClass == null)
+            return type;
+        if (javaClass.isPrimitive()) {
     		if(type == ZenType.INT) return ZenType.INTOBJECT;
     		else if(type == ZenType.BOOL) return ZenType.BOOLOBJECT;
     		else if(type == ZenType.BYTE) return ZenType.BYTEOBJECT;
