@@ -1,6 +1,6 @@
 package stanhebben.zenscript.tests;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,16 +34,16 @@ public class TestZenProperty {
     public void testSet_NoParameters() {
         TestHelper.run("testerInstance().a = 'abc';");
         
-        Assert.assertNotNull(PropertyTester.instance);
-        Assert.assertEquals("abc", PropertyTester.getInstance().a);
+        Assertions.assertNotNull(PropertyTester.instance);
+        Assertions.assertEquals("abc", PropertyTester.getInstance().a);
     }
     
     @Test
     public void testSetMethod_NoParameters() {
         TestHelper.run("testerInstance().setA('abc');");
         
-        Assert.assertNotNull(PropertyTester.instance);
-        Assert.assertEquals("abc", PropertyTester.getInstance().a);
+        Assertions.assertNotNull(PropertyTester.instance);
+        Assertions.assertEquals("abc", PropertyTester.getInstance().a);
     }
     
     @Test
@@ -66,8 +66,8 @@ public class TestZenProperty {
     public void testSet_Methods() {
         TestHelper.run("testerInstance().b = 'abc';");
         
-        Assert.assertNotNull(PropertyTester.instance);
-        Assert.assertEquals("abc", PropertyTester.getInstance().b);
+        Assertions.assertNotNull(PropertyTester.instance);
+        Assertions.assertEquals("abc", PropertyTester.getInstance().b);
         assertMany("setB");
     }
     
@@ -75,8 +75,8 @@ public class TestZenProperty {
     public void testSetMethod_Methods() {
         TestHelper.run("testerInstance().setB('abc');");
         
-        Assert.assertNotNull(PropertyTester.instance);
-        Assert.assertEquals("abc", PropertyTester.getInstance().b);
+        Assertions.assertNotNull(PropertyTester.instance);
+        Assertions.assertEquals("abc", PropertyTester.getInstance().b);
         assertMany("setB");
     }
     
@@ -100,8 +100,8 @@ public class TestZenProperty {
     public void testSet_MethodReRouting() {
         TestHelper.run("testerInstance().c = 'abc';");
         
-        Assert.assertNotNull(PropertyTester.instance);
-        Assert.assertEquals("abc", PropertyTester.getInstance().c);
+        Assertions.assertNotNull(PropertyTester.instance);
+        Assertions.assertEquals("abc", PropertyTester.getInstance().c);
         assertMany("setC2");
     }
     

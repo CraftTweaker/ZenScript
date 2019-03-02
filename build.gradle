@@ -2,16 +2,12 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1'
-    }
 }
 
 
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
-apply plugin: 'org.junit.platform.gradle.plugin'
 
 version = "1.0.0"
 
@@ -88,6 +84,13 @@ artifacts {
     archives sourcesJar
     archives javadocJar
     archives deobfJar
+}
+
+test {
+    useJUnitPlatform()
+    testLogging{
+        events "PASSED", "FAILED", "SKIPPED"
+    }
 }
 
 publishing {
