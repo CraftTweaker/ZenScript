@@ -1058,6 +1058,18 @@ public class MethodOutput {
         visitor.visitInsn(SWAP);
     }
     
+    /**
+     * Swaps a large type with a non-large type, where the non-large type is at the top of the stack
+     *
+     * Example: D1, D2, I. Swap would result in D1, I, D2. This method would return in I, D1, D2
+     */
+    public void swapLargeLower() {
+        if(debug)
+            System.out.println("Custom: swapLargeLower");
+        this.dupX2();
+        this.pop();
+    }
+    
     private String getLabelName(Label lbl) {
         if(labelNames == null)
             labelNames = new HashMap<>();
