@@ -45,21 +45,33 @@ public class CastingRuleArrayArray implements ICastingRule {
         output.arrayLength();
         output.loadInt(counter);
         output.dupX1();
-        output.ifICmpGE(end);
+        output.ifICmpLE(end);
 
         output.arrayLoad(from.getBaseType().toASMType());
         if (base != null)
             base.compile(method);
-
+    
         output.loadObject(result);
-        output.swap();
-        output.loadInt(counter);
-        output.swap();
+        if(to.getBaseType().isLarge()) {
+            output.swapLargeLower();
+            output.loadInt(counter);
+            output.swapLargeLower();
+        } else {
+            output.swap();
+            output.loadInt(counter);
+            output.swap();
+        }
+        
         output.arrayStore(toType);
         output.iinc(counter);
 
         output.goTo(start);
         output.label(end);
+        
+        //Pop Counter variable, and source array from stack (latter is twice on the stack)
+        output.pop();
+        output.pop();
+        output.pop();
         output.loadObject(result);
     }
 

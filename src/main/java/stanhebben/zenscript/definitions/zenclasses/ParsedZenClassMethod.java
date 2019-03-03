@@ -93,9 +93,11 @@ public class ParsedZenClassMethod {
         IEnvironmentMethod methodEnvironment = new EnvironmentMethod(methodOutput, environmentNewClass);
         
         List<ParsedFunctionArgument> arguments = method.getArguments();
-        for(int i = 0; i < arguments.size(); ) {
+        for(int i = 0, j = 0; i < arguments.size(); ) {
             ParsedFunctionArgument argument = arguments.get(i);
-            methodEnvironment.putValue(argument.getName(), new SymbolArgument(++i, argument.getType()), method.getPosition());
+            methodEnvironment.putValue(argument.getName(), new SymbolArgument(++i + j, argument.getType()), method.getPosition());
+            if(argument.getType().isLarge())
+                ++j;
         }
         methodOutput.start();
         Statement[] statements = method.getStatements();

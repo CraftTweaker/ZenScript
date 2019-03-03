@@ -104,8 +104,10 @@ public class ParsedClassConstructor {
     }
 
     public void injectParameters(IEnvironmentMethod environmentMethod, ZenPosition position) {
-        for(int i = 0; i < types.length; i++) {
-            environmentMethod.putValue(names[i], new SymbolArgument(i + 1, types[i]), position);
+        for(int i = 0, j = 0; i < types.length; i++) {
+            environmentMethod.putValue(names[i], new SymbolArgument(i + 1 + j, types[i]), position);
+            if(types[i].isLarge())
+                j++;
         }
     }
 
@@ -125,8 +127,9 @@ public class ParsedClassConstructor {
             MethodOutput output = environment.getOutput();
             output.newObject(type.getName());
             output.dup();
-            for(Expression ex : arguments) {
-                ex.compile(result, environment);
+            for(int i = 0; i < arguments.length; i++) {
+                Expression ex = arguments[i];
+                ex.cast(ex.getPosition(), environment, types[i]).compile(true, environment);
             }
             output.invokeSpecial(type.getName(), "<init>", ParsedClassConstructor.this.getDescription());
         }
