@@ -64,8 +64,10 @@ public class ExpressionJavaLambda extends Expression {
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
         IEnvironmentMethod environmentMethod = new EnvironmentMethod(output, environmentClass);
         
-        for(int i = 0; i < arguments.size(); i++) {
+        for(int i = 0, j = 0; i < arguments.size(); i++) {
             environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1, environment.getType(method.getGenericParameterTypes()[i])), getPosition());
+            if(environment.getType(method.getGenericParameterTypes()[i]).isLarge())
+                j++;
         }
         
         output.start();

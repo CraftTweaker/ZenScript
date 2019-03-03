@@ -113,12 +113,5 @@ public class Tests {
         assertOne("After loop 2: 5", 16);
     }
     
-    @Test
-    public void testClasses() {
-        TestHelper.run("zenClass name {\n" + "\tstatic myStatic as string = \"value\";\n" + "\tstatic otherStatic as string = \"value\";\n" + "\n" + "\tval nonStatic as string = \"123\";\n" + "\tval nonStaticTwo as string;\n" + "\n" + "\tzenConstructor(parameter as string, parameter2 as string) {\n" + "\t\tprint(\"TETETE\");\n" + "\t\tprint(parameter);\n" + "\t\tnonStaticTwo = parameter2;\n" + "\t}\n" + "\n" + "\tzenConstructor(parameter as string) {\n" + "\t\tprint(\"FFFFFF\");\n" + "\t}\n" + "\n" + "\tfunction myMethod(arg as string, arg1 as string) as string {\n" + "\t\treturn \"value\" + arg ~ arg1;\n" + "\t}\n" + "\n" + "}\n" + "\n" + "var test = name(\"NOPE\");\n" + "test = name(\"nope\", \"noper\");\n" + "print(test.myMethod(\"one\", \"two\"));\n" + "print(name.myStatic);\n" + "print(name(\"parameter1\", \"parameter2\").nonStatic);\n" + "val ttt = name(\"t\");\n" + "ttt.myStatic = \"1\";\n" + "print(ttt.myStatic);\n" + "ttt.nonStatic = \"0\";\n" + "print(ttt.nonStatic);\n" + "print(name(\"MYParam1\", \"MyPAram2\").nonStaticTwo);");
-        
-        assertMany("FFFFFF", "TETETE", "nope", "valueonetwo", "value", "TETETE", "parameter1", "123", "FFFFFF", "1", "0", "TETETE", "MYParam1", "MyPAram2");
-    }
-    
     
 }

@@ -26,6 +26,7 @@ public class ParseException extends RuntimeException {
     }
 
     public ParseException(ZenParsedFile file, int line, int lineOffset, String error) {
+        super("Error parsing line " + line + ":" + lineOffset + " - " + error);
         this.file = file;
         this.line = line;
         this.lineOffset = lineOffset;

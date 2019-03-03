@@ -81,14 +81,16 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
         IEnvironmentMethod environmentMethod = new EnvironmentMethod(output, environmentClass);
 
-        for(int i = 0; i < arguments.size(); i++) {
+        for(int i = 0, j = 0; i < arguments.size(); i++) {
             ZenType typeToPut = arguments.get(i).getType();
             if(typeToPut.equals(ZenType.ANY))
                 typeToPut = environment.getType(method.getGenericParameterTypes()[i]);
             if(typeToPut == null)
                 typeToPut = environment.getType(method.getParameterTypes()[i]);
 
-            environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1, typeToPut), getPosition());
+            environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1 + j, typeToPut), getPosition());
+            if(typeToPut.isLarge())
+                j++;
         }
 
         output.start();

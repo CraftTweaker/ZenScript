@@ -115,8 +115,10 @@ public class ExpressionFunction extends Expression {
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
         IEnvironmentMethod environmentMethod = new EnvironmentMethod(output, environmentClass);
         
-        for(int i = 0; i < arguments.size(); i++) {
-            environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1, arguments.get(i).getType()), getPosition());
+        for(int i = 0, j = 0; i < arguments.size(); i++) {
+            environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1 + j, arguments.get(i).getType()), getPosition());
+            if(arguments.get(i).getType().isLarge())
+                j++;
         }
         
         output.start();
