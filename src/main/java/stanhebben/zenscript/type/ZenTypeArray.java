@@ -52,7 +52,7 @@ public abstract class ZenTypeArray extends ZenType {
     }
     
     @Override
-    public final IPartialExpression getMember(ZenPosition position, IEnvironmentGlobal environment, IPartialExpression value, String name) {
+    public IPartialExpression getMember(ZenPosition position, IEnvironmentGlobal environment, IPartialExpression value, String name) {
         if(name.equals("length")) {
             return getMemberLength(position, environment, value);
         } else {
@@ -94,7 +94,7 @@ public abstract class ZenTypeArray extends ZenType {
     }
     
     @Override
-    public final Expression binary(ZenPosition position, IEnvironmentGlobal environment, Expression left, Expression right, OperatorType operator) {
+    public Expression binary(ZenPosition position, IEnvironmentGlobal environment, Expression left, Expression right, OperatorType operator) {
         switch(operator) {
             case INDEXGET:
                 return indexGet(position, environment, left, right);
