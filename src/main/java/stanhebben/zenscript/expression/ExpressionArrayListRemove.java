@@ -3,6 +3,7 @@ package stanhebben.zenscript.expression;
 import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.ZenPosition;
+import stanhebben.zenscript.util.ZenTypeUtil;
 
 import java.util.Collection;
 
@@ -20,7 +21,8 @@ public class ExpressionArrayListRemove extends Expression {
     @Override
     public void compile(boolean result, IEnvironmentMethod environment) {
         list.compile(true, environment);
-        val.compile(true, environment);
+        val.cast(getPosition(), environment, ZenTypeUtil.checkPrimitive(val.getType())).compile(true, environment);
+
 
         environment.getOutput().invokeInterface(Collection.class, "remove", boolean.class, Object.class);
         if (!result)

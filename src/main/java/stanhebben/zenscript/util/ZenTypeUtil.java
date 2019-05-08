@@ -69,4 +69,8 @@ public class ZenTypeUtil {
     	}
     	return type;
     }
+
+    public static boolean isPrimitive(ZenType type) {
+        return type != checkPrimitive(type);
+    }
 }

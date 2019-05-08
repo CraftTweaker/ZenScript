@@ -42,4 +42,17 @@ public class TestZenTypeArray {
         TestHelper.run("val list = ['a', 'b', 'c'] as [string];print(list[1]); list.remove('b'); print(list[1]);");
         assertMany("b", "c");
     }
+
+    @Test
+    public void testRemoveInt() {
+        TestHelper.run("val list = [1, 2, 3] as [int]; print(list[1]); print(list - 1); print(list[1]);");
+        assertMany("2", "true", "3");
+    }
+
+    //Fix eventually?I
+    //@Test
+    //public void testRemoveIntMethod() {
+    //    TestHelper.run("val list = [1, 2, 3] as [int]; print(list[1]); print(list.remove(1)); print(list[1]);");
+    //    assertMany("2", "true", "3");
+    //}
 }

@@ -28,7 +28,7 @@ public class ExpressionArrayList extends Expression {
 
         for(Expression content : contents) {
             methodOutput.dup();
-            content.compile(true, environment);
+            content.cast(getPosition(), environment, ZenTypeUtil.checkPrimitive(content.getType())).compile(true, environment);
             methodOutput.invokeInterface(Collection.class, "add", boolean.class, Object.class);
             methodOutput.pop();
         }
