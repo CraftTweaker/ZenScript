@@ -27,4 +27,11 @@ public class TestArithmeticOperators {
 
         assertMany("4", "0");
     }
+
+    @Test
+    public void testD2LCast_Function() {
+        TestHelper.run("val x = 10 as long; function pLong(lo as long) as void {print(lo);} pLong((1.8 * x) as long);");
+
+        assertMany("18");
+    }
 }
