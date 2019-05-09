@@ -38,12 +38,12 @@ public class ZenTypeLong extends ZenType {
         rules.registerCastingRule(SHORT, new CastingRuleI2S(new CastingRuleL2I(null)));
         rules.registerCastingRule(SHORTOBJECT, new CastingRuleStaticMethod(SHORT_VALUEOF, new CastingRuleI2S(new CastingRuleL2I(null))));
         rules.registerCastingRule(INT, new CastingRuleL2I(null));
-        rules.registerCastingRule(INTOBJECT, new CastingRuleStaticMethod(INT_VALUEOF));
-        rules.registerCastingRule(LONGOBJECT, new CastingRuleStaticMethod(LONG_VALUEOF, new CastingRuleI2L(null)));
+        rules.registerCastingRule(INTOBJECT, new CastingRuleStaticMethod(INT_VALUEOF, new CastingRuleL2I(null)));
+        rules.registerCastingRule(LONGOBJECT, new CastingRuleStaticMethod(LONG_VALUEOF));
         rules.registerCastingRule(FLOAT, new CastingRuleL2F(null));
-        rules.registerCastingRule(FLOATOBJECT, new CastingRuleStaticMethod(FLOAT_VALUEOF, new CastingRuleI2F(null)));
-        rules.registerCastingRule(DOUBLE, new CastingRuleI2D(null));
-        rules.registerCastingRule(DOUBLEOBJECT, new CastingRuleStaticMethod(DOUBLE_VALUEOF, new CastingRuleI2D(null)));
+        rules.registerCastingRule(FLOATOBJECT, new CastingRuleStaticMethod(FLOAT_VALUEOF, new CastingRuleL2F(null)));
+        rules.registerCastingRule(DOUBLE, new CastingRuleL2D(null));
+        rules.registerCastingRule(DOUBLEOBJECT, new CastingRuleStaticMethod(DOUBLE_VALUEOF, new CastingRuleL2D(null)));
         
         rules.registerCastingRule(STRING, new CastingRuleStaticMethod(LONG_TOSTRING_STATIC));
         rules.registerCastingRule(ANY, new CastingRuleStaticMethod(JavaMethod.getStatic(getAnyClassName(environment), "valueOf", ANY, LONG)));

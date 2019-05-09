@@ -150,7 +150,7 @@ public class ZenTypeLongObject extends ZenType {
     
     @Override
     public String getName() {
-        return "long";
+        return "long?";
     }
     
     @Override

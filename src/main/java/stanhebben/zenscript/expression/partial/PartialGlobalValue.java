@@ -4,6 +4,7 @@ import stanhebben.zenscript.compiler.IEnvironmentGlobal;
 import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.expression.Expression;
 import stanhebben.zenscript.expression.ExpressionGlobalGet;
+import stanhebben.zenscript.expression.ExpressionGlobalSet;
 import stanhebben.zenscript.expression.ExpressionInvalid;
 import stanhebben.zenscript.symbols.IZenSymbol;
 import stanhebben.zenscript.symbols.SymbolGlobalValue;
@@ -26,8 +27,7 @@ public class PartialGlobalValue implements IPartialExpression {
 
 	@Override
 	public Expression assign(ZenPosition position, IEnvironmentGlobal environment, Expression other) {
-		environment.error(position, "cannot assign to a global value");
-		return new ExpressionInvalid(position);
+		return new ExpressionGlobalSet(value, other);
 	}
 
 	@Override

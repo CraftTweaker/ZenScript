@@ -150,7 +150,7 @@ public class ZenTypeShortObject extends ZenType {
     
     @Override
     public String getName() {
-        return "short";
+        return "short?";
     }
     
     @Override
