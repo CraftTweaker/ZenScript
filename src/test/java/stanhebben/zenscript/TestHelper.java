@@ -10,7 +10,10 @@ import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 public class TestHelper {
-    
+
+    /**Should log the print statements to console?*/
+    private static final boolean debug = false;
+
     public static List<String> prints = new LinkedList<>();
     public static GenericRegistry registry;
     public static TestErrorLogger logger;
@@ -31,9 +34,14 @@ public class TestHelper {
         logger = new TestErrorLogger();
         registry = new GenericRegistry(compileEnvironment, logger);
         registry.registerGlobal("print", registry.getStaticFunction(TestHelper.class, "print", String.class));
+
+        //Generic Environment does not check for types when it checks names, hence importing the type root
+        registry.registerGlobal("root", registry.getRoot());
     }
     
     public static void print(String s) {
+        if(debug)
+            System.out.println("[Print] " + s);
         prints.add(s);
     }
     
