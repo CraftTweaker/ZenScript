@@ -42,11 +42,10 @@ public class ExpressionCallVirtual extends Expression {
         }
 
         method.invokeVirtual(environment.getOutput());
-        if(method.getReturnType() != ZenType.VOID && !result) {
+        if(!result && method.getReturnType() != ZenType.VOID) {
             environment.getOutput().pop(method.getReturnType().isLarge());
-        }
-        
-        if(method instanceof JavaMethod && ((JavaMethod) method).returnsSelf)
+        } else if(method instanceof JavaMethod && ((JavaMethod) method).returnsSelf) {
             environment.getOutput().checkCast(receiver.getType().toASMType().getInternalName());
+        }
     }
 }
