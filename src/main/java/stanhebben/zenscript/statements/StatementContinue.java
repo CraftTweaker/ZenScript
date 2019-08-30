@@ -4,11 +4,11 @@ import org.objectweb.asm.Label;
 import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.util.ZenPosition;
 
-public class StatementBreak extends Statement {
-    
+public class StatementContinue extends Statement {
+
     private Label exit;
-    
-    public StatementBreak(ZenPosition position) {
+
+    public StatementContinue(ZenPosition position) {
         super(position);
     }
     
@@ -21,6 +21,6 @@ public class StatementBreak extends Statement {
         if(exit != null)
             environment.getOutput().goTo(exit);
         else
-            environment.error(getPosition(), "Skipping break statement as it has no proper label. Only use breaks in loops!");
+            environment.error(getPosition(), "Skipping continue statement as it has no proper label. Only use them in loops!");
     }
 }

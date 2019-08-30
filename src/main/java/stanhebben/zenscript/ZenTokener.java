@@ -80,6 +80,7 @@ public class ZenTokener extends TokenStream {
     public static final int T_VAL = 127;
     public static final int T_WHILE = 128;
     public static final int T_BREAK = 129;
+    public static final int T_CONTINUE = 130;
     public static final int T_NULL = 140;
     public static final int T_TRUE = 141;
     public static final int T_FALSE = 142;
@@ -127,6 +128,7 @@ public class ZenTokener extends TokenStream {
         KEYWORDS.put("instanceof", T_INSTANCEOF);
         KEYWORDS.put("while", T_WHILE);
         KEYWORDS.put("break", T_BREAK);
+        KEYWORDS.put("continue", T_CONTINUE);
         
         KEYWORDS.put("null", T_NULL);
         KEYWORDS.put("true", T_TRUE);

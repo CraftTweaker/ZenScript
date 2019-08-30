@@ -98,6 +98,11 @@ public abstract class Statement {
                 parser.required(T_SEMICOLON, "; expected");
                 return new StatementBreak(next.getPosition());
             }
+            case T_CONTINUE: {
+                parser.next();
+                parser.required(T_SEMICOLON, "; expected");
+                return new StatementContinue(next.getPosition());
+            }
         }
 
         ZenPosition position = parser.peek().getPosition();
