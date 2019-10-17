@@ -121,7 +121,9 @@ public class ZenTypeNative extends ZenType {
         }
         
         //TODO check this
-        for(Method method : cls.getMethods()) {
+        //for(Method method : cls.getMethods()) {
+        //We only want those from the class itself, the super methods originate from the implements
+        for(Method method : cls.getDeclaredMethods()) {
             
             boolean isMethod = false;
             String methodName = method.getName();

@@ -87,7 +87,7 @@ artifacts {
 }
 
 test {
-    useJUnitPlatform()
+    //useJUnitPlatform()
     testLogging{
         events "PASSED", "FAILED", "SKIPPED"
     }
