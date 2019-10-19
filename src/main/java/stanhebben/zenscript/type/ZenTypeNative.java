@@ -121,9 +121,9 @@ public class ZenTypeNative extends ZenType {
         }
         
         //TODO check this
-        //for(Method method : cls.getMethods()) {
+        for(Method method : cls.getMethods()) {
         //We only want those from the class itself, the super methods originate from the implements
-        for(Method method : cls.getDeclaredMethods()) {
+        //for(Method method : cls.getDeclaredMethods()) {
             
             boolean isMethod = false;
             String methodName = method.getName();
@@ -164,7 +164,27 @@ public class ZenTypeNative extends ZenType {
                             if(method.getParameterTypes().length != 0) {
                                 // TODO: error
                             } else {
-                                unaryOperators.add(new ZenNativeOperator(operatorAnnotation.value(), new JavaMethod(method, types)));
+                                final ZenNativeOperator toAdd = new ZenNativeOperator(operatorAnnotation.value(), new JavaMethod(method, types));
+                                boolean found = false;
+                                for(final ListIterator<ZenNativeOperator> iter = unaryOperators.listIterator(); iter.hasNext();) {
+                                    final ZenNativeOperator presentOperator = iter.next();
+                                    if(presentOperator.getOperator() == operatorAnnotation.value()) {
+                                        found = true;
+                                        final Class<?> theirRetType = presentOperator.getMethod().getReturnType().toJavaClass();
+                                        final Class<?> toAddRetType = method.getReturnType();
+                                        if(!toAddRetType.isAssignableFrom(theirRetType)) {
+                                            if(theirRetType.isAssignableFrom(theirRetType)) {
+                                                //Their type is less specific, use ours
+                                                iter.set(toAdd);
+                                            } else {
+                                                System.err.println("Two operators with similar methods were found: " + toAdd + " | " + presentOperator);
+                                            }
+                                        }
+                                    }
+                                }
+                                if(!found) {
+                                    unaryOperators.add(toAdd);
+                                }
                             }
                             break;
                         case ADD:
@@ -184,7 +204,34 @@ public class ZenTypeNative extends ZenType {
                             if(method.getParameterTypes().length != 1) {
                                 // TODO: error
                             } else {
-                                binaryOperators.add(new ZenNativeOperator(operatorAnnotation.value(), new JavaMethod(method, types)));
+                                final OperatorType operatorType = operatorAnnotation.value();
+                                final ZenNativeOperator toAdd = new ZenNativeOperator(operatorType, new JavaMethod(method, types));
+                                boolean found = false;
+                                for(final ListIterator<ZenNativeOperator> iter = binaryOperators.listIterator(); iter.hasNext(); ) {
+                                    ZenNativeOperator binaryOperator = iter.next();
+                                    if(binaryOperator.getOperator() == operatorType) {
+                                        final IJavaMethod presentMethod = binaryOperator.getMethod();
+                                        if(presentMethod.getParameterTypes()[0].toJavaClass().equals(method.getParameterTypes()[0])) {
+                                            found = true;
+                                            final Class<?> theirRetType = presentMethod.getReturnType().toJavaClass();
+                                            final Class<?> methodRetType = method.getReturnType();
+                                            if(!methodRetType.isAssignableFrom(theirRetType)) {
+                                                if(theirRetType.isAssignableFrom(methodRetType)) {
+                                                    //Their type is less specific, use ours
+                                                    iter.set(toAdd);
+                                                } else {
+                                                    System.err.println("Two operators with similar methods were found: " + toAdd + " | " + presentMethod);
+                                                }
+                                            }
+    
+                                        }
+                                    }
+                                }
+                                
+                                if(!found) {
+                                    //Otherwise we'd already set it in the iterator or used the other method instead
+                                    binaryOperators.add(toAdd);
+                                }
                             }
                             break;
                         case INDEXSET:
