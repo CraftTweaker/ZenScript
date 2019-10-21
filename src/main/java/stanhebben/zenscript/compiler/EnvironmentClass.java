@@ -1,6 +1,5 @@
 package stanhebben.zenscript.compiler;
 
-import jdk.internal.dynalink.support.BottomGuardingDynamicLinker;
 import org.objectweb.asm.ClassVisitor;
 import stanhebben.zenscript.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
