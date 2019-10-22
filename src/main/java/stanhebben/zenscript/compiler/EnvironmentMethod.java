@@ -2,7 +2,8 @@ package stanhebben.zenscript.compiler;
 
 import org.objectweb.asm.ClassVisitor;
 import stanhebben.zenscript.*;
-import stanhebben.zenscript.expression.partial.IPartialExpression;
+import stanhebben.zenscript.expression.*;
+import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.*;
@@ -17,8 +18,8 @@ public class EnvironmentMethod implements IEnvironmentMethod {
     
     private final MethodOutput output;
     private final HashMap<SymbolLocal, Integer> locals;
-    private final IEnvironmentClass environment;
-    private final Map<String, IZenSymbol> local;
+    final IEnvironmentClass environment;
+    final Map<String, IZenSymbol> local;
     
     public EnvironmentMethod(MethodOutput output, IEnvironmentClass environment) {
         this.output = output;
