@@ -1,11 +1,14 @@
 package stanhebben.zenscript.type;
 
 import org.objectweb.asm.*;
+import org.objectweb.asm.Type;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.casting.*;
 import stanhebben.zenscript.util.*;
+
+import java.lang.reflect.*;
 
 public class ZenTypeArrayBasic extends ZenTypeArray {
     
@@ -85,16 +88,7 @@ public class ZenTypeArrayBasic extends ZenTypeArray {
     
     @Override
     public Class toJavaClass() {
-        try {
-        	if (getBaseType().toJavaClass().isArray()) {
-        		return Class.forName("[" + getBaseType().toJavaClass().getName());
-        	} else if (getBaseType().toJavaClass().isPrimitive()) {
-        		return Class.forName("[" + ZenTypeUtil.signature(getBaseType().toJavaClass()));
-        	} 
-            return Class.forName("[L" + getBaseType().toJavaClass().getName() + ";");
-        } catch(ClassNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
+        return Array.newInstance(getBaseType().toJavaClass(), 0).getClass();
     }
     
     @Override
