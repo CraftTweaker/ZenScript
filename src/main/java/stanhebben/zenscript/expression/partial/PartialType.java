@@ -3,8 +3,7 @@ package stanhebben.zenscript.expression.partial;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.symbols.*;
-import stanhebben.zenscript.type.ZenType;
-import stanhebben.zenscript.type.ZenTypeNative;
+import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.ZenPosition;
 
 /**
@@ -39,7 +38,7 @@ public class PartialType implements IPartialExpression {
 
     @Override
     public Expression call(ZenPosition position, IEnvironmentMethod environment, Expression... values) {
-        if(type instanceof ZenTypeNative)
+        if(type instanceof ZenTypeNative || type instanceof ZenTypeZenClass)
             return type.call(position, environment, null, values);
         environment.error(position, "cannot call a type");
         return new ExpressionInvalid(position, type);

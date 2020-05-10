@@ -70,7 +70,7 @@ public class ZenModule {
             
             if(!script.getClasses().isEmpty()) {
                 for(Map.Entry<String, ParsedZenClass> entry : script.getClasses().entrySet()) {
-                    environmentScript.putValue(entry.getKey(), position -> new PartialZSClass(entry.getValue().type), entry.getValue().position);
+                    environmentScript.putValue(entry.getKey(), new SymbolZenClass(entry.getValue().type), entry.getValue().position);
                 }
             }
             
