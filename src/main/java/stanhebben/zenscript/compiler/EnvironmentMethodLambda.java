@@ -11,10 +11,18 @@ public class EnvironmentMethodLambda extends EnvironmentMethod {
     
     private static final List<Class<? extends IPartialExpression>> nonCapturedExpressions;
     static {
-        nonCapturedExpressions = Arrays.asList(PartialStaticGetter.class, PartialStaticGenerated.class, PartialStaticMethod.class, ExpressionJavaStaticField.class, ExpressionJavaMethodStatic.class, ExpressionCallStatic.class);
-        
-        
+        nonCapturedExpressions = new ArrayList<>();
+        nonCapturedExpressions.add(PartialGlobalValue.class);
+        nonCapturedExpressions.add(PartialJavaClass.class);
+        nonCapturedExpressions.add(PartialPackage.class);
+        nonCapturedExpressions.add(PartialScriptReference.class);
+        nonCapturedExpressions.add(PartialStaticGenerated.class);
+        nonCapturedExpressions.add(PartialStaticGetter.class);
+        nonCapturedExpressions.add(PartialStaticMethod.class);
+        nonCapturedExpressions.add(PartialType.class);
+        nonCapturedExpressions.add(PartialZSClass.class);
     }
+    
     private final List<SymbolCaptured> capturedVariables;
     private final String clsName;
     
