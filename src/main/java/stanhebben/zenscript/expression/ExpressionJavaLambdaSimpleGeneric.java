@@ -4,7 +4,7 @@ import org.objectweb.asm.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.statements.Statement;
-import stanhebben.zenscript.symbols.SymbolArgument;
+import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.*;
 
@@ -18,7 +18,8 @@ import static stanhebben.zenscript.util.ZenTypeUtil.*;
  */
 public class ExpressionJavaLambdaSimpleGeneric extends Expression {
 
-    private final Class interfaceClass, genericClass;
+    private final Class interfaceClass;
+    public Class genericClass;
     private final List<ParsedFunctionArgument> arguments;
     private final List<Statement> statements;
     private final String descriptor;
@@ -69,17 +70,9 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
         ClassWriter cw = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, clsName, createMethodSignature(), "java/lang/Object", new String[]{internal(interfaceClass)});
 
-
-        MethodOutput constructor = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-        constructor.start();
-        constructor.loadObject(0);
-        constructor.invokeSpecial("java/lang/Object", "<init>", "()V");
-        constructor.ret();
-        constructor.end();
-
         MethodOutput output = new MethodOutput(cw, Opcodes.ACC_PUBLIC, method.getName(), descriptor, null, null);
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
-        IEnvironmentMethod environmentMethod = new EnvironmentMethod(output, environmentClass);
+        EnvironmentMethodLambda environmentMethod = new EnvironmentMethodLambda(output, environmentClass, clsName);
 
         for(int i = 0, j = 0; i < arguments.size(); i++) {
             ZenType typeToPut = arguments.get(i).getType();
@@ -116,12 +109,20 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
             bridge.end();
         }
 
+        environmentMethod.createConstructor(cw);
         environment.putClass(clsName, cw.toByteArray());
-
+    
         // make class instance
         environment.getOutput().newObject(clsName);
         environment.getOutput().dup();
-        environment.getOutput().construct(clsName);
+        final String[] arguments = environmentMethod.getCapturedVariables().stream()
+                .map(SymbolCaptured::getEvaluated)
+                .peek(expression -> expression.compile(true, environment))
+                .map(Expression::getType)
+                .map(ZenType::toASMType)
+                .map(Type::getDescriptor)
+                .toArray(String[]::new);
+        environment.getOutput().construct(clsName, arguments);
     }
 
     private String createMethodSignature() {

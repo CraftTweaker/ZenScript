@@ -72,42 +72,13 @@ public class ExpressionJavaLambda extends Expression {
         output.end();
     
     
-        final List<SymbolCaptured> capturedVariables = environmentMethod.getCapturedVariables();
-        final StringJoiner sj = new StringJoiner("", "(", ")V");
-        for(SymbolCaptured value : capturedVariables) {
-            cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, value.getFieldName(), Type.getDescriptor(value.getType().toJavaClass()), null, null).visitEnd();
-            sj.add(Type.getDescriptor(value.getType().toJavaClass()));
-        }
-    
-        MethodOutput constructor = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "<init>", sj.toString(), null, null);
-        constructor.start();
-        constructor.loadObject(0);
-        constructor.invokeSpecial("java/lang/Object", "<init>", "()V");
-    
-        {
-            int i = 1, j = 0;
-            for(SymbolCaptured capturedVariable : capturedVariables) {
-                final ZenType type = capturedVariable.getType();
-                constructor.loadObject(0);
-                constructor.load(Type.getType(type.toJavaClass()), i + j);
-                if(type.isLarge()) {
-                    j++;
-                }
-                constructor.putField(clsName, capturedVariable.getFieldName(), Type.getDescriptor(capturedVariable.getType().toJavaClass()));
-                i++;
-            }
-        }
-        
-        constructor.ret();
-        constructor.end();
-        
-        
+        environmentMethod.createConstructor(cw);
         environment.putClass(clsName, cw.toByteArray());
         
         // make class instance
         environment.getOutput().newObject(clsName);
         environment.getOutput().dup();
-        final String[] arguments = capturedVariables.stream()
+        final String[] arguments = environmentMethod.getCapturedVariables().stream()
                 .map(SymbolCaptured::getEvaluated)
                 .peek(expression -> expression.compile(true, environment))
                 .map(Expression::getType)

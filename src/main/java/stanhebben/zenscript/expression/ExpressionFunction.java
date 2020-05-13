@@ -4,7 +4,7 @@ import org.objectweb.asm.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.statements.Statement;
-import stanhebben.zenscript.symbols.SymbolArgument;
+import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.*;
 
@@ -103,17 +103,10 @@ public class ExpressionFunction extends Expression {
         ClassWriter cw = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, className, null, "java/lang/Object", new String[0]);
         
-        MethodOutput constructor = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-        constructor.start();
-        constructor.loadObject(0);
-        constructor.invokeSpecial("java/lang/Object", "<init>", "()V");
-        constructor.ret();
-        constructor.end();
-        
         MethodOutput output = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "accept", makeDescriptor(), null, null);
         
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
-        IEnvironmentMethod environmentMethod = new EnvironmentMethod(output, environmentClass);
+        EnvironmentMethodLambda environmentMethod = new EnvironmentMethodLambda(output, environmentClass, className);
         
         for(int i = 0, j = 0; i < arguments.size(); i++) {
             environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1 + j, arguments.get(i).getType()), getPosition());
@@ -127,13 +120,21 @@ public class ExpressionFunction extends Expression {
         }
         output.ret();
         output.end();
-        
+    
+        environmentMethod.createConstructor(cw);
         environment.putClass(className, cw.toByteArray());
-        
+    
         // make class instance
         environment.getOutput().newObject(className);
         environment.getOutput().dup();
-        environment.getOutput().construct(className);
+        final String[] arguments = environmentMethod.getCapturedVariables().stream()
+                .map(SymbolCaptured::getEvaluated)
+                .peek(expression -> expression.compile(true, environment))
+                .map(Expression::getType)
+                .map(ZenType::toASMType)
+                .map(Type::getDescriptor)
+                .toArray(String[]::new);
+        environment.getOutput().construct(className, arguments);
     }
     
     private String makeDescriptor() {

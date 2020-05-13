@@ -1,8 +1,10 @@
 package stanhebben.zenscript.compiler;
 
+import org.objectweb.asm.*;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.symbols.*;
+import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.*;
 
 import java.util.*;
@@ -57,4 +59,34 @@ public class EnvironmentMethodLambda extends EnvironmentMethod {
         return capturedVariables;
     }
     
+    
+    public void createConstructor(ClassWriter cw) {
+        final StringJoiner sj = new StringJoiner("", "(", ")V");
+        for(SymbolCaptured value : capturedVariables) {
+            cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, value.getFieldName(), Type.getDescriptor(value.getType().toJavaClass()), null, null).visitEnd();
+            sj.add(Type.getDescriptor(value.getType().toJavaClass()));
+        }
+    
+        MethodOutput constructor = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "<init>", sj.toString(), null, null);
+        constructor.start();
+        constructor.loadObject(0);
+        constructor.invokeSpecial("java/lang/Object", "<init>", "()V");
+    
+        {
+            int i = 1, j = 0;
+            for(SymbolCaptured capturedVariable : capturedVariables) {
+                final ZenType type = capturedVariable.getType();
+                constructor.loadObject(0);
+                constructor.load(Type.getType(type.toJavaClass()), i + j);
+                if(type.isLarge()) {
+                    j++;
+                }
+                constructor.putField(clsName, capturedVariable.getFieldName(), Type.getDescriptor(capturedVariable.getType().toJavaClass()));
+                i++;
+            }
+        }
+    
+        constructor.ret();
+        constructor.end();
+    }
 }
