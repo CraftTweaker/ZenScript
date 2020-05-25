@@ -21,7 +21,11 @@ public class GenericCompileEnvironment implements IZenCompileEnvironment {
     
     @Override
     public IZenSymbol getGlobal(String name) {
-        return registry.getGlobals().get(name);
+        final IZenSymbol symbol = registry.getGlobals().get(name);
+        if(symbol != null) {
+            return symbol;
+        }
+        return registry.getRoot().get(name);
     }
     
     @Override
