@@ -121,7 +121,7 @@ public class ZenExpandMember {
         }
     }
 
-    private class StaticGetValue implements IPartialExpression {
+    public class StaticGetValue implements IPartialExpression {
 
         private final ZenPosition position;
 

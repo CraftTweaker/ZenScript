@@ -5,6 +5,8 @@ import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.*;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.*;
+import stanhebben.zenscript.type.expand.*;
+import stanhebben.zenscript.type.natives.*;
 import stanhebben.zenscript.util.*;
 
 import java.util.*;
@@ -23,6 +25,9 @@ public class EnvironmentMethodLambda extends EnvironmentMethod {
         nonCapturedExpressions.add(PartialStaticMethod.class);
         nonCapturedExpressions.add(PartialType.class);
         nonCapturedExpressions.add(PartialZSClass.class);
+        nonCapturedExpressions.add(ExpressionJavaStaticField.class);
+        nonCapturedExpressions.add(ZenNativeMember.StaticGetValue.class);
+        nonCapturedExpressions.add(ZenExpandMember.StaticGetValue.class);
     }
     
     private final List<SymbolCaptured> capturedVariables;
