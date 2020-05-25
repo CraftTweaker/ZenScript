@@ -19,9 +19,8 @@ public class ExpressionFunction extends Expression {
     private final List<ParsedFunctionArgument> arguments;
     private final ZenType returnType;
     private final List<Statement> statements;
-    private final String descriptor;
     
-    private final ZenTypeFunction functionType;
+    private final ZenTypeFunctionCallable functionType;
     private final String className;
     
     public ExpressionFunction(ZenPosition position, List<ParsedFunctionArgument> arguments, ZenType returnType, List<Statement> statements, String className) {
@@ -37,10 +36,9 @@ public class ExpressionFunction extends Expression {
         for(int i = 0; i < arguments.size(); i++) {
             argumentTypes[i] = arguments.get(i).getType();
         }
-        //className = environment.makeClassName();
+
         this.className = className;
-        descriptor = makeDescriptor();
-        functionType = new ZenTypeFunctionCallable(returnType, argumentTypes, className, descriptor);
+        functionType = new ZenTypeFunctionCallable(returnType, argumentTypes, className, makeDescriptor());
     }
     
     @Override
@@ -100,10 +98,14 @@ public class ExpressionFunction extends Expression {
     public void compile(boolean result, IEnvironmentMethod environment) {
         if(!result)
             return;
-        ClassWriter cw = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
-        cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, className, null, "java/lang/Object", new String[0]);
         
-        MethodOutput output = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "accept", makeDescriptor(), null, null);
+        functionType.writeInterfaceClass(environment);
+        
+        ClassWriter cw = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
+        cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, className, null, "java/lang/Object", new String[]{functionType.getInterfaceName()});
+        cw.visitSource(getPosition().getFileName(), null);
+        
+        MethodOutput output = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "accept", functionType.getDescriptor(), null, null);
         
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
         EnvironmentMethodLambda environmentMethod = new EnvironmentMethodLambda(output, environmentClass, className);
@@ -120,7 +122,7 @@ public class ExpressionFunction extends Expression {
         }
         output.ret();
         output.end();
-    
+        
         environmentMethod.createConstructor(cw);
         environment.putClass(className, cw.toByteArray());
     
@@ -149,6 +151,6 @@ public class ExpressionFunction extends Expression {
     }
     
     public String getDescriptor() {
-        return descriptor;
+        return functionType.getDescriptor();
     }
 }

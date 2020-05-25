@@ -5,13 +5,12 @@ import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.symbols.IZenSymbol;
-import stanhebben.zenscript.type.ZenType;
+import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.ZenPosition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static stanhebben.zenscript.util.StringUtil.methodMatchingError;
 
@@ -103,6 +102,9 @@ public class ZenNativeMember {
         public Expression call(ZenPosition position, IEnvironmentMethod environment, Expression... values) {
             IJavaMethod method = JavaMethod.select(false, methods, environment, values);
             if(method == null) {
+                if(getter != null && getType() instanceof ZenTypeFunctionCallable) {
+                    return eval(environment).call(position, environment, values);
+                }
                 environment.error(position, methodMatchingError(methods, values));
                 return new ExpressionInvalid(position);
             } else {
@@ -168,6 +170,9 @@ public class ZenNativeMember {
         public Expression call(ZenPosition position, IEnvironmentMethod environment, Expression... values) {
             IJavaMethod method = JavaMethod.select(true, methods, environment, values);
             if(method == null) {
+                if(getter != null && getType() instanceof ZenTypeFunctionCallable) {
+                    return eval(environment).call(position, environment, values);
+                }
                 environment.error(position, methodMatchingError(methods, values));
                 return new ExpressionInvalid(position);
             } else {

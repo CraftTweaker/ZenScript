@@ -26,11 +26,11 @@ public class ExpressionFunctionCall extends Expression {
     
     @Override
     public void compile(boolean result, IEnvironmentMethod environment) {
-        receiver.compile(result, environment);
+        receiver.compile(true, environment);
         for (Expression value : values) {
             value.compile(true, environment);
         }
-        environment.getOutput().invokeVirtual(className, "accept", descriptor);
+        environment.getOutput().invokeInterface(className, "accept", descriptor);
         if(returnType != ZenType.VOID && !result) {
             environment.getOutput().pop(returnType.isLarge());
         }
