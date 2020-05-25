@@ -126,6 +126,7 @@ public abstract class Statement {
     }
     
     public void compile(IEnvironmentMethod environment, boolean forced) {
+        environment.getOutput().position(getPosition());
         compile(environment);
     }
 }

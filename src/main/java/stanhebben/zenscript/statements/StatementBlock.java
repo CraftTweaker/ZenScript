@@ -17,6 +17,7 @@ public class StatementBlock extends Statement {
     
     @Override
     public void compile(IEnvironmentMethod environment) {
+        environment.getOutput().position(getPosition());
         IEnvironmentMethod local = new EnvironmentScope(environment);
         for(Statement statement : statements) {
             statement.compile(local);
@@ -28,6 +29,7 @@ public class StatementBlock extends Statement {
     
     @Override
     public void compile(IEnvironmentMethod environment, boolean forced) {
+        environment.getOutput().position(getPosition());
         IEnvironmentMethod local = new EnvironmentScope(environment);
         for(Statement statement : statements) {
             statement.compile(local, forced);

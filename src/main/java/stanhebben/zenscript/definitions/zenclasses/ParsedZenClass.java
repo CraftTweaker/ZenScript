@@ -110,6 +110,7 @@ public class ParsedZenClass {
     
     public void writeClass(IEnvironmentGlobal environmentGlobal) {
         final ClassWriter newClass = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
+        newClass.visitSource(position.getFileName(), null);
         newClass.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, className, null, "java/lang/Object", new String[0]);
         
         final EnvironmentClass environmentNewClass = new EnvironmentClass(newClass, classEnvironment);

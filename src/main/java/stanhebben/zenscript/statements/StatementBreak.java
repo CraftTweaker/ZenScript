@@ -18,6 +18,7 @@ public class StatementBreak extends Statement {
     
     @Override
     public void compile(IEnvironmentMethod environment) {
+        environment.getOutput().position(getPosition());
         if(exit != null)
             environment.getOutput().goTo(exit);
         else

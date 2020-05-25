@@ -51,10 +51,11 @@ public class ExpressionJavaLambda extends Expression {
         String clsName = environment.makeClassNameWithMiddleName(getPosition().getFile().getClassName());
         
         ClassWriter cw = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);
+        cw.visitSource(getPosition().getFileName(), null);
         cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, clsName, null, "java/lang/Object", new String[]{internal(interfaceClass)});
         
         MethodOutput output = new MethodOutput(cw, Opcodes.ACC_PUBLIC, method.getName(), descriptor(method), null, null);
-        
+        output.position(getPosition());
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
         EnvironmentMethodLambda environmentMethod = new EnvironmentMethodLambda(output, environmentClass, clsName);
         
