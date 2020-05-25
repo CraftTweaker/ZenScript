@@ -12,7 +12,7 @@ import java.util.*;
  * @author Stanneke
  */
 
-
+@Deprecated
 public class ExpressionJavaMethodStatic extends Expression {
     
     private final JavaMethod method;

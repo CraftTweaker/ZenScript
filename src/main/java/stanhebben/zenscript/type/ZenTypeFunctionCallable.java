@@ -1,11 +1,9 @@
 package stanhebben.zenscript.type;
 
 import org.objectweb.asm.*;
-import org.objectweb.asm.Type;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.*;
 import stanhebben.zenscript.expression.*;
-import stanhebben.zenscript.type.casting.*;
 import stanhebben.zenscript.type.natives.*;
 import stanhebben.zenscript.util.*;
 
@@ -19,7 +17,6 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
     private final String className;
     private final String descriptor;
     private final String interfaceName;
-    private final Map<ZenType, CastingRuleMatchedFunction> implementedInterfaces = new HashMap<>();
     
     public ZenTypeFunctionCallable(ZenType returnType, List<ParsedFunctionArgument> arguments, String className, String descriptor) {
         super(returnType, arguments);
@@ -95,7 +92,7 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
         return new ExpressionNull(position);
     }
     
-    public void writeInterfaceClass(IEnvironmentMethod environment) {
+    public void writeInterfaceClass(IEnvironmentGlobal environment) {
         if(environment.containsClass(interfaceName)) {
             return;
         }
@@ -111,14 +108,5 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
     
     public String getDescriptor() {
         return descriptor;
-    }
-    
-    public IJavaMethod createMethod(String fieldName) {
-        return new JavaMethodGenerated(false, true, false, interfaceName, "accept", returnType, argumentTypes, new boolean[argumentTypes.length]) {
-            @Override
-            public void invokeVirtual(MethodOutput output) {
-                super.invokeVirtual(output);
-            }
-        };
     }
 }

@@ -40,8 +40,8 @@ public class TestFunctionTypesInSignatures {
         joiner.add("        consumer(x);");
         joiner.add("    }");
         joiner.add("}");
-        
         joiner.add("myClass(function(x as string) as void {print('inside fun: ' ~ x);}).acceptString('abc');");
+        
         TestHelper.run(joiner.toString());
         assertMany("inside fun: abc");
     }

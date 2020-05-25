@@ -188,6 +188,7 @@ public abstract class ZenType implements IDumpConvertable {
                 }
                 returnType = read(parser, environment);
                 base = new ZenTypeFunctionCallable(returnType, argumentTypes.toArray(new ZenType[0]), environment.makeClassNameWithMiddleName(next.getPosition().getFile().getClassName()));
+                ((ZenTypeFunctionCallable)base).writeInterfaceClass(environment);
                 break;
             case ZenTokener.T_SQBROPEN:
                 base = new ZenTypeArrayList(read(parser, environment));

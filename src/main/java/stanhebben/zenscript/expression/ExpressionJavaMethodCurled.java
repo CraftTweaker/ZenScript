@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * @author Stanneke
  */
-
+@Deprecated
 public class ExpressionJavaMethodCurled extends Expression {
     
     private final JavaMethod method;

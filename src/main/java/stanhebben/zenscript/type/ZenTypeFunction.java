@@ -20,7 +20,7 @@ public class ZenTypeFunction extends ZenType {
     protected final ZenType returnType;
     protected final ZenType[] argumentTypes;
     private final String name;
-    private final Map<ZenType, CastingRuleMatchedFunction> implementedInterfaces = new HashMap<>();
+    protected final Map<ZenType, CastingRuleMatchedFunction> implementedInterfaces = new HashMap<>();
     
     public ZenTypeFunction(ZenType returnType, List<ParsedFunctionArgument> arguments) {
         this.returnType = returnType;
