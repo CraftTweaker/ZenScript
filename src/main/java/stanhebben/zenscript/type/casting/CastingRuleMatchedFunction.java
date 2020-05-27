@@ -29,7 +29,12 @@ public class CastingRuleMatchedFunction implements ICastingRule {
     @Override
     public void compile(IEnvironmentMethod outerEnvironment) {
         final Class<?> aClass = toType.toJavaClass();
-        final Method method = aClass.getMethods()[0];
+        final Method method = ZenTypeUtil.findFunctionalInterfaceMethod(aClass);
+        if(method == null) {
+            outerEnvironment.error("Internal error: Cannot convert from " + fromType + " to " + toType + " because latter is not a functional interface!");
+            return;
+        }
+    
         final String className = outerEnvironment.makeClassNameWithMiddleName("generated_bridge_class");
         
         final ZenClassWriter classWriter = new ZenClassWriter(ClassWriter.COMPUTE_FRAMES);

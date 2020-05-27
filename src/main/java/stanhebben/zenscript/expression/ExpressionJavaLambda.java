@@ -44,8 +44,12 @@ public class ExpressionJavaLambda extends Expression {
     public void compile(boolean result, IEnvironmentMethod environment) {
         if(!result)
             return;
-        
-        Method method = interfaceClass.getMethods()[0];
+    
+        final Method method = ZenTypeUtil.findFunctionalInterfaceMethod(interfaceClass);
+        if(method == null) {
+            environment.error("Internal error: Cannot create function for " + interfaceClass + " because it is not a functional interface!");
+            return;
+        }
         
         // generate class
         String clsName = environment.makeClassNameWithMiddleName(getPosition().getFile().getClassName());

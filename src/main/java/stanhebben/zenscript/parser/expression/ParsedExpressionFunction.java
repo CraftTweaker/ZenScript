@@ -6,7 +6,7 @@ import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.type.*;
-import stanhebben.zenscript.util.ZenPosition;
+import stanhebben.zenscript.util.*;
 
 import java.lang.reflect.*;
 import java.util.List;
@@ -34,10 +34,10 @@ public class ParsedExpressionFunction extends ParsedExpression {
             System.out.println("Known predicted function type: " + predictedType);
             
             ZenTypeNative nativeType = (ZenTypeNative) predictedType;
-            Class nativeClass = nativeType.getNativeClass();
-            if(nativeClass.isInterface() && nativeClass.getMethods().length == 1) {
+            Class<?> nativeClass = nativeType.getNativeClass();
+            Method method = ZenTypeUtil.findFunctionalInterfaceMethod(nativeClass);
+            if(method != null) {
                 // functional interface
-                Method method = nativeClass.getMethods()[0];
                 if(returnType != ZenTypeAny.INSTANCE && !returnType.canCastImplicit(environment.getType(method.getGenericReturnType()), environment)) {
                     environment.error(getPosition(), "return type not compatible");
                     return new ExpressionInvalid(getPosition());

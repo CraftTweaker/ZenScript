@@ -7,7 +7,7 @@ import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.casting.*;
-import stanhebben.zenscript.util.ZenPosition;
+import stanhebben.zenscript.util.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -99,14 +99,14 @@ public class ZenTypeFunction extends ZenType {
             return implementedInterfaces.get(type);
         }
         
-        Class cls = type.toJavaClass();
+        Class<?> cls = type.toJavaClass();
         
         System.out.println("Can cast this function to " + cls.getName() + "?");
-        
-        if(cls.isInterface() && cls.getMethods().length == 1) {
+    
+        final Method method = ZenTypeUtil.findFunctionalInterfaceMethod(cls);
+        if(method != null) {
             // this is a functional interface
             // do the method signatures match?
-            Method method = cls.getMethods()[0];
             ZenType methodReturnType = environment.getType(method.getGenericReturnType());
             ICastingRule returnCastingRule = null;
             if(!returnType.equals(methodReturnType)) {

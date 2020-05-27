@@ -3,7 +3,7 @@ package stanhebben.zenscript.util;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.type.ZenType;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -72,5 +72,29 @@ public class ZenTypeUtil {
 
     public static boolean isPrimitive(ZenType type) {
         return type != checkPrimitive(type);
+    }
+    
+    /**
+     * @param cls The interfce class
+     * @return The functional interface method, or <code>null</code> if this is not a functional interface
+     */
+    public static Method findFunctionalInterfaceMethod(Class<?> cls) {
+        if(!cls.isInterface()){
+            return null;
+        }
+        Method foundMethod = null;
+        for(Method method : cls.getMethods()) {
+            if(method.isDefault() || !Modifier.isPublic(method.getModifiers())) {
+                continue;
+            }
+            if(Modifier.isAbstract(method.getModifiers())) {
+                //Two nonabstract methods -> not a functional interface!
+                if(foundMethod != null) {
+                    return null;
+                }
+                foundMethod = method;
+            }
+        }
+        return foundMethod;
     }
 }

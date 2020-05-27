@@ -45,10 +45,10 @@ public class ExpressionFunction extends Expression {
     public Expression cast(ZenPosition position, IEnvironmentGlobal environment, ZenType type) {
         if(type instanceof ZenTypeNative) {
             ZenTypeNative nativeType = (ZenTypeNative) type;
-            Class nativeClass = nativeType.getNativeClass();
-            if(nativeClass.isInterface() && nativeClass.getMethods().length == 1) {
+            Class<?> nativeClass = nativeType.getNativeClass();
+            final Method method = ZenTypeUtil.findFunctionalInterfaceMethod(nativeClass);
+            if(method != null) {
                 // functional interface
-                Method method = nativeClass.getMethods()[0];
                 if(returnType != ZenTypeAny.INSTANCE && !returnType.canCastImplicit(environment.getType(method.getGenericReturnType()), environment)) {
                     environment.error(position, "return type not compatible");
                     return new ExpressionInvalid(position);

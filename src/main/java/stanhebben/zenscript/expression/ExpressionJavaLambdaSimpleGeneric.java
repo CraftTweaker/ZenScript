@@ -26,7 +26,7 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
 
     private final ZenType type;
 
-    public ExpressionJavaLambdaSimpleGeneric(ZenPosition position, Class interfaceClass, List<ParsedFunctionArgument> arguments, List<Statement> statements, ZenType type) {
+    public ExpressionJavaLambdaSimpleGeneric(ZenPosition position, Class<?> interfaceClass, List<ParsedFunctionArgument> arguments, List<Statement> statements, ZenType type) {
         super(position);
 
         this.interfaceClass = interfaceClass;
@@ -37,13 +37,18 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
 
         ZenType genericType = arguments.get(0).getType();
         this.genericClass = genericType.equals(ZenType.ANY) ? Object.class : genericType.toJavaClass();
-
+    
+        final Method method = ZenTypeUtil.findFunctionalInterfaceMethod(interfaceClass);
+        if(method == null) {
+            throw new IllegalArgumentException("Internal error: Cannot create function for " + interfaceClass + " because it is not a functional interface!");
+        }
+        
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         for(int i = 0; i < arguments.size(); i++) {
             ZenType t = arguments.get(i).getType();
             if(t.equals(ZenType.ANY)) {
-                sb.append(signature(interfaceClass.getMethods()[0].getParameterTypes()[i]));
+                sb.append(signature(method.getParameterTypes()[i]));
             } else {
                 sb.append(t.getSignature());
             }
@@ -62,8 +67,12 @@ public class ExpressionJavaLambdaSimpleGeneric extends Expression {
         if(!result)
             return;
 
-        Method method = interfaceClass.getMethods()[0];
-
+        final Method method = ZenTypeUtil.findFunctionalInterfaceMethod(interfaceClass);
+        if(method == null) {
+            //How did we even come this far?
+            environment.error("Internal error: Cannot create function for " + interfaceClass + " because it is not a functional interface!");
+            return;
+        }
         // generate class
         String clsName = environment.makeClassNameWithMiddleName(getPosition().getFile().getClassName());
 
