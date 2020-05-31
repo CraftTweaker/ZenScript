@@ -68,8 +68,8 @@ public class EnvironmentMethodLambda extends EnvironmentMethod {
     public void createConstructor(ClassWriter cw) {
         final StringJoiner sj = new StringJoiner("", "(", ")V");
         for(SymbolCaptured value : capturedVariables) {
-            cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, value.getFieldName(), Type.getDescriptor(value.getType().toJavaClass()), null, null).visitEnd();
-            sj.add(Type.getDescriptor(value.getType().toJavaClass()));
+            cw.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, value.getFieldName(), value.getType().toASMType().getDescriptor(), null, null).visitEnd();
+            sj.add(value.getType().toASMType().getDescriptor());
         }
     
         MethodOutput constructor = new MethodOutput(cw, Opcodes.ACC_PUBLIC, "<init>", sj.toString(), null, null);
@@ -82,11 +82,11 @@ public class EnvironmentMethodLambda extends EnvironmentMethod {
             for(SymbolCaptured capturedVariable : capturedVariables) {
                 final ZenType type = capturedVariable.getType();
                 constructor.loadObject(0);
-                constructor.load(Type.getType(type.toJavaClass()), i + j);
+                constructor.load(type.toASMType(), i + j);
                 if(type.isLarge()) {
                     j++;
                 }
-                constructor.putField(clsName, capturedVariable.getFieldName(), Type.getDescriptor(capturedVariable.getType().toJavaClass()));
+                constructor.putField(clsName, capturedVariable.getFieldName(), capturedVariable.getType().toASMType().getDescriptor());
                 i++;
             }
         }

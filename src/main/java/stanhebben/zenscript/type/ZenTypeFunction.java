@@ -222,4 +222,9 @@ public class ZenTypeFunction extends ZenType {
     public ZenType[] getArgumentTypes() {
         return argumentTypes;
     }
+    
+    @Override
+    public String getNameForInterfaceSignature() {
+        return ZenTypeFunctionCallable.makeInterfaceName(returnType, argumentTypes);
+    }
 }

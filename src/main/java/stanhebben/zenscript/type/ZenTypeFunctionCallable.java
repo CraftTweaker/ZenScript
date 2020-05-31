@@ -4,7 +4,6 @@ import org.objectweb.asm.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.*;
 import stanhebben.zenscript.expression.*;
-import stanhebben.zenscript.type.natives.*;
 import stanhebben.zenscript.util.*;
 
 import java.util.*;
@@ -42,13 +41,13 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
         this.interfaceName = makeInterfaceName(returnType, argumentTypes);
     }
     
-    private static String makeInterfaceName(ZenType returnType, ZenType[] argumentTypes) {
+    public static String makeInterfaceName(ZenType returnType, ZenType[] argumentTypes) {
         final StringJoiner stringJoiner = new StringJoiner("_");
         for(ZenType argumentType : argumentTypes) {
-            stringJoiner.add(argumentType.getName());
+            stringJoiner.add(argumentType.getNameForInterfaceSignature());
         }
         stringJoiner.add("to");
-        stringJoiner.add(returnType.getName());
+        stringJoiner.add(returnType.getNameForInterfaceSignature());
         stringJoiner.add("generated_interface");
         return stringJoiner.toString();
     }
@@ -64,7 +63,17 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
     
     @Override
     public Expression call(ZenPosition position, IEnvironmentGlobal environment, Expression receiver, Expression... arguments) {
-        return new ExpressionFunctionCall(position, arguments, returnType, receiver, interfaceName, descriptor);
+        if(arguments.length != argumentTypes.length) {
+            environment.error(position, "Expected " + argumentTypes.length + " parameters but got " + arguments.length);
+            return new ExpressionInvalid(position, returnType);
+        }
+        
+        final Expression[] expressions = new Expression[arguments.length];
+        for(int i = 0; i < arguments.length; i++) {
+            expressions[i] = arguments[i].cast(position, environment, argumentTypes[i]);
+        }
+    
+        return new ExpressionFunctionCall(position, expressions, returnType, receiver, interfaceName, descriptor);
     }
     
     @Override
@@ -108,5 +117,10 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
     
     public String getDescriptor() {
         return descriptor;
+    }
+    
+    @Override
+    public String getNameForInterfaceSignature() {
+        return interfaceName;
     }
 }

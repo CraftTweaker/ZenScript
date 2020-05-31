@@ -211,4 +211,9 @@ public class ZenTypeAssociative extends ZenType {
         ZenTypeAssociative atype = (ZenTypeAssociative) type;
         return getKeyType().canCastImplicit(atype.getKeyType(), global) && getValueType().canCastImplicit(atype.getValueType(), global);
     }
+    
+    @Override
+    public String getNameForInterfaceSignature() {
+        return String.format("Map_from_%s_to_%s_", keyType.getNameForInterfaceSignature(), valueType.getNameForInterfaceSignature());
+    }
 }

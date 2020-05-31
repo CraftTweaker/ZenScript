@@ -41,7 +41,7 @@ public class SymbolCaptured implements IZenSymbol {
                 
                 
                 output.loadObject(0);
-                output.getField(lambdaClassName, fieldName, Type.getDescriptor(getType().toJavaClass()));
+                output.getField(lambdaClassName, fieldName, getType().toASMType().getDescriptor());
             }
             
             @Override

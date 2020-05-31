@@ -133,7 +133,7 @@ public class ZenTypeEntry extends ZenType {
     
     @Override
     public String getName() {
-        return null;
+        return String.format("MapEntry_from_%s_to_%s_", keyType.getNameForInterfaceSignature(), valueType.getNameForInterfaceSignature());
     }
     
     @Override

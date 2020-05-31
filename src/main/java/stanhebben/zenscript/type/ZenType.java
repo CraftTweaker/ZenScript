@@ -388,4 +388,12 @@ public abstract class ZenType implements IDumpConvertable {
     public List<DumpZenType> asDumpedObject() {
         return Collections.singletonList(new DumpZenType(toJavaClass(), getName()));
     }
+    
+    public String getNameForInterfaceSignature() {
+        return getName()
+                .replace('.', '_')
+                .replace(']', '_')
+                .replace('[', '_')
+                .replaceAll("\\?", "Object");
+    }
 }

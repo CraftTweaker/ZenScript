@@ -152,4 +152,9 @@ public abstract class ZenTypeArray extends ZenType {
     public Expression defaultValue(ZenPosition position) {
         return new ExpressionNull(position);
     }
+    
+    @Override
+    public String getNameForInterfaceSignature() {
+        return base.getNameForInterfaceSignature() + "Array";
+    }
 }

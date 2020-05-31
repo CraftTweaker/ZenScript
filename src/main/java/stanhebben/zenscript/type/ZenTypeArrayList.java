@@ -148,4 +148,9 @@ public class ZenTypeArrayList extends ZenTypeArray {
             }
         }
     }
+    
+    @Override
+    public String getNameForInterfaceSignature() {
+        return getBaseType().getNameForInterfaceSignature() + "Arraylist";
+    }
 }

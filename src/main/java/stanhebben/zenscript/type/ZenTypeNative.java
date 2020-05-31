@@ -1159,4 +1159,9 @@ public class ZenTypeNative extends ZenType {
             };
         }
     }
+    
+    @Override
+    public String getNameForInterfaceSignature() {
+        return getName().replace('.', '_');
+    }
 }
