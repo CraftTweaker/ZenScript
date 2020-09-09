@@ -69,6 +69,7 @@ public class CastingRuleMatchedFunction implements ICastingRule {
                 if(argumentCastingRule != null) {
                     argumentCastingRule.compile(environment);
                 }
+                i++;
             }
             output.invokeInterface(Type.getType(fromType.getSignature()).getInternalName(), "accept", ((ZenTypeFunctionCallable) fromType)
                     .getDescriptor());
