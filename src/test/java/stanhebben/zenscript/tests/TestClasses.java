@@ -37,7 +37,7 @@ public class TestClasses {
     @Test
     public void testConstructorCallLarge() {
         TestHelper.run("zenClass name { zenConstructor(a as long, b as long) {print(a); print(b);}} name(10, 20);");
-    
+        
         assertMany("10", "20");
     }
     
@@ -62,7 +62,11 @@ public class TestClasses {
     
     @Test
     public void testMethod_overloading() {
-        TestHelper.run("zenClass name {zenConstructor() {} \nfunction method(a as int) {print('a: ' ~ a);} \nfunction method(a as int, b as int) {print('b: ' ~ a ~ b);}} \nname().method(30); \nname().method(10, 20);");
+        TestHelper.run("zenClass name {zenConstructor() {} \n"
+                + "function method(a as int) {print('a: ' ~ a);} \n"
+                + "function method(a as int, b as int) {print('b: ' ~ a ~ b);}} \n"
+                + "name().method(30); \n"
+                + "name().method(10, 20);");
         assertMany("a: 30", "b: 1020");
     }
 }
