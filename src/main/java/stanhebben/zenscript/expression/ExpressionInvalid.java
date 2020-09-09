@@ -21,7 +21,7 @@ public class ExpressionInvalid extends Expression {
     public ExpressionInvalid(ZenPosition position, ZenType type) {
         super(position);
         
-        this.type = type;
+        this.type = type == null ? ZenType.ANY : type;
         
         // XXX: remove before release
         // throw new RuntimeException("Constructing invalid expression");
@@ -44,9 +44,7 @@ public class ExpressionInvalid extends Expression {
     
     @Override
     public void compile(boolean result, IEnvironmentMethod environment) {
-        if(result) {
-            environment.getOutput().aConstNull();
-        }
+        type.defaultValue(getPosition()).compile(result, environment);
     }
     
     @Override
