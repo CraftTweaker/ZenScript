@@ -28,7 +28,7 @@ public class ZenTypeAssociative extends ZenType {
         this.valueType = valueType;
         this.keyType = keyType;
         
-        name = valueType.getName() + "[" + keyType.getName() + "]";
+        name = "(" + valueType.getName() + ")[" + keyType.getName() + "]";
     }
     
     public ZenType getValueType() {

@@ -16,7 +16,7 @@ public abstract class ZenTypeArray extends ZenType {
     
     public ZenTypeArray(ZenType base) {
         this.base = base;
-        name = base + "[]";
+        name = "(" + base + ")[]";
     }
 
     public ZenTypeArray(ZenType base, String name) {
