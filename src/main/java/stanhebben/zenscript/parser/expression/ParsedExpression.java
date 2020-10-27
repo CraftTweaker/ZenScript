@@ -260,7 +260,7 @@ public abstract class ParsedExpression {
                 if(indexString != null) {
                     base = new ParsedExpressionMember(position, base, indexString.getValue());
                 } else {
-                    Token indexString2 = parser.optional(T_STRING);
+                    Token indexString2 = parser.optional(T_STRINGVALUE);
                     if(indexString2 != null) {
                         base = new ParsedExpressionMember(position, base, unescapeString(indexString2.getValue()));
                     } else {
