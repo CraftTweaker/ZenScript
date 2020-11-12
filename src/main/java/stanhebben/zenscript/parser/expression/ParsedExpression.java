@@ -256,11 +256,11 @@ public abstract class ParsedExpression {
                 break;
             }
             if(parser.optional(T_DOT) != null) {
-                Token indexString = parser.optional(T_ID, T_VERSION);
+                Token indexString = parser.optional(T_ID, T_VERSION, T_STRING);
                 if(indexString != null) {
                     base = new ParsedExpressionMember(position, base, indexString.getValue());
                 } else {
-                    Token indexString2 = parser.optional(T_STRING);
+                    Token indexString2 = parser.optional(T_STRINGVALUE);
                     if(indexString2 != null) {
                         base = new ParsedExpressionMember(position, base, unescapeString(indexString2.getValue()));
                     } else {
