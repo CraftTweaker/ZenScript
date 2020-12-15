@@ -1,10 +1,7 @@
 package stanhebben.zenscript.tests;
 
-import com.google.gson.internal.*;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import stanhebben.zenscript.TestHelper;
+import org.junit.jupiter.api.*;
+import stanhebben.zenscript.*;
 
 import java.util.*;
 
@@ -44,5 +41,18 @@ public class TestFunctionTypesInSignatures {
         
         TestHelper.run(joiner.toString());
         assertMany("inside fun: abc");
+    }
+    
+    @Test
+    public void TestFuncSupplier() {
+        final StringJoiner joiner = new StringJoiner("\n");
+        joiner.add("global funcCreator as function(int)function()string = function(i as int) as function() string {");
+        joiner.add("    return function() as string {return 'Hello, Nr. ' ~ i;};");
+        joiner.add("};");
+        joiner.add("print(funcCreator(10)());");
+        joiner.add("print(funcCreator(42)());");
+        
+        TestHelper.run(joiner.toString());
+        assertMany("Hello, Nr. 10", "Hello, Nr. 42");
     }
 }
