@@ -80,12 +80,22 @@ public class ZenNativeMember {
         
         @Override
         public Expression eval(IEnvironmentGlobal environment) {
-            return new ExpressionCallVirtual(position, environment, getter, value.eval(environment));
+            if(getter != null) {
+                return new ExpressionCallVirtual(position, environment, getter, value.eval(environment));
+            }
+            environment.error(position, "No getter available");
+            final ZenType type = getType();
+            return new ExpressionInvalid(position, type == null ? ZenType.ANY : type);
         }
         
         @Override
         public Expression assign(ZenPosition position, IEnvironmentGlobal environment, Expression other) {
-            return new ExpressionCallVirtual(position, environment, setter, value.eval(environment), other);
+            if(setter != null) {
+                return new ExpressionCallVirtual(position, environment, setter, value.eval(environment), other);
+            }
+            
+            environment.error(position, "No setter available");
+            return new ExpressionInvalid(position, ZenType.VOID);
         }
         
         @Override
