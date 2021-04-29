@@ -11,6 +11,7 @@
 *.classpath
 *.project
 /.gradle
+/gradle
 /.settings
 /.idea
 *.iml
@@ -20,6 +21,7 @@
 *.eml
 */run/
 usernamecache.json
+gradlew
 *.stackdump
 *.log
 */.settings

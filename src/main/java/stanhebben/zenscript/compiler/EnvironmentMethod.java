@@ -77,6 +77,11 @@ public class EnvironmentMethod implements IEnvironmentMethod {
     }
     
     @Override
+    public ClassNameGenerator getClassNameGenerator() {
+        return environment.getClassNameGenerator();
+    }
+    
+    @Override
     public String makeClassName() {
         return environment.makeClassName();
     }

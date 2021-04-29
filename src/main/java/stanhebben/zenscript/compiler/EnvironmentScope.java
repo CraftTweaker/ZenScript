@@ -60,6 +60,11 @@ public class EnvironmentScope implements IEnvironmentMethod {
     }
     
     @Override
+    public ClassNameGenerator getClassNameGenerator() {
+        return outer.getClassNameGenerator();
+    }
+    
+    @Override
     public String makeClassName() {
         return outer.makeClassName();
     }

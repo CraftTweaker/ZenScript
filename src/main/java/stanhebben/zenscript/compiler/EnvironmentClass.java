@@ -46,6 +46,11 @@ public class EnvironmentClass implements IEnvironmentClass {
     }
     
     @Override
+    public ClassNameGenerator getClassNameGenerator() {
+        return global.getClassNameGenerator();
+    }
+    
+    @Override
     public String makeClassName() {
         return global.makeClassName();
     }

@@ -33,6 +33,11 @@ public class EnvironmentScript implements IEnvironmentGlobal {
     }
     
     @Override
+    public ClassNameGenerator getClassNameGenerator() {
+        return parent.getClassNameGenerator();
+    }
+    
+    @Override
     public String makeClassName() {
         return parent.makeClassName();
     }

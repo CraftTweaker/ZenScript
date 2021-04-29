@@ -5,7 +5,7 @@ package stanhebben.zenscript.compiler;
  */
 public class ClassNameGenerator {
     
-    private final String prefix;
+    private String prefix;
     private int counter = 0;
     
     public ClassNameGenerator() {
@@ -13,6 +13,14 @@ public class ClassNameGenerator {
     }
     
     public ClassNameGenerator(String prefix) {
+        this.prefix = prefix;
+    }
+    
+    public String getPrefix() {
+        return prefix;
+    }
+    
+    public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
     

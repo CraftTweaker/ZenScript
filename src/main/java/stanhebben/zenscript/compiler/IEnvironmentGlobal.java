@@ -16,6 +16,8 @@ public interface IEnvironmentGlobal extends ITypeRegistry, IZenErrorLogger {
     
     TypeExpansion getExpansion(String name);
     
+    ClassNameGenerator getClassNameGenerator();
+    
     String makeClassName();
     
     String makeClassNameWithMiddleName(String middleName);
