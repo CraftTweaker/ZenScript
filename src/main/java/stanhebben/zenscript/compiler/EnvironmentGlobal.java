@@ -50,6 +50,11 @@ public class EnvironmentGlobal implements IEnvironmentGlobal {
     }
     
     @Override
+    public ClassNameGenerator getClassNameGenerator() {
+        return nameGen;
+    }
+    
+    @Override
     public String makeClassName() {
         return nameGen.generate();
     }

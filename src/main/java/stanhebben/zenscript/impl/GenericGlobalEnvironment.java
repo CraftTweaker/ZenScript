@@ -35,6 +35,11 @@ public class GenericGlobalEnvironment implements IEnvironmentGlobal {
     }
     
     @Override
+    public ClassNameGenerator getClassNameGenerator() {
+        return generator;
+    }
+    
+    @Override
     public String makeClassName() {
         return generator.generate();
     }
