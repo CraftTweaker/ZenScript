@@ -28,28 +28,18 @@ public class ZenTypeFunction extends ZenType {
         for(int i = 0; i < argumentTypes.length; i++) {
             argumentTypes[i] = arguments.get(i).getType();
         }
-        
-        StringBuilder nameBuilder = new StringBuilder();
-        nameBuilder.append("function(");
-        boolean first = true;
-        for(ZenType type : argumentTypes) {
-            if(first) {
-                first = false;
-            } else {
-                nameBuilder.append(',');
-            }
-            nameBuilder.append(type.getName());
-        }
-        nameBuilder.append(returnType.getName());
-        name = nameBuilder.toString();
+        name = makeName();
     }
     
     public ZenTypeFunction(ZenType returnType, ZenType[] argumentTypes) {
         this.returnType = returnType;
         this.argumentTypes = argumentTypes;
-        
-        StringBuilder nameBuilder = new StringBuilder();
-        nameBuilder.append("function(");
+        this.name = makeName();
+    }
+
+    private String makeName() {
+        StringBuilder nameBuilder = new StringBuilder()
+                .append("(function(");
         boolean first = true;
         for(ZenType type : argumentTypes) {
             if(first) {
@@ -59,9 +49,10 @@ public class ZenTypeFunction extends ZenType {
             }
             nameBuilder.append(type.getName());
         }
-        nameBuilder.append(')');
-        nameBuilder.append(returnType.getName());
-        name = nameBuilder.toString();
+        nameBuilder.append(')')
+                .append(returnType.getName())
+                .append(')');
+        return nameBuilder.toString();
     }
     
     @Override

@@ -194,6 +194,10 @@ public abstract class ZenType implements IDumpConvertable {
                 base = new ZenTypeArrayList(read(parser, environment));
                 parser.required(ZenTokener.T_SQBRCLOSE, "] expected");
                 break;
+            case ZenTokener.T_BROPEN:
+                base = read(parser, environment);
+                parser.required(ZenTokener.T_BRCLOSE, ") expected");
+                break;
             default:
                 throw new ParseException(next, "Unknown type: " + next.getValue());
         }
