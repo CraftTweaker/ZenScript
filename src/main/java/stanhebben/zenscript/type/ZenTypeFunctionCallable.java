@@ -4,6 +4,7 @@ import org.objectweb.asm.*;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.*;
 import stanhebben.zenscript.expression.*;
+import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.util.*;
 
 import java.util.*;
@@ -63,17 +64,23 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
     
     @Override
     public Expression call(ZenPosition position, IEnvironmentGlobal environment, Expression receiver, Expression... arguments) {
-        if(arguments.length != argumentTypes.length) {
+        ParsedExpression[] filledDefaultExpressions = Arrays.copyOfRange(defaultExpressions, arguments.length, argumentTypes.length);
+        if(Arrays.stream(filledDefaultExpressions).anyMatch(Objects::isNull)) {
             environment.error(position, "Expected " + argumentTypes.length + " parameters but got " + arguments.length);
             return new ExpressionInvalid(position, returnType);
         }
         
-        final Expression[] expressions = new Expression[arguments.length];
+        final Expression[] expressions = new Expression[argumentTypes.length];
         for(int i = 0; i < arguments.length; i++) {
             expressions[i] = arguments[i].cast(position, environment, argumentTypes[i]);
         }
+        ZenType[] filledDefaultExpressionTypes = Arrays.copyOfRange(argumentTypes, arguments.length, argumentTypes.length);
+        List<Pair<ZenType, ParsedExpression>> collect = new ArrayList<>();
+        for (int i = 0; i < filledDefaultExpressions.length; i++) {
+            collect.add(new Pair<>(filledDefaultExpressionTypes[i], filledDefaultExpressions[i]));
+        }
     
-        return new ExpressionFunctionCall(position, expressions, returnType, receiver, interfaceName, descriptor);
+        return new ExpressionFunctionCall(position, expressions, collect, returnType, receiver, interfaceName, descriptor);
     }
     
     @Override

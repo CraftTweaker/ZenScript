@@ -6,6 +6,7 @@ import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
+import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.type.casting.*;
 import stanhebben.zenscript.util.*;
 
@@ -19,14 +20,18 @@ public class ZenTypeFunction extends ZenType {
     
     protected final ZenType returnType;
     protected final ZenType[] argumentTypes;
+    protected final ParsedExpression[] defaultExpressions;
     private final String name;
     protected final Map<ZenType, CastingRuleMatchedFunction> implementedInterfaces = new HashMap<>();
     
     public ZenTypeFunction(ZenType returnType, List<ParsedFunctionArgument> arguments) {
         this.returnType = returnType;
-        argumentTypes = new ZenType[arguments.size()];
+        this.argumentTypes = new ZenType[arguments.size()];
+        this.defaultExpressions = new ParsedExpression[arguments.size()];
         for(int i = 0; i < argumentTypes.length; i++) {
-            argumentTypes[i] = arguments.get(i).getType();
+            ParsedFunctionArgument argument = arguments.get(i);
+            argumentTypes[i] = argument.getType();
+            defaultExpressions[i] = argument.getDefaultExpression();
         }
         
         StringBuilder nameBuilder = new StringBuilder();
@@ -47,6 +52,7 @@ public class ZenTypeFunction extends ZenType {
     public ZenTypeFunction(ZenType returnType, ZenType[] argumentTypes) {
         this.returnType = returnType;
         this.argumentTypes = argumentTypes;
+        this.defaultExpressions = new ParsedExpression[argumentTypes.length];
         
         StringBuilder nameBuilder = new StringBuilder();
         nameBuilder.append("function(");

@@ -3,6 +3,7 @@ package stanhebben.zenscript.definitions;
 import stanhebben.zenscript.ZenTokener;
 import stanhebben.zenscript.compiler.IEnvironmentGlobal;
 import stanhebben.zenscript.parser.Token;
+import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.ZenPosition;
@@ -52,20 +53,30 @@ public class ParsedFunction {
         if(parser.optional(T_BRCLOSE) == null) {
             Token argName = parser.required(T_ID, "identifier expected");
             ZenType type = ZenTypeAny.INSTANCE;
+            ParsedExpression expression = null;
             if(parser.optional(T_AS) != null) {
                 type = ZenType.read(parser, environment);
             }
 
-            arguments.add(new ParsedFunctionArgument(argName.getValue(), type));
+            if (parser.optional(T_ASSIGN) != null) {
+                expression = ParsedExpression.read(parser, environment);
+            }
+
+            arguments.add(new ParsedFunctionArgument(argName.getValue(), type, expression));
 
             while(parser.optional(T_COMMA) != null) {
                 Token argName2 = parser.required(T_ID, "identifier expected");
                 ZenType type2 = ZenTypeAny.INSTANCE;
+                ParsedExpression expression2 = null;
                 if(parser.optional(T_AS) != null) {
                     type2 = ZenType.read(parser, environment);
                 }
 
-                arguments.add(new ParsedFunctionArgument(argName2.getValue(), type2));
+                if (parser.optional(T_ASSIGN) != null) {
+                    expression2 = ParsedExpression.read(parser, environment);
+                }
+
+                arguments.add(new ParsedFunctionArgument(argName2.getValue(), type2, expression2));
             }
 
             parser.required(T_BRCLOSE, ") expected");

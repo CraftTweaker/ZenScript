@@ -338,12 +338,17 @@ public abstract class ParsedExpression {
                     do {
                         String name = parser.required(T_ID, "identifier expected").getValue();
                         ZenType type = ZenTypeAny.INSTANCE;
+                        ParsedExpression defaultExpression = null;
                         
                         if(parser.optional(T_AS) != null) {
                             type = ZenType.read(parser, environment);
                         }
+
+                        if(parser.optional(T_ASSIGN) != null) {
+                            defaultExpression = read(parser, environment);
+                        }
                         
-                        arguments.add(new ParsedFunctionArgument(name, type));
+                        arguments.add(new ParsedFunctionArgument(name, type, defaultExpression));
                     } while(parser.optional(T_COMMA) != null);
                     
                     parser.required(T_BRCLOSE, ") expected");

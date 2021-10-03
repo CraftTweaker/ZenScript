@@ -105,7 +105,7 @@ public class ZenModule {
             
             for(Map.Entry<String, ParsedFunction> function : script.getFunctions().entrySet()) {
                 ParsedFunction fn = function.getValue();
-                environmentScript.putValue(function.getKey(), new SymbolZenStaticMethod(script.getClassName(), fn.getName(), fn.getSignature(), fn.getArgumentTypes(), fn.getReturnType()), fn.getPosition());
+                environmentScript.putValue(function.getKey(), new SymbolZenStaticMethod(script.getClassName(), fn.getName(), fn.getSignature(), fn.getArguments(), fn.getReturnType()), fn.getPosition());
             }
             for(Map.Entry<String, ParsedFunction> function : script.getFunctions().entrySet()) {
                 ParsedFunction fn = function.getValue();
