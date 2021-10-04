@@ -145,7 +145,8 @@ public class ParsedFunction {
         builder.append("_").append(number);
         String name = builder.toString();
         name = name.replace("[", "array_")
-                .replace("/", "_");
+                .replace("/", "_")
+                .replace(";", "");
         return name;
     }
 
