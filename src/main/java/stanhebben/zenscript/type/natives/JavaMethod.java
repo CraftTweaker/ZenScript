@@ -1,13 +1,21 @@
 package stanhebben.zenscript.type.natives;
 
-import stanhebben.zenscript.annotations.*;
-import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.annotations.Optional;
+import stanhebben.zenscript.annotations.ReturnsSelf;
+import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.compiler.ITypeRegistry;
+import stanhebben.zenscript.definitions.zenclasses.ParsedZenClassMethod;
 import stanhebben.zenscript.expression.*;
-import stanhebben.zenscript.type.*;
-import stanhebben.zenscript.util.*;
+import stanhebben.zenscript.type.ZenType;
+import stanhebben.zenscript.type.ZenTypeArray;
+import stanhebben.zenscript.type.ZenTypeArrayBasic;
+import stanhebben.zenscript.util.MethodOutput;
+import stanhebben.zenscript.util.ZenPosition;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.List;
 
 /**
@@ -26,7 +34,7 @@ public class JavaMethod implements IJavaMethod {
     private final ZenType returnType;
 
     public JavaMethod(Method method, ITypeRegistry types) {
-        
+
         this.method = method;
         this.returnsSelf = method.getDeclaredAnnotationsByType(ReturnsSelf.class).length != 0;
 
@@ -176,6 +184,10 @@ public class JavaMethod implements IJavaMethod {
             if(method instanceof JavaMethod) {
                 JavaMethod javaMethod = (JavaMethod) method;
                 result[i] = getOptionalValue(position, javaMethod, i, environment);
+
+            } else if (method instanceof ParsedZenClassMethod.ZenClassMethod) {
+                ParsedZenClassMethod.ZenClassMethod zenClassMethod = (ParsedZenClassMethod.ZenClassMethod) method;
+                result[i] = new ExpressionGetZenClassDefaultParameter(position, zenClassMethod, i);
             } else
                 result[i] = parameterTypes[i].defaultValue(position);
         }
@@ -386,8 +398,8 @@ public class JavaMethod implements IJavaMethod {
     public String toString() {
         return "JavaMethod: " + method.toString();
     }
-    
-    
+
+
     @Override
     public String getErrorDescription() {
         final StringBuilder builder = new StringBuilder();
@@ -400,7 +412,7 @@ public class JavaMethod implements IJavaMethod {
             }
             builder.append("\u00a7r").append(type.toString()).append(", ");
         }
-    
+
         //Removes last ', ' and closes the bracket
         final int length = builder.length();
         builder.delete(length - 2, length);

@@ -147,7 +147,12 @@ public class ParsedZenClassMethod {
         
         @Override
         public boolean accepts(int numArguments) {
-            return method.getArgumentTypes().length == numArguments;
+            int defaultArguments = method.countDefaultArguments();
+            if (defaultArguments == 0) {
+                return method.getArgumentTypes().length == numArguments;
+            } else {
+                return numArguments + defaultArguments >= method.getArgumentTypes().length;
+            }
         }
         
         @Override
@@ -207,6 +212,14 @@ public class ParsedZenClassMethod {
             builder.delete(length - 2, length);
             
             return builder.append(")").toString();
+        }
+
+        public String getOwner() {
+            return className;
+        }
+
+        public ParsedFunction getFunction() {
+            return method;
         }
     }
 }

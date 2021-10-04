@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes;
 import stanhebben.zenscript.ZenTokener;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.definitions.ParsedFunction;
+import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.expression.Expression;
 import stanhebben.zenscript.expression.ExpressionInvalid;
 import stanhebben.zenscript.expression.ExpressionThis;
@@ -86,6 +87,12 @@ public class ParsedZenClass {
             classEnvironment.putValue(method.getName(), position1 -> new ExpressionThis(position1, type).getMember(position1, classEnvironment, method.getName()), position);
         }
         parsedMethod.addToMember(members.get(method.getName()));
+        for (int i = 0; i < method.getArguments().size(); i++) {
+            ParsedFunctionArgument argument = method.getArguments().get(i);
+            if (argument.getDefaultExpression() != null) {
+                addField(new ParsedZenClassField(true, argument.getType(), argument.getDefaultExpression(), method.getDefaultParameterFieldName(i), className));
+            }
+        }
     }
     
     private void addConstructor(ParsedClassConstructor parsedClassConstructor) {

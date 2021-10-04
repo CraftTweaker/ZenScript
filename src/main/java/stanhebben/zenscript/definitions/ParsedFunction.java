@@ -124,12 +124,29 @@ public class ParsedFunction {
         return arguments;
     }
 
+    public int countDefaultArguments() {
+        return ((int) arguments.stream().map(ParsedFunctionArgument::getDefaultExpression).filter(Objects::nonNull).count());
+    }
+
     public ZenType[] getArgumentTypes() {
         ZenType[] result = new ZenType[arguments.size()];
         for(int i = 0; i < arguments.size(); i++) {
             result[i] = arguments.get(i).getType();
         }
         return result;
+    }
+
+    public String getDefaultParameterFieldName(int number) {
+        StringBuilder builder = new StringBuilder("method_default_parameter_");
+        builder.append(name);
+        for (ZenType argumentType : this.getArgumentTypes()) {
+            builder.append(argumentType.toASMType().getDescriptor());
+        }
+        builder.append("_").append(number);
+        String name = builder.toString();
+        name = name.replace("[", "array_")
+                .replace("/", "_");
+        return name;
     }
 
     public Statement[] getStatements() {
