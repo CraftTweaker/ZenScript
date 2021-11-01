@@ -30,7 +30,7 @@ public class ParsedExpressionFunction extends ParsedExpression {
     
     @Override
     public IPartialExpression compile(IEnvironmentMethod environment, ZenType predictedType) {
-        if(predictedType != null && predictedType instanceof ZenTypeNative) {
+        if(predictedType instanceof ZenTypeNative) {
             System.out.println("Known predicted function type: " + predictedType);
             
             ZenTypeNative nativeType = (ZenTypeNative) predictedType;
@@ -59,7 +59,7 @@ public class ParsedExpressionFunction extends ParsedExpression {
                 return new ExpressionInvalid(getPosition());
             }
         } else {
-            if(predictedType != null && predictedType instanceof ZenTypeFunctionCallable) {
+            if(predictedType instanceof ZenTypeFunctionCallable) {
                 return new ExpressionFunction(getPosition(), arguments, returnType, statements, ((ZenTypeFunctionCallable) predictedType).getClassName());
             }
             System.out.println("No known predicted type");

@@ -1,19 +1,26 @@
 package stanhebben.zenscript.definitions.zenclasses;
 
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
 import stanhebben.zenscript.ZenTokener;
 import stanhebben.zenscript.compiler.*;
-import stanhebben.zenscript.definitions.*;
+import stanhebben.zenscript.definitions.ParsedFunction;
+import stanhebben.zenscript.definitions.ParsedFunctionArgument;
 import stanhebben.zenscript.expression.Expression;
 import stanhebben.zenscript.parser.Token;
-import stanhebben.zenscript.statements.*;
+import stanhebben.zenscript.parser.expression.ParsedExpression;
+import stanhebben.zenscript.statements.Statement;
+import stanhebben.zenscript.statements.StatementReturn;
 import stanhebben.zenscript.symbols.SymbolArgument;
-import stanhebben.zenscript.type.*;
-import stanhebben.zenscript.type.natives.*;
+import stanhebben.zenscript.type.ZenType;
+import stanhebben.zenscript.type.ZenTypeAny;
+import stanhebben.zenscript.type.natives.IJavaMethod;
+import stanhebben.zenscript.type.natives.JavaMethod;
+import stanhebben.zenscript.type.natives.ZenNativeMember;
 import stanhebben.zenscript.util.MethodOutput;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static stanhebben.zenscript.ZenTokener.*;
@@ -41,20 +48,30 @@ public class ParsedZenClassMethod {
         if(parser.optional(T_BRCLOSE) == null) {
             Token argName = parser.required(T_ID, "identifier expected");
             ZenType type = ZenTypeAny.INSTANCE;
+            ParsedExpression expression = null;
             if(parser.optional(T_AS) != null) {
                 type = ZenType.read(parser, classEnvironment);
             }
+
+            if (parser.optional(T_ASSIGN) != null) {
+                expression = ParsedExpression.read(parser, classEnvironment);
+            }
             
-            arguments.add(new ParsedFunctionArgument(argName.getValue(), type));
+            arguments.add(new ParsedFunctionArgument(argName.getValue(), type, expression));
             
             while(parser.optional(T_COMMA) != null) {
                 Token argName2 = parser.required(T_ID, "identifier expected");
                 ZenType type2 = ZenTypeAny.INSTANCE;
+                ParsedExpression expression2 = null;
                 if(parser.optional(T_AS) != null) {
                     type2 = ZenType.read(parser, classEnvironment);
                 }
+
+                if (parser.optional(T_ASSIGN) != null) {
+                    expression2 = ParsedExpression.read(parser, classEnvironment);
+                }
                 
-                arguments.add(new ParsedFunctionArgument(argName2.getValue(), type2));
+                arguments.add(new ParsedFunctionArgument(argName2.getValue(), type2, expression2));
             }
             
             parser.required(T_BRCLOSE, ") expected");
@@ -130,7 +147,12 @@ public class ParsedZenClassMethod {
         
         @Override
         public boolean accepts(int numArguments) {
-            return method.getArgumentTypes().length == numArguments;
+            int defaultArguments = method.countDefaultArguments();
+            if (defaultArguments == 0) {
+                return method.getArgumentTypes().length == numArguments;
+            } else {
+                return numArguments + defaultArguments >= method.getArgumentTypes().length;
+            }
         }
         
         @Override
@@ -190,6 +212,14 @@ public class ParsedZenClassMethod {
             builder.delete(length - 2, length);
             
             return builder.append(")").toString();
+        }
+
+        public String getOwner() {
+            return className;
+        }
+
+        public ParsedFunction getFunction() {
+            return method;
         }
     }
 }

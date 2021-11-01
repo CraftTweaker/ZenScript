@@ -3,6 +3,7 @@ package stanhebben.zenscript.definitions;
 import stanhebben.zenscript.ZenTokener;
 import stanhebben.zenscript.compiler.IEnvironmentGlobal;
 import stanhebben.zenscript.parser.Token;
+import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.ZenPosition;
@@ -52,20 +53,30 @@ public class ParsedFunction {
         if(parser.optional(T_BRCLOSE) == null) {
             Token argName = parser.required(T_ID, "identifier expected");
             ZenType type = ZenTypeAny.INSTANCE;
+            ParsedExpression expression = null;
             if(parser.optional(T_AS) != null) {
                 type = ZenType.read(parser, environment);
             }
 
-            arguments.add(new ParsedFunctionArgument(argName.getValue(), type));
+            if (parser.optional(T_ASSIGN) != null) {
+                expression = ParsedExpression.read(parser, environment);
+            }
+
+            arguments.add(new ParsedFunctionArgument(argName.getValue(), type, expression));
 
             while(parser.optional(T_COMMA) != null) {
                 Token argName2 = parser.required(T_ID, "identifier expected");
                 ZenType type2 = ZenTypeAny.INSTANCE;
+                ParsedExpression expression2 = null;
                 if(parser.optional(T_AS) != null) {
                     type2 = ZenType.read(parser, environment);
                 }
 
-                arguments.add(new ParsedFunctionArgument(argName2.getValue(), type2));
+                if (parser.optional(T_ASSIGN) != null) {
+                    expression2 = ParsedExpression.read(parser, environment);
+                }
+
+                arguments.add(new ParsedFunctionArgument(argName2.getValue(), type2, expression2));
             }
 
             parser.required(T_BRCLOSE, ") expected");
@@ -113,12 +124,30 @@ public class ParsedFunction {
         return arguments;
     }
 
+    public int countDefaultArguments() {
+        return ((int) arguments.stream().map(ParsedFunctionArgument::getDefaultExpression).filter(Objects::nonNull).count());
+    }
+
     public ZenType[] getArgumentTypes() {
         ZenType[] result = new ZenType[arguments.size()];
         for(int i = 0; i < arguments.size(); i++) {
             result[i] = arguments.get(i).getType();
         }
         return result;
+    }
+
+    public String getDefaultParameterFieldName(int number) {
+        StringBuilder builder = new StringBuilder("method_default_parameter_");
+        builder.append(name);
+        for (ZenType argumentType : this.getArgumentTypes()) {
+            builder.append(argumentType.toASMType().getDescriptor());
+        }
+        builder.append("_").append(number);
+        String name = builder.toString();
+        name = name.replace("[", "array_")
+                .replace("/", "_")
+                .replace(";", "");
+        return name;
     }
 
     public Statement[] getStatements() {
