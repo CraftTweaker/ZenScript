@@ -2,8 +2,10 @@ package stanhebben.zenscript.definitions;
 
 import stanhebben.zenscript.ZenTokener;
 import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.parser.ParseException;
 import stanhebben.zenscript.parser.Token;
 import stanhebben.zenscript.parser.expression.ParsedExpression;
+import stanhebben.zenscript.parser.expression.ParsedExpressionVariable;
 import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.ZenPosition;
@@ -54,12 +56,17 @@ public class ParsedFunction {
             Token argName = parser.required(T_ID, "identifier expected");
             ZenType type = ZenTypeAny.INSTANCE;
             ParsedExpression expression = null;
+            boolean hasDefaultArgument = false;
             if(parser.optional(T_AS) != null) {
                 type = ZenType.read(parser, environment);
             }
 
             if (parser.optional(T_ASSIGN) != null) {
                 expression = ParsedExpression.read(parser, environment);
+                if (expression instanceof ParsedExpressionVariable) {
+                    throw new ParseException(parser.getFile(), parser.getLine(), parser.getLineOffset(), "Variables are not allowed in default arguments");
+                }
+                hasDefaultArgument = true;
             }
 
             arguments.add(new ParsedFunctionArgument(argName.getValue(), type, expression));
@@ -74,6 +81,12 @@ public class ParsedFunction {
 
                 if (parser.optional(T_ASSIGN) != null) {
                     expression2 = ParsedExpression.read(parser, environment);
+                    if (expression2 instanceof ParsedExpressionVariable) {
+                        throw new ParseException(parser.getFile(), parser.getLine(), parser.getLineOffset(), "Variables are not allowed in default arguments");
+                    }
+                    hasDefaultArgument = true;
+                } else if (hasDefaultArgument) {
+                    throw new ParseException(parser.getFile(), parser.getLine(), parser.getLineOffset(), "Parameter " + argName2.getValue() + " requires a default argument");
                 }
 
                 arguments.add(new ParsedFunctionArgument(argName2.getValue(), type2, expression2));
