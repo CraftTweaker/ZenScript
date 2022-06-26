@@ -6,6 +6,7 @@ import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.*;
+import stanhebben.zenscript.util.localvariabletable.LocalVariableTable;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -31,12 +32,26 @@ public class EnvironmentScope implements IEnvironmentMethod {
     }
     
     @Override
+    public LocalVariableTable getLocalVariableTable() {
+        return outer.getLocalVariableTable();
+    }
+    
+    @Override
     public int getLocal(SymbolLocal variable) {
         if(locals.containsKey(variable)) {
             return locals.get(variable);
         } else {
             return outer.getLocal(variable);
         }
+    }
+    
+    
+    @Override
+    public int getLocal(SymbolLocal variable, boolean create) {
+        if(locals.containsKey(variable)) {
+            return locals.get(variable);
+        }
+        return outer.getLocal(variable, create);
     }
     
     @Override

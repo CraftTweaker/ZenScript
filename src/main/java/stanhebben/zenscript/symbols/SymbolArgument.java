@@ -17,7 +17,15 @@ public class SymbolArgument implements IZenSymbol {
         this.id = id;
         this.type = type;
     }
-    
+
+    public int getId() {
+        return id;
+    }
+
+    public ZenType getType() {
+        return type;
+    }
+
     @Override
     public IPartialExpression instance(ZenPosition position) {
         return new ExpressionArgument(position, id, type);
