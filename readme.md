@@ -8,10 +8,10 @@
 * Provide sufficient syntax and libraries to integrate with its environment
 * Be clear and concise in its operation
 * Be typesafe, such that both small and large applications can be made with it
-* It should be efficient to run
+* Be efficient to run
 
 
-ZenScript originated from MineTweaker where I needed a simple programming
+ZenScript originated from MineTweaker, where I needed a simple programming
 language that would allow users without programming knowledge to be able
 to execute simple commands by following the tutorials for it.
 
@@ -23,13 +23,13 @@ expand the capabilities, this language was not very efficient.
 
 Additionally, it wasn't type-safe. There were no type definitions. On one hand,
 this is handy, since I didn't want to bother people with types. Following the
-tutorial was easy and the code was short. However, this gives a problem for the
+tutorial was easy and the code was short. However, this creates a problem for the
 more experienced user, wanting to go beyond the basic tutorials: what are these
-values I'm working with, which properties does it have and which methods are
-available no it? It's not clear.
+values I'm working with, what properties do they have, and which methods are
+available on them? It's not clear.
 
 As a balance, ZenScript allows mixed typed and typeless behavior. You don't
-need to define types anywhere - the compile will infer them where possible
+need to define types anywhere - the compiler will infer them where possible
 and exhibit typeless behavior when the type is effectively unknown. In nearly
-all the cases, the type is perfectly known and execution runs at native java
+all cases, the type is perfectly known and execution runs at native java
 speed. Since there are types, they can be documented and enforced.
