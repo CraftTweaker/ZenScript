@@ -44,6 +44,10 @@ public class ParsedFunction {
     }
 
     public static ParsedFunction parse(ZenTokener parser, IEnvironmentGlobal environment) {
+        return ParsedFunction.parse(parser, environment, new ArrayList<>());
+    }
+
+    static ParsedFunction parse(ZenTokener parser, IEnvironmentGlobal environment, List<ParsedFunctionArgument> arguments) {
         parser.next();
         Token tName = parser.required(ZenTokener.T_ID, "identifier expected");
 
@@ -51,7 +55,6 @@ public class ParsedFunction {
         // ...contents... }
         parser.required(T_BROPEN, "( expected");
 
-        List<ParsedFunctionArgument> arguments = new ArrayList<>();
         if(parser.optional(T_BRCLOSE) == null) {
             Token argName = parser.required(T_ID, "identifier expected");
             ZenType type = ZenTypeAny.INSTANCE;

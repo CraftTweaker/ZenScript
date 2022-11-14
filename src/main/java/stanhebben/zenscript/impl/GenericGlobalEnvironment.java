@@ -31,7 +31,7 @@ public class GenericGlobalEnvironment implements IEnvironmentGlobal {
     
     @Override
     public TypeExpansion getExpansion(String name) {
-        return registry.getExpansions().get(name);
+        return registry.getExpansions().computeIfAbsent(name, TypeExpansion::new);
     }
     
     @Override

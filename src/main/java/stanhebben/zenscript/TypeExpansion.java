@@ -4,6 +4,7 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.Type;
 import stanhebben.zenscript.annotations.*;
 import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.definitions.ParsedExpansion;
 import stanhebben.zenscript.expression.*;
 import stanhebben.zenscript.expression.partial.IPartialExpression;
 import stanhebben.zenscript.type.ZenType;
@@ -28,6 +29,7 @@ public class TypeExpansion {
     private final String type;
     private final Map<String, ZenExpandMember> members;
     private final Map<String, ZenExpandMember> staticMembers;
+    private final Map<String, ParsedExpansion> zenMembers;
     private final List<ZenExpandCaster> casters;
     private final List<ZenNativeOperator> trinaryOperators;
     private final List<ZenNativeOperator> binaryOperators;
@@ -44,6 +46,7 @@ public class TypeExpansion {
         
         members = new HashMap<>();
         staticMembers = new HashMap<>();
+        zenMembers = new HashMap<>();
         casters = new ArrayList<>();
         trinaryOperators = new ArrayList<>();
         binaryOperators = new ArrayList<>();
@@ -200,6 +203,10 @@ public class TypeExpansion {
         }
     }
 
+    public void addZenExpandMethod(String name, ParsedExpansion expansion) {
+        zenMembers.put(name, expansion);
+    }
+
     private void checkGetter(Method method, Class cls) {
         if (method.getReturnType().equals(Void.TYPE)){
             throw new RuntimeException("ZenGetter needs a non Void returntype - " + cls.getName() + "." + method.getName());
@@ -336,6 +343,9 @@ public class TypeExpansion {
     public IPartialExpression instanceMember(ZenPosition position, IEnvironmentGlobal environment, Expression value, String member) {
         if(members.containsKey(member)) {
             return members.get(member).instance(position, environment, value);
+        }
+        if (zenMembers.containsKey(member)) {
+            return zenMembers.get(member).instance(position, value);
         }
         
         return null;

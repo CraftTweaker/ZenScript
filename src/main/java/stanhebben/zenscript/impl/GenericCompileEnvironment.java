@@ -40,7 +40,7 @@ public class GenericCompileEnvironment implements IZenCompileEnvironment {
     
     @Override
     public TypeExpansion getExpansion(String type) {
-        return registry.getExpansions().get(type);
+        return registry.getExpansions().computeIfAbsent(type, TypeExpansion::new);
     }
     
     public IZenRegistry getRegistry() {
