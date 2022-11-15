@@ -142,12 +142,14 @@ public class ZenParsedFile {
                 parsedZenClass.writeClass(environmentScript);
             } else if (next.getType() == T_DOLLAR) {
                 ParsedExpansion expansion = ParsedExpansion.parse(tokener, environmentScript, this);
+                String name = expansion.getName();
+                String compileName = expansion.getCompileName();
                 ParsedFunction function = expansion.getFunction();
-                if (functions.containsKey(function.getName())) {
-                    environmentScript.error(function.getPosition(), "function " + function.getName() + " already exists");
+                if (functions.containsKey(compileName)) {
+                    environmentScript.error(function.getPosition(), "expand method  " + name + " already exists");
                 }
-                functions.put(function.getName(), function);
-                environmentScript.getExpansion(expansion.getType().getName()).addZenExpandMethod(expansion.getName(), expansion);
+                functions.put(compileName, function);
+                environmentScript.getExpansion(expansion.getType().getName()).addZenExpandMethod(name, expansion);
             } else {
                 statements.add(Statement.read(tokener, environmentScript, null));
             }

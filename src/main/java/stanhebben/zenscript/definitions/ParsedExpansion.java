@@ -9,6 +9,7 @@ import stanhebben.zenscript.expression.partial.PartialExpansionCall;
 import stanhebben.zenscript.parser.ParseException;
 import stanhebben.zenscript.parser.Token;
 import stanhebben.zenscript.type.ZenType;
+import stanhebben.zenscript.type.ZenTypeArrayBasic;
 import stanhebben.zenscript.util.ZenPosition;
 
 import java.util.ArrayList;
@@ -50,6 +51,16 @@ public class ParsedExpansion {
         return function.getName();
     }
 
+    public String getCompileName() {
+        String typeName;
+        if (type instanceof ZenTypeArrayBasic) {
+            typeName = "array$" + ((ZenTypeArrayBasic) type).getBaseType().toJavaClass().getSimpleName();
+        } else {
+            typeName = type.toJavaClass().getSimpleName();
+        }
+        return "expand$" + typeName + "$" + getName();
+    }
+
     public ParsedFunction getFunction() {
         return function;
     }
@@ -63,6 +74,6 @@ public class ParsedExpansion {
     }
 
     public IPartialExpression instance(ZenPosition position, Expression value) {
-        return new PartialExpansionCall(position, owner, getName(), function.getSignature(), function.getArguments(), function.getReturnType(), value);
+        return new PartialExpansionCall(position, owner, getCompileName(), function.getSignature(), function.getArguments(), function.getReturnType(), value);
     }
 }
