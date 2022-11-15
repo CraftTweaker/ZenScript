@@ -115,15 +115,14 @@ public class ZenTypeAssociative extends ZenType {
             return new ExpressionMapSize(position, value.eval(environment));
         }else if(name.equals("keySet") || name.equals("values") || name.equals("keys") || name.equals("valueSet") || name.equals("entrySet")) {
             return new ExpressionMapEntrySet(position, value.eval(environment), name);
-        } else if(STRING.canCastImplicit(keyType, environment)) {
-            return new ExpressionMapIndexGet(position, value.eval(environment), new ExpressionString(position, name).cast(position, environment, keyType));
         } else {
             IPartialExpression result = memberExpansion(position, environment, value.eval(environment), name);
-            if(result == null) {
+            if (result != null) return result;
+            if (STRING.canCastImplicit(keyType, environment)) {
+                return new ExpressionMapIndexGet(position, value.eval(environment), new ExpressionString(position, name).cast(position, environment, keyType));
+            } else {
                 environment.error(position, "this array is not indexable with strings");
                 return new ExpressionInvalid(position, valueType);
-            } else {
-                return result;
             }
         }
     }

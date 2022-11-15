@@ -9,7 +9,6 @@ import stanhebben.zenscript.expression.partial.PartialExpansionCall;
 import stanhebben.zenscript.parser.ParseException;
 import stanhebben.zenscript.parser.Token;
 import stanhebben.zenscript.type.ZenType;
-import stanhebben.zenscript.type.ZenTypeArrayBasic;
 import stanhebben.zenscript.util.ZenPosition;
 
 import java.util.ArrayList;
@@ -52,13 +51,7 @@ public class ParsedExpansion {
     }
 
     public String getCompileName() {
-        String typeName;
-        if (type instanceof ZenTypeArrayBasic) {
-            typeName = "array$" + ((ZenTypeArrayBasic) type).getBaseType().toJavaClass().getSimpleName();
-        } else {
-            typeName = type.toJavaClass().getSimpleName();
-        }
-        return "expand$" + typeName + "$" + getName();
+        return "expand$" + type.getNameForInterfaceSignature() + "$" + getName();
     }
 
     public ParsedFunction getFunction() {

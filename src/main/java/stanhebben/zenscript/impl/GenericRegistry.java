@@ -2,18 +2,20 @@ package stanhebben.zenscript.impl;
 
 import stanhebben.zenscript.*;
 import stanhebben.zenscript.annotations.ZenExpansion;
-import stanhebben.zenscript.compiler.*;
+import stanhebben.zenscript.compiler.IEnvironmentGlobal;
+import stanhebben.zenscript.compiler.TypeRegistry;
 import stanhebben.zenscript.parser.Token;
 import stanhebben.zenscript.symbols.*;
+import stanhebben.zenscript.type.ZenTypeIntRange;
 import stanhebben.zenscript.type.ZenTypeNative;
-import stanhebben.zenscript.type.natives.*;
+import stanhebben.zenscript.type.natives.IJavaMethod;
+import stanhebben.zenscript.type.natives.JavaMethod;
 import stanhebben.zenscript.util.Pair;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.ToIntFunction;
-import java.util.logging.*;
 
 public class GenericRegistry implements IZenRegistry {
     
@@ -31,13 +33,13 @@ public class GenericRegistry implements IZenRegistry {
         this.compileEnvironment = compileEnvironment;
         this.errorLogger = errorLogger;
         this.compileEnvironment.setRegistry(this);
+        this.root.put(ZenTypeIntRange.INSTANCE.getName(), new SymbolType(ZenTypeIntRange.INSTANCE), this.errorLogger);
     }
     
     public void registerGlobal(String name, IZenSymbol symbol) {
         if(globals.containsKey(name)) {
             throw new IllegalArgumentException("symbol already exists: " + name);
         }
-        
         globals.put(name, symbol);
     }
     
