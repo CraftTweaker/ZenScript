@@ -2,6 +2,7 @@ package stanhebben.zenscript.compiler;
 
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.value.IAny;
+import stanhebben.zenscript.value.IntRange;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -37,6 +38,7 @@ public class TypeRegistry implements ITypeRegistry {
         
         types.put(String.class, ZenTypeString.INSTANCE);
         types.put(List.class, new ZenTypeArrayBasic(ZenTypeAny.INSTANCE));
+        types.put(IntRange.class, ZenTypeIntRange.INSTANCE);
     }
     
     public ZenType getClassType(Class cls) {
