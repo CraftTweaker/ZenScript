@@ -308,8 +308,17 @@ public abstract class ParsedExpression {
     private static ParsedExpression readPrimaryExpression(ZenPosition position, ZenTokener parser, IEnvironmentGlobal environment) {
         switch(parser.peek().getType()) {
             case T_INTVALUE:
-                long l = Long.decode(parser.next().getValue());
-                return new ParsedExpressionValue(position, new ExpressionInt(position, l, Long.bitCount(l) > 32 ? ZenType.LONG : ZenTypeInt.INSTANCE));
+                String number = parser.next().getValue();
+                ZenType numberType = ZenTypeInt.INSTANCE;
+                if (number.endsWith("l") || number.endsWith("L")) {
+                    numberType = ZenTypeLong.INSTANCE;
+                    number = number.substring(0, number.length() - 1);
+                }
+                long l = Long.decode(number);
+                if ((int) l != l) {
+                    numberType = ZenTypeLong.INSTANCE;
+                }
+                return new ParsedExpressionValue(position, new ExpressionInt(position, l, numberType));
             case T_FLOATVALUE:
                 String value = parser.next().getValue();
                 ZenType zenType = ZenTypeDouble.INSTANCE;
