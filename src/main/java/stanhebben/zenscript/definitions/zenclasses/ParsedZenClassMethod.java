@@ -16,10 +16,13 @@ import stanhebben.zenscript.statements.StatementReturn;
 import stanhebben.zenscript.symbols.SymbolArgument;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.type.ZenTypeAny;
+import stanhebben.zenscript.type.ZenTypeZenClass;
 import stanhebben.zenscript.type.natives.IJavaMethod;
 import stanhebben.zenscript.type.natives.JavaMethod;
 import stanhebben.zenscript.type.natives.ZenNativeMember;
 import stanhebben.zenscript.util.MethodOutput;
+import stanhebben.zenscript.util.localvariabletable.LocalVariable;
+import stanhebben.zenscript.util.localvariabletable.LocalVariableTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,7 @@ public class ParsedZenClassMethod {
     
     final ParsedFunction method;
     final String className;
+    private ZenTypeZenClass owner;
     
     public ParsedZenClassMethod(ParsedFunction parse, String className) {
         
@@ -55,10 +59,10 @@ public class ParsedZenClassMethod {
             if(parser.optional(T_AS) != null) {
                 type = ZenType.read(parser, classEnvironment);
             }
-
-            if (parser.optional(T_ASSIGN) != null) {
+            
+            if(parser.optional(T_ASSIGN) != null) {
                 expression = ParsedExpression.read(parser, classEnvironment);
-                if (expression instanceof ParsedExpressionVariable) {
+                if(expression instanceof ParsedExpressionVariable) {
                     throw new ParseException(parser.getFile(), parser.getLine(), parser.getLineOffset(), "Variables are not allowed in default arguments");
                 }
                 hasDefaultArgument = true;
@@ -73,14 +77,14 @@ public class ParsedZenClassMethod {
                 if(parser.optional(T_AS) != null) {
                     type2 = ZenType.read(parser, classEnvironment);
                 }
-
-                if (parser.optional(T_ASSIGN) != null) {
+                
+                if(parser.optional(T_ASSIGN) != null) {
                     expression2 = ParsedExpression.read(parser, classEnvironment);
-                    if (expression2 instanceof ParsedExpressionVariable) {
+                    if(expression2 instanceof ParsedExpressionVariable) {
                         throw new ParseException(parser.getFile(), parser.getLine(), parser.getLineOffset(), "Variables are not allowed in default arguments");
                     }
                     hasDefaultArgument = true;
-                } else if (hasDefaultArgument) {
+                } else if(hasDefaultArgument) {
                     throw new ParseException(parser.getFile(), parser.getLine(), parser.getLineOffset(), "Parameter " + argName2.getValue() + " requires a default argument");
                 }
                 
@@ -122,10 +126,15 @@ public class ParsedZenClassMethod {
         MethodOutput methodOutput = new MethodOutput(newClass, Opcodes.ACC_PUBLIC, method.getName(), description, null, null);
         IEnvironmentMethod methodEnvironment = new EnvironmentMethod(methodOutput, environmentNewClass);
         
+        LocalVariableTable localVariableTable = methodEnvironment.getLocalVariableTable();
+        localVariableTable.beginScope();
+        localVariableTable.put(LocalVariable.thisRef(owner.toASMType()));
         List<ParsedFunctionArgument> arguments = method.getArguments();
         for(int i = 0, j = 0; i < arguments.size(); ) {
             ParsedFunctionArgument argument = arguments.get(i);
-            methodEnvironment.putValue(argument.getName(), new SymbolArgument(++i + j, argument.getType()), method.getPosition());
+            SymbolArgument symbolArgument = new SymbolArgument(++i + j, argument.getType());
+            methodEnvironment.putValue(argument.getName(), symbolArgument, method.getPosition());
+            localVariableTable.put(LocalVariable.parameter(argument.getName(), symbolArgument));
             if(argument.getType().isLarge())
                 ++j;
         }
@@ -135,6 +144,7 @@ public class ParsedZenClassMethod {
             statement.compile(methodEnvironment);
         }
         
+        localVariableTable.ensureFirstLabel(methodOutput, method.getPosition());
         if(method.getReturnType() != ZenType.VOID) {
             if(statements.length != 0 && statements[statements.length - 1] instanceof StatementReturn) {
                 if(((StatementReturn) statements[statements.length - 1]).getExpression() != null) {
@@ -148,7 +158,13 @@ public class ParsedZenClassMethod {
         } else if(statements.length == 0 || !(statements[statements.length - 1] instanceof StatementReturn)) {
             methodOutput.ret();
         }
+        localVariableTable.endMethod(methodOutput);
+        localVariableTable.writeLocalVariables(methodOutput);
         methodOutput.end();
+    }
+    
+    public void setOwnerClassType(ZenTypeZenClass type) {
+        this.owner = type;
     }
     
     public class ZenClassMethod implements IJavaMethod {
@@ -161,7 +177,7 @@ public class ParsedZenClassMethod {
         @Override
         public boolean accepts(int numArguments) {
             int defaultArguments = method.countDefaultArguments();
-            if (defaultArguments == 0) {
+            if(defaultArguments == 0) {
                 return method.getArgumentTypes().length == numArguments;
             } else {
                 return numArguments + defaultArguments >= method.getArgumentTypes().length;
@@ -226,11 +242,11 @@ public class ParsedZenClassMethod {
             
             return builder.append(")").toString();
         }
-
+        
         public String getOwner() {
             return className;
         }
-
+        
         public ParsedFunction getFunction() {
             return method;
         }
