@@ -730,7 +730,7 @@ public class MethodOutput {
         if(debug)
             System.out.println("invokeStatic " + internal(owner) + '.' + name + descriptor);
         
-        visitor.visitMethodInsn(INVOKESTATIC, internal(owner), name, descriptor.toString(), false);
+        visitor.visitMethodInsn(INVOKESTATIC, internal(owner), name, descriptor.toString(), owner.isInterface());
     }
     
     public void invokeSpecial(String owner, String name, String descriptor) {
