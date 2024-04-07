@@ -7,6 +7,8 @@ import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.*;
+import stanhebben.zenscript.util.localvariabletable.LocalVariable;
+import stanhebben.zenscript.util.localvariabletable.LocalVariableTable;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -36,7 +38,7 @@ public class ExpressionFunction extends Expression {
         for(int i = 0; i < arguments.size(); i++) {
             argumentTypes[i] = arguments.get(i).getType();
         }
-
+        
         this.className = className;
         functionType = new ZenTypeFunctionCallable(returnType, argumentTypes, className, makeDescriptor());
     }
@@ -109,9 +111,12 @@ public class ExpressionFunction extends Expression {
         
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
         EnvironmentMethodLambda environmentMethod = new EnvironmentMethodLambda(output, environmentClass, className);
-        
+        LocalVariableTable localVariableTable = environmentMethod.getLocalVariableTable();
+        localVariableTable.beginScope();
         for(int i = 0, j = 0; i < arguments.size(); i++) {
-            environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + 1 + j, arguments.get(i).getType()), getPosition());
+            SymbolArgument symbolArgument = new SymbolArgument(i + 1 + j, arguments.get(i).getType());
+            environmentMethod.putValue(arguments.get(i).getName(), symbolArgument, getPosition());
+            localVariableTable.put(LocalVariable.parameter(arguments.get(i).getName(), symbolArgument));
             if(arguments.get(i).getType().isLarge())
                 j++;
         }
@@ -120,22 +125,19 @@ public class ExpressionFunction extends Expression {
         for(Statement statement : statements) {
             statement.compile(environmentMethod);
         }
+        localVariableTable.ensureFirstLabel(output, getPosition());
         output.ret();
+        localVariableTable.endMethod(output);
+        localVariableTable.writeLocalVariables(output);
         output.end();
         
         environmentMethod.createConstructor(cw);
         environment.putClass(className, cw.toByteArray());
-    
+        
         // make class instance
         environment.getOutput().newObject(className);
         environment.getOutput().dup();
-        final String[] arguments = environmentMethod.getCapturedVariables().stream()
-                .map(SymbolCaptured::getEvaluated)
-                .peek(expression -> expression.compile(true, environment))
-                .map(Expression::getType)
-                .map(ZenType::toASMType)
-                .map(Type::getDescriptor)
-                .toArray(String[]::new);
+        final String[] arguments = environmentMethod.getCapturedVariables().stream().map(SymbolCaptured::getEvaluated).peek(expression -> expression.compile(true, environment)).map(Expression::getType).map(ZenType::toASMType).map(Type::getDescriptor).toArray(String[]::new);
         environment.getOutput().construct(className, arguments);
     }
     
