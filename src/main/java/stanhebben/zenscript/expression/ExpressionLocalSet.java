@@ -29,7 +29,7 @@ public class ExpressionLocalSet extends Expression {
     public void compile(boolean result, IEnvironmentMethod environment) {
         int local = environment.getLocal(variable);
         
-        value.compile(true, environment);
+        value.cast(getPosition(), environment, variable.getType()).compile(true, environment);
         if(result) {
             environment.getOutput().dup();
         }
