@@ -9,6 +9,8 @@ import stanhebben.zenscript.statements.*;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.*;
+import stanhebben.zenscript.util.localvariabletable.LocalVariable;
+import stanhebben.zenscript.util.localvariabletable.LocalVariableTable;
 
 import java.io.*;
 import java.util.*;
@@ -114,10 +116,14 @@ public class ZenModule {
                 MethodOutput methodOutput = new MethodOutput(clsScript, Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, function.getKey(), signature, null, null);
                 EnvironmentMethod methodEnvironment = new EnvironmentMethod(methodOutput, environmentScript);
                 
+                LocalVariableTable localVariableTable = methodEnvironment.getLocalVariableTable();
+                localVariableTable.beginScope();
                 List<ParsedFunctionArgument> arguments = function.getValue().getArguments();
                 for(int i = 0, j = 0; i < arguments.size(); i++) {
                     ParsedFunctionArgument argument = arguments.get(i);
-                    methodEnvironment.putValue(argument.getName(), new SymbolArgument(i + j, argument.getType()), fn.getPosition());
+                    SymbolArgument symbolArgument = new SymbolArgument(i + j, argument.getType());
+                    methodEnvironment.putValue(argument.getName(), symbolArgument, fn.getPosition());
+                    localVariableTable.put(LocalVariable.parameter(argument.getName(), symbolArgument));
                     if(argument.getType().isLarge())
                         ++j;
                 }
@@ -127,6 +133,8 @@ public class ZenModule {
                 for(Statement statement : statements) {
                     statement.compile(methodEnvironment);
                 }
+                
+                localVariableTable.ensureFirstLabel(methodOutput, fn.getPosition());
                 if(function.getValue().getReturnType() != ZenType.VOID) {
                     if(statements.length > 0 && statements[statements.length - 1] instanceof StatementReturn) {
                         if(((StatementReturn) statements[statements.length - 1]).getExpression() != null) {
@@ -140,18 +148,26 @@ public class ZenModule {
                 } else if(statements.length == 0 || !(statements[statements.length - 1] instanceof StatementReturn)) {
                     methodOutput.ret();
                 }
+                localVariableTable.endMethod(methodOutput);
+                localVariableTable.writeLocalVariables(methodOutput);
                 methodOutput.end();
             }
             
             if(script.getStatements().size() > 0) {
                 MethodOutput scriptOutput = new MethodOutput(clsScript, Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "__script__", "()V", null, null);
                 IEnvironmentMethod functionMethod = new EnvironmentMethod(scriptOutput, environmentScript);
+                
+                LocalVariableTable localVariableTable = functionMethod.getLocalVariableTable();
+                localVariableTable.beginScope();
                 // scriptOutput.enableDebug();
                 scriptOutput.start();
                 for(Statement statement : script.getStatements()) {
                     statement.compile(functionMethod);
                 }
+                localVariableTable.ensureFirstLabel(scriptOutput, null);
                 scriptOutput.ret();
+                localVariableTable.endMethod(scriptOutput);
+                localVariableTable.writeLocalVariables(scriptOutput);
                 scriptOutput.end();
                 
                 mainRun.invokeStatic(script.getClassName().replace('.', '/'), "__script__", "()V");
@@ -204,7 +220,6 @@ public class ZenModule {
      * @param single          file to be compiled
      * @param environment     compile environment
      * @param baseClassLoader class loader
-     *
      * @return compiled module
      * @throws IOException if the file could not be read
      */
@@ -239,7 +254,6 @@ public class ZenModule {
      * @param name            name of the script to be compiled
      * @param environment     compile environment
      * @param baseClassLoader class loader
-     *
      * @return compiled module
      * @throws IOException if the file could not be read
      */
@@ -273,7 +287,6 @@ public class ZenModule {
      * @param file        zip file
      * @param subdir      subdirectory (use empty string to compile all)
      * @param environment compile environment
-     *
      * @return compiled module
      * @throws IOException if the file could not be read properly
      */
@@ -327,7 +340,6 @@ public class ZenModule {
      * Converts a filename into a class name.
      *
      * @param filename filename to convert
-     *
      * @return class name
      */
     public static String extractClassName(String filename) {
