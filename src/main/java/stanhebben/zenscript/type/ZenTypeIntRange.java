@@ -175,20 +175,19 @@ public class ZenTypeIntRange extends ZenType {
         
         @Override
         public void compilePreIterate(int[] locals, Label exit) {
-            
+            MethodOutput output = method.getOutput();
+
+            output.dup(); // copy limit
+            output.loadInt(locals[0]);
+            output.ifICmpLE(exit);
         }
         
         @Override
         public void compilePostIterate(int[] locals, Label exit, Label repeat) {
             MethodOutput output = method.getOutput();
-            
-            output.dup(); // copy limit
-            
+
             output.iinc(locals[0]);
-            output.loadInt(locals[0]);
-            
-            output.ifICmpGT(repeat);
-            output.goTo(exit);
+            output.goTo(repeat);
         }
         
         @Override
