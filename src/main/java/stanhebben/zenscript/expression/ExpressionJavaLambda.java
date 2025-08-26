@@ -8,6 +8,8 @@ import stanhebben.zenscript.statements.Statement;
 import stanhebben.zenscript.symbols.*;
 import stanhebben.zenscript.type.ZenType;
 import stanhebben.zenscript.util.*;
+import stanhebben.zenscript.util.localvariabletable.LocalVariable;
+import stanhebben.zenscript.util.localvariabletable.LocalVariableTable;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -62,9 +64,13 @@ public class ExpressionJavaLambda extends Expression {
         output.position(getPosition());
         IEnvironmentClass environmentClass = new EnvironmentClass(cw, environment);
         EnvironmentMethodLambda environmentMethod = new EnvironmentMethodLambda(output, environmentClass, clsName);
+        LocalVariableTable localVariableTable = environmentMethod.getLocalVariableTable();
+        localVariableTable.beginScope();
         
         for(int i = 0, j = 0; i < arguments.size(); i++) {
-            environmentMethod.putValue(arguments.get(i).getName(), new SymbolArgument(i + j + 1, environment.getType(method.getGenericParameterTypes()[i])), getPosition());
+            SymbolArgument symbolArgument = new SymbolArgument(i + j + 1, environment.getType(method.getGenericParameterTypes()[i]));
+            environmentMethod.putValue(arguments.get(i).getName(), symbolArgument, getPosition());
+            localVariableTable.put(LocalVariable.parameter(arguments.get(i).getName(), symbolArgument));
             if(environment.getType(method.getGenericParameterTypes()[i]).isLarge())
                 j++;
         }
@@ -73,7 +79,10 @@ public class ExpressionJavaLambda extends Expression {
         for(Statement statement : statements) {
             statement.compile(environmentMethod);
         }
+        localVariableTable.ensureFirstLabel(output, getPosition());
         output.ret();
+        localVariableTable.endMethod(output);
+        localVariableTable.writeLocalVariables(output);
         output.end();
     
     
