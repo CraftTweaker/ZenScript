@@ -119,7 +119,10 @@ public class ParsedZenClassField {
         public void invokeStatic(MethodOutput output) {
             if(!isStatic())
                 throw new IllegalArgumentException("Cannot invoke nonstatic method from a static context");
-            output.getStaticField(ParsedZenClassField.this.ownerName, ParsedZenClassField.this.name, ParsedZenClassField.this.type.getSignature());
+            if (isSetter)
+                output.putStaticField(ParsedZenClassField.this.ownerName, ParsedZenClassField.this.name, ParsedZenClassField.this.type.getSignature());
+            else
+                output.getStaticField(ParsedZenClassField.this.ownerName, ParsedZenClassField.this.name, ParsedZenClassField.this.type.getSignature());
         }
 
         @Override
