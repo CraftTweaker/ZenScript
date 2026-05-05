@@ -91,7 +91,7 @@ public class ZenTypeFunctionCallable extends ZenTypeFunction {
     @Override
     public Class toJavaClass() {
         // TODO: complete
-        return null;
+        return Object.class;
     }
     
     @Override

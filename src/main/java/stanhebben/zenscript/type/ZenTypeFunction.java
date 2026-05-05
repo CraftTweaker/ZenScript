@@ -208,7 +208,7 @@ public class ZenTypeFunction extends ZenType {
     @Override
     public Class toJavaClass() {
         // TODO: complete
-        return null;
+        return Object.class;
     }
     
     @Override
