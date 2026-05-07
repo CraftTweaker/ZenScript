@@ -77,13 +77,13 @@ public abstract class Statement {
 
                 parser.required(T_IN, "in expected");
                 ParsedExpression source = ParsedExpression.read(parser, environment);
-                Statement content = read(parser, environment, null);
+                Statement content = read(parser, environment, returnType);
                 return new StatementForeach(t.getPosition(), names.toArray(new String[names.size()]), source, content);
             }
             case T_WHILE: {
                 parser.next();
                 ParsedExpression condition = ParsedExpression.read(parser, environment);
-                Statement content = read(parser, environment, null);
+                Statement content = read(parser, environment, returnType);
                 return new StatementWhileDo(next.getPosition(), content, condition);
             }
             case T_VERSION: {
