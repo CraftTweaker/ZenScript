@@ -35,7 +35,7 @@ public class StatementReturn extends Statement {
         if(expression == null) {
             environment.getOutput().ret();
         } else {
-            Expression cExpression = expression.compile(environment, returnType).eval(environment);
+            Expression cExpression = expression.compile(environment, returnType).eval(environment).cast(getPosition(), environment, returnType);
             cExpression.compile(true, environment);
             
             Type returnType = cExpression.getType().toASMType();
