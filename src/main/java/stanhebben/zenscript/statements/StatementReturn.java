@@ -37,7 +37,7 @@ public class StatementReturn extends Statement {
         } else {
             Expression cExpression = expression.compile(environment, returnType).eval(environment);
 
-            if (returnType != ZenType.ANY) {
+            if (returnType != ZenType.ANY && returnType != null) {
                 cExpression = cExpression.cast(getPosition(), environment, returnType);
             }
 
