@@ -17,9 +17,12 @@ public class MethodOutput {
     
     private final LocalVariablesSorter visitor;
     
-    private boolean debug = false;
+    private boolean debug = true;
     private int labelIndex = 1;
     private Map<Label, String> labelNames;
+    
+    private Label firstLabel;
+    private Label lastLabel;
     
     public MethodOutput(ClassVisitor cls, int access, String name, String descriptor, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = cls.visitMethod(access, name, descriptor, signature, exceptions);
@@ -61,10 +64,23 @@ public class MethodOutput {
         visitor.visitEnd();
     }
     
+    public Label firstLabel() {
+        return firstLabel;
+    }
+    
+    
+    public Label lastLabel() {
+        return lastLabel;
+    }
+    
     public void label(Label label) {
         if(debug)
             System.out.println("Label " + getLabelName(label));
         
+        if(firstLabel == null) {
+            firstLabel = label;
+        }
+        lastLabel = label;
         visitor.visitLabel(label);
     }
     
@@ -74,6 +90,14 @@ public class MethodOutput {
     
     public int local(Class cls) {
         return visitor.newLocal(Type.getType(cls));
+    }
+    
+    
+    public void localVariable(String name, Type type, int local, Label start, Label end) {
+        if(debug)
+            System.out.println("Local variable " + name + ": " + type + " (" + local + ")");
+        
+        visitor.visitLocalVariable(name, type.getDescriptor(), null, start, end, local);
     }
     
     public void iConst0() {
@@ -1046,10 +1070,15 @@ public class MethodOutput {
         visitor.visitInsn(ATHROW);
     }
     
-    public void position(ZenPosition position) {
+    public Label position(ZenPosition position) {
         Label label = new Label();
+        if(firstLabel == null) {
+            firstLabel = label;
+        }
+        lastLabel = label;
         visitor.visitLabel(label);
         visitor.visitLineNumber(position.getLine(), label);
+        return label;
     }
     
     public void swap() {
@@ -1060,7 +1089,7 @@ public class MethodOutput {
     
     /**
      * Swaps a large type with a non-large type, where the non-large type is at the top of the stack
-     *
+     * <p>
      * Example: D1, D2, I. Swap would result in D1, I, D2. This method would return in I, D1, D2
      */
     public void swapLargeLower() {
@@ -1080,4 +1109,5 @@ public class MethodOutput {
         
         return labelNames.get(lbl);
     }
+    
 }

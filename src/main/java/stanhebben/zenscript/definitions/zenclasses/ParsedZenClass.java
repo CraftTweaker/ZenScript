@@ -87,15 +87,17 @@ public class ParsedZenClass {
             classEnvironment.putValue(method.getName(), position1 -> new ExpressionThis(position1, type).getMember(position1, classEnvironment, method.getName()), position);
         }
         parsedMethod.addToMember(members.get(method.getName()));
-        for (int i = 0; i < method.getArguments().size(); i++) {
+        parsedMethod.setOwnerClassType(this.type);
+        for(int i = 0; i < method.getArguments().size(); i++) {
             ParsedFunctionArgument argument = method.getArguments().get(i);
-            if (argument.getDefaultExpression() != null) {
+            if(argument.getDefaultExpression() != null) {
                 addField(new ParsedZenClassField(true, argument.getType(), argument.getDefaultExpression(), method.getDefaultParameterFieldName(i), className));
             }
         }
     }
     
     private void addConstructor(ParsedClassConstructor parsedClassConstructor) {
+        parsedClassConstructor.setOwnerClassType(this.type);
         constructors.add(parsedClassConstructor);
     }
     
@@ -188,9 +190,7 @@ public class ParsedZenClass {
     
     public IPartialExpression getMember(ZenPosition position, IEnvironmentGlobal environment, IPartialExpression value, String name, boolean isStatic) {
         if(members.containsKey(name))
-            return isStatic
-                    ? members.get(name).instance(position, environment)
-                    : members.get(name).instance(position, environment, value);
+            return isStatic ? members.get(name).instance(position, environment) : members.get(name).instance(position, environment, value);
         environment.error("Could not find " + (isStatic ? "static " : "") + "member " + name);
         return new ExpressionInvalid(position);
     }

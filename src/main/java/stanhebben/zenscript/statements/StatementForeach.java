@@ -7,6 +7,8 @@ import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.symbols.SymbolLocal;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.*;
+import stanhebben.zenscript.util.localvariabletable.LocalVariable;
+import stanhebben.zenscript.util.localvariabletable.LocalVariableTable;
 
 import java.util.*;
 
@@ -36,13 +38,16 @@ public class StatementForeach extends Statement {
         }
 
         MethodOutput methodOutput = environment.getOutput();
-        environment.getOutput().position(getPosition());
+        Label label = environment.getOutput().position(getPosition());
 
         IEnvironmentMethod local = new EnvironmentScope(environment);
+        LocalVariableTable localVariableTable = local.getLocalVariableTable();
+        localVariableTable.beginScope();
         int[] localVariables = new int[varnames.length];
         for(int i = 0; i < localVariables.length; i++) {
             SymbolLocal localVar = new SymbolLocal(iterator.getType(i), true);
             local.putValue(varnames[i], localVar, getPosition());
+            localVariableTable.put(LocalVariable.localVariable(varnames[i], localVar, environment, label));
             localVariables[i] = local.getLocal(localVar);
         }
 
@@ -68,6 +73,7 @@ public class StatementForeach extends Statement {
         iterator.compilePostIterate(localVariables, exit, repeat);
         methodOutput.label(exit);
         iterator.compileEnd();
+        localVariableTable.endScope(environment.getOutput().lastLabel());
     }
     
     @Override

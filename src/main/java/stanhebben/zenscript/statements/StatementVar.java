@@ -1,11 +1,13 @@
 package stanhebben.zenscript.statements;
 
+import org.objectweb.asm.Label;
 import stanhebben.zenscript.compiler.IEnvironmentMethod;
 import stanhebben.zenscript.expression.Expression;
 import stanhebben.zenscript.parser.expression.ParsedExpression;
 import stanhebben.zenscript.symbols.SymbolLocal;
 import stanhebben.zenscript.type.*;
 import stanhebben.zenscript.util.ZenPosition;
+import stanhebben.zenscript.util.localvariabletable.LocalVariable;
 
 /**
  * @author Stanneke
@@ -28,13 +30,14 @@ public class StatementVar extends Statement {
 
     @Override
     public void compile(IEnvironmentMethod environment) {
-        environment.getOutput().position(getPosition());
+        Label label = environment.getOutput().position(getPosition());
 
         Expression cInitializer = initializer == null ? null : initializer.compile(environment, type).eval(environment);
         ZenType cType = type == null ? (cInitializer == null ? ZenTypeAny.INSTANCE : cInitializer.getType()) : type;
         SymbolLocal symbol = new SymbolLocal(cType, isFinal);
 
         environment.putValue(name, symbol, getPosition());
+        environment.getLocalVariableTable().put(LocalVariable.localVariable(name, symbol, environment, label));
 
         if(cInitializer != null) {
             cInitializer.compile(true, environment);

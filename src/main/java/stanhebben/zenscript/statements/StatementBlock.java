@@ -1,7 +1,9 @@
 package stanhebben.zenscript.statements;
 
+import org.objectweb.asm.Label;
 import stanhebben.zenscript.compiler.*;
 import stanhebben.zenscript.util.ZenPosition;
+import stanhebben.zenscript.util.localvariabletable.LocalVariableTable;
 
 import java.util.*;
 
@@ -19,24 +21,32 @@ public class StatementBlock extends Statement {
     public void compile(IEnvironmentMethod environment) {
         environment.getOutput().position(getPosition());
         IEnvironmentMethod local = new EnvironmentScope(environment);
+        LocalVariableTable localVariableTable = local.getLocalVariableTable();
+        localVariableTable.beginScope();
         for(Statement statement : statements) {
             statement.compile(local);
             if(statement.isReturn()) {
+                localVariableTable.endScope(environment.getOutput().lastLabel());
                 return;
             }
         }
+        localVariableTable.endScope(environment.getOutput().lastLabel());
     }
     
     @Override
     public void compile(IEnvironmentMethod environment, boolean forced) {
         environment.getOutput().position(getPosition());
         IEnvironmentMethod local = new EnvironmentScope(environment);
+        LocalVariableTable localVariableTable = local.getLocalVariableTable();
+        localVariableTable.beginScope();
         for(Statement statement : statements) {
             statement.compile(local, forced);
             if(statement.isReturn()) {
+                localVariableTable.endScope(environment.getOutput().lastLabel());
                 return;
             }
         }
+        localVariableTable.endScope(environment.getOutput().lastLabel());
     }
     
     @Override
