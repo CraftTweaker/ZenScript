@@ -43,10 +43,14 @@ public class JavaMethod implements IJavaMethod {
             }
         }
         boolean lastOptional = false;
+        boolean errorDisplayed = false;
         for(int i = 0; i < optional.length; i++) {
             boolean opt = optional[i];
             if(lastOptional && !opt) {
-                System.err.println("All optionals need to be placed at the end of the method declaration: " + method.toGenericString() + "! Setting last parameters to optional");
+                if (!errorDisplayed) {
+                    System.err.println("All optionals need to be placed at the end of the method declaration: " + method.toGenericString() + "! Setting last parameters to optional");
+                    errorDisplayed = true;
+                }
                 optional[i] = lastOptional = true;
                 //throw new IllegalArgumentException("All optionals need to be placed at the end of the method declaration: " + method.toGenericString());
             } else {
